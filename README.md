@@ -16,10 +16,10 @@ A library that provides a simple notification client and server that receives me
 ## Interfaces
 Interfaces can be used for both the server and the client.
 
-| Interface | Description                                            |
-|-----------|--------------------------------------------------------|
-| HTTP      | Communication using the HTTP protocol.                 |
-| Pipe      | Communication using a FIFO Named Pipe. (**Unix Only**) |
+| Interface | Description                                                                          |
+|-----------|--------------------------------------------------------------------------------------|
+| HTTP      | Communication between the client and server using the HTTP protocol.                 |
+| Pipe      | Communication between the client and server using a FIFO Named Pipe. (**Unix Only**) |
 
 
 ## Endpoints
@@ -91,18 +91,19 @@ port = 8080
 
 ## Feature Flags
 
-| Feature     | Description                                                                                                                 |
-|-------------|-----------------------------------------------------------------------------------------------------------------------------|
-| client      | Enables the client but not any particular interface.                                                                        |
-| endpoints   | Enables the Endpoint and EndpointConfig traits.                                                                             |
-| file        | Enables the regular file endpoint.                                                                                          |
-| http        | Enables the HTTP interface client and server.                                                                               |
-| http-client | Enables the HTTP interface for just client.                                                                                 |
-| http-server | Enables the HTTP interface for just server.                                                                                 |
-| interfaces  | Enables the Interface and InterfaceConfig traits.                                                                           |
-| matrix      | Enables the matrix endpoint.                                                                                                |
-| pipe        | Enables the named pipe interface client and server                                                                          |
-| pipe-client | Enables the named pipe interface client.                                                                                    |
-| pipe-server | Enables the named pipe interface server.                                                                                    |
-| server      | Enables the server but not any particular interface or endpoint.                                                            |
-| server-bin  | Enables the building of the provided `pass-it-on-server` server binary while not require any specific interface or endpoint |
+| Feature      | Description                                                                                                                 |
+|--------------|-----------------------------------------------------------------------------------------------------------------------------|
+| client       | Enables the client but not any particular interface.                                                                        |
+| endpoints    | Enables the Endpoint and EndpointConfig traits.                                                                             |
+| file         | Enables the regular file endpoint.                                                                                          |
+| http         | Enables the HTTP interface client and server.                                                                               |
+| http-client  | Enables the HTTP interface for just client.                                                                                 |
+| http-server  | Enables the HTTP interface for just server.                                                                                 |
+| interfaces   | Enables the Interface and InterfaceConfig traits.                                                                           |
+| matrix       | Enables the matrix endpoint.                                                                                                |
+| pipe         | Enables the named pipe interface client and server                                                                          |
+| pipe-client  | Enables the named pipe interface client.                                                                                    |
+| pipe-server  | Enables the named pipe interface server.                                                                                    |
+| server       | Enables the server but not any particular interface or endpoint.                                                            |
+| server-bin   | Enables the building of the provided `pass-it-on-server` server binary while not require any specific interface or endpoint |
+| vendored-tls | Enables vendored tls for reqwest.                                                                                           |
