@@ -1,0 +1,10 @@
+#IDE
+.idea
+
+# Rust genereated files
+/target
+/Cargo.lock
+**/*.rs.bk
+
+# DevTest data
+test_data
