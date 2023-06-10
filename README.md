@@ -1,5 +1,5 @@
 # Pass-It-On
-A library that provides simple notification client and server that receives messages and passes them on to endpoints.
+A library that provides a simple notification client and server that receives messages and passes them on to endpoints.
 
 
 ## Key Features 
