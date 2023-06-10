@@ -93,16 +93,16 @@ port = 8080
 
 | Feature     | Description                                                                                                                 |
 |-------------|-----------------------------------------------------------------------------------------------------------------------------|
-| client      | Enables the client but not any paticular interface.                                                                         |
+| client      | Enables the client but not any particular interface.                                                                        |
 | endpoints   | Enables the Endpoint and EndpointConfig traits.                                                                             |
 | file        | Enables the regular file endpoint.                                                                                          |
 | http        | Enables the HTTP interface client and server.                                                                               |
 | http-client | Enables the HTTP interface for just client.                                                                                 |
 | http-server | Enables the HTTP interface for just server.                                                                                 |
-| interfaces  | Enables the Interface and InterfcaeConfig traits.                                                                           |
+| interfaces  | Enables the Interface and InterfaceConfig traits.                                                                           |
 | matrix      | Enables the matrix endpoint.                                                                                                |
 | pipe        | Enables the named pipe interface client and server                                                                          |
 | pipe-client | Enables the named pipe interface client.                                                                                    |
 | pipe-server | Enables the named pipe interface server.                                                                                    |
-| server      | Enables the server but not any paticular interface or endpoint.                                                             |
+| server      | Enables the server but not any particular interface or endpoint.                                                            |
 | server-bin  | Enables the building of the provided `pass-it-on-server` server binary while not require any specific interface or endpoint |

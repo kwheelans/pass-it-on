@@ -5,10 +5,10 @@ use pass_it_on::{start_client, Error};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::mpsc;
 
-const NAME: &str = "test1";
+const NOTIFICATION_NAME: &str = "test1";
 const LOG_TARGET: &str = "pass_it_on_client_example";
 
-const TOML_CONFIG: &str = r#"
+const CLIENT_TOML_CONFIG: &str = r#"
     [client]
     key = "UVXu7wtbXHWNgAr6rWyPnaZbZK9aYin8"
 
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Error> {
         .init()
         .unwrap();
 
-    let config = ClientConfigFileParser::from(TOML_CONFIG)?;
+    let config = ClientConfigFileParser::from(CLIENT_TOML_CONFIG)?;
     let messages = get_test_messages(&config.key());
     let (interface_tx, interface_rx) = mpsc::channel(100);
 
@@ -50,7 +50,7 @@ async fn main() -> Result<(), Error> {
 fn get_test_messages(key: &[u8; 32]) -> Vec<Notification> {
     let mut hasher = blake3::Hasher::new_keyed(key);
 
-    hasher.update(NAME.as_bytes());
+    hasher.update(NOTIFICATION_NAME.as_bytes());
     let key = *hasher.finalize().as_bytes();
     let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
     let msg1 = format!("Simple Client test message test message : {}", time);

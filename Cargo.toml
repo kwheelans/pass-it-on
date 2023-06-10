@@ -7,6 +7,8 @@ rust-version = "1.65"
 description = "A library that provies simple notification client and server that receives messages and passes them on to endpoints"
 license = "MIT"
 keywords = ["notify", "notification", "server", "client"]
+readme = "README.md"
+repository = "https://github.com/kwheelans/pass-it-on"
 
 
 [package.metadata.docs.rs]
@@ -47,8 +49,6 @@ toml = { version = "0.7", features = ["parse"], default-features = false, option
 typetag = { version = "0.2", optional = true }
 warp = { version = "0.3", optional = true }
 
-[dev-dependencies]
-anyhow = "1"
 
 [[bin]]
 name = "pass-it-on-server"
