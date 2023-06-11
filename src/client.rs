@@ -8,7 +8,7 @@ use tokio::sync::{broadcast, mpsc, watch};
 
 const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 
-/// Start the client with provided `ClientConfiguration` and `Receiver<Notification>` channel.
+/// Start the client with provided [`ClientConfiguration`] and `Receiver<Notification>` channel.
 ///
 /// Client listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
 pub async fn start_client(

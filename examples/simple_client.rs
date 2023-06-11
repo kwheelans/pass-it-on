@@ -1,5 +1,5 @@
 use log::{debug, info, warn, LevelFilter};
-use pass_it_on::notifications::Notification;
+use pass_it_on::notifications::{Key, Notification};
 use pass_it_on::ClientConfigFileParser;
 use pass_it_on::{start_client, Error};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -47,14 +47,12 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn get_test_messages(key: &[u8; 32]) -> Vec<Notification> {
-    let mut hasher = blake3::Hasher::new_keyed(key);
+fn get_test_messages(client_server_key: &[u8; 32]) -> Vec<Notification> {
+    let key = Key::generate(NOTIFICATION_NAME, client_server_key);
 
-    hasher.update(NOTIFICATION_NAME.as_bytes());
-    let key = *hasher.finalize().as_bytes();
     let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
     let msg1 = format!("Simple Client test message test message : {}", time);
     let msg2 = format!("Simple Client Another message : {}", time);
 
-    vec![Notification::new(msg1.as_str(), &key), Notification::new(msg2.as_str(), &key)]
+    vec![Notification::new(msg1.as_str(), key.as_bytes()), Notification::new(msg2.as_str(), key.as_bytes())]
 }
