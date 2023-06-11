@@ -91,7 +91,7 @@ impl Notification {
         self.message.clone()
     }
 
-    /// Return key byte array.
+    /// Return notification key as a string slice.
     pub fn key(&self) -> &str {
         &self.key
     }
@@ -149,7 +149,7 @@ impl Key {
         Self { hash: hasher.finalize() }
     }
 
-    /// Return `Key` as a byte array.
+    /// Create `Key` from a byte array.
     pub fn from_bytes(key: &[u8; 32]) -> Key {
         let hash = Hash::from(*key);
         Self { hash }
@@ -164,5 +164,10 @@ impl Key {
     /// Return `Key` as a hexadecimal.
     pub fn to_hex(&self) -> String {
         self.hash.to_hex().to_string()
+    }
+
+    /// Return `Key` as a byte array.
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        self.hash.as_bytes()
     }
 }
