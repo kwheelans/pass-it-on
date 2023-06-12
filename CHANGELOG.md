@@ -1,4 +1,4 @@
-# v0.3.0
+# v0.3.1
 ## Breaking Changes
 - Notification and message structs that accepted `&[u8; 32]` have been changed to `&Key`
 
