@@ -1,6 +1,6 @@
 [package]
 name = "pass-it-on"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Kevin Wheelans <kevin.wheelans@proton.me"]
 edition = "2021"
 rust-version = "1.65"
@@ -51,6 +51,9 @@ toml = { version = "0.7", features = ["parse"], default-features = false, option
 typetag = { version = "0.2", optional = true }
 warp = { version = "0.3", optional = true }
 
+[lib]
+name = "pass_it_on"
+doctest = false
 
 [[bin]]
 name = "pass-it-on-server"

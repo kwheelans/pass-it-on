@@ -1,4 +1,4 @@
-use pass_it_on::notifications::Notification;
+use pass_it_on::notifications::{Key, Notification};
 use reqwest::{Client, Error, Response};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -22,15 +22,14 @@ async fn main() {
 }
 
 fn get_test_messages() -> Vec<Notification> {
-    let mut hasher = blake3::Hasher::new_keyed(KEY);
+    let client_server_key = Key::from_bytes(KEY);
+    let notification_key = Key::generate(NOTIFICATION_NAME, &client_server_key);
 
-    hasher.update(NOTIFICATION_NAME.as_bytes());
-    let key = *hasher.finalize().as_bytes();
     let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
     let msg1 = format!("HTTP test message : {}", time);
     let msg2 = format!("HTTP Another message : {}", time);
 
-    vec![Notification::new(msg1.as_str(), &key), Notification::new(msg2.as_str(), &key)]
+    vec![Notification::new(msg1.as_str(), &notification_key), Notification::new(msg2.as_str(), &notification_key)]
 }
 
 async fn send_notification(client: &Client, url: &str, message: &Notification) -> Result<Response, Error> {

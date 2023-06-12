@@ -1,6 +1,7 @@
 use pass_it_on::ClientConfigFileParser;
 use pass_it_on::ClientConfiguration;
 use pass_it_on::Error;
+use pass_it_on::notifications::Key;
 
 const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 
@@ -72,7 +73,7 @@ fn server_invalid_key_length() {
 
 #[test]
 fn interface_not_defined() {
-    let config = ClientConfiguration::new(*VALID_KEY, Vec::new());
+    let config = ClientConfiguration::new(Key::from_bytes(VALID_KEY), Vec::new());
 
     assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
 }

@@ -1,3 +1,9 @@
+# v0.3.0
+
+## Breaking Changes
+- Notification and message structs that accepted `&[u8; 32]` have been changed to `&Key`
+
+
 # v0.2.0
 - Add vendored-tls feature
 - Add missing as_bytes method to Key struct

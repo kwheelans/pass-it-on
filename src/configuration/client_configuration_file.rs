@@ -2,6 +2,7 @@ use crate::configuration::{valid_key_length, ClientConfiguration};
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::Error;
 use serde::Deserialize;
+use crate::notifications::Key;
 
 /// Client configuration parsed from TOML that handles any [`InterfaceConfig`][`crate::interfaces::InterfaceConfig`].
 #[derive(Deserialize)]
@@ -41,6 +42,6 @@ impl ClientConfigFile {
 
         let interfaces: Vec<Box<dyn Interface + Send>> = self.interface.iter().map(|cfg| cfg.to_interface()).collect();
 
-        ClientConfiguration::new(self.key(), interfaces)
+        ClientConfiguration::new(Key::from_bytes(&self.key()), interfaces)
     }
 }

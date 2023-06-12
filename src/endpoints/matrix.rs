@@ -217,7 +217,7 @@ impl Endpoint for MatrixEndpoint {
         Ok(())
     }
 
-    fn generate_keys(&self, hash_key: &[u8; 32]) -> HashMap<String, HashSet<Key>> {
+    fn generate_keys(&self, hash_key: &Key) -> HashMap<String, HashSet<Key>> {
         let mut keys: HashMap<String, HashSet<Key>> = HashMap::new();
 
         for room in self.rooms() {

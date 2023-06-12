@@ -31,7 +31,7 @@ async fn main() -> Result<(), Error> {
         .unwrap();
 
     let config = ClientConfigFileParser::from(CLIENT_TOML_CONFIG)?;
-    let messages = get_test_messages(&config.key());
+    let messages = get_test_messages(config.key());
     let (interface_tx, interface_rx) = mpsc::channel(100);
 
     info!(target: LOG_TARGET, "Sending test messages");
@@ -47,12 +47,12 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn get_test_messages(client_server_key: &[u8; 32]) -> Vec<Notification> {
+fn get_test_messages(client_server_key: &Key) -> Vec<Notification> {
     let key = Key::generate(NOTIFICATION_NAME, client_server_key);
 
     let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
     let msg1 = format!("Simple Client test message test message : {}", time);
     let msg2 = format!("Simple Client Another message : {}", time);
 
-    vec![Notification::new(msg1.as_str(), key.as_bytes()), Notification::new(msg2.as_str(), key.as_bytes())]
+    vec![Notification::new(msg1.as_str(), &key), Notification::new(msg2.as_str(), &key)]
 }

@@ -81,7 +81,7 @@ impl Endpoint for FileEndpoint {
         Ok(())
     }
 
-    fn generate_keys(&self, hash_key: &[u8; 32]) -> HashMap<String, HashSet<Key>> {
+    fn generate_keys(&self, hash_key: &Key) -> HashMap<String, HashSet<Key>> {
         let keys: HashSet<Key> =
             self.notifications().iter().map(|sub_name| Key::generate(sub_name.as_str(), hash_key)).collect();
         let mut map = HashMap::new();

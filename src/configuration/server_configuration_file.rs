@@ -3,6 +3,7 @@ use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::Error;
 use serde::Deserialize;
+use crate::notifications::Key;
 
 /// Server configuration parsed from TOML that handles any [`InterfaceConfig`][`crate::interfaces::InterfaceConfig`]
 /// and [`EndpointConfig`][`crate::endpoints::EndpointConfig`].
@@ -37,6 +38,7 @@ impl ServerConfigFile {
 
     fn validate(&self) -> Result<ServerConfiguration, Error> {
         valid_key_length(self.key.as_str())?;
+        let key = Key::from_bytes(&self.key());
 
         for cfg in self.interface.iter() {
             cfg.validate()?
@@ -49,6 +51,6 @@ impl ServerConfigFile {
         let interfaces: Vec<Box<dyn Interface + Send>> = self.interface.iter().map(|cfg| cfg.to_interface()).collect();
         let endpoints: Vec<Box<dyn Endpoint + Send>> = self.endpoint.iter().map(|cfg| cfg.to_endpoint()).collect();
 
-        ServerConfiguration::new(self.key(), interfaces, endpoints)
+        ServerConfiguration::new(key, interfaces, endpoints)
     }
 }

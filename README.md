@@ -101,9 +101,16 @@ port = 8080
 | http-server  | Enables the HTTP interface for just server.                                                                                 |
 | interfaces   | Enables the Interface and InterfaceConfig traits.                                                                           |
 | matrix       | Enables the matrix endpoint.                                                                                                |
-| pipe         | Enables the named pipe interface client and server                                                                          |
-| pipe-client  | Enables the named pipe interface client.                                                                                    |
-| pipe-server  | Enables the named pipe interface server.                                                                                    |
+| pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                         |
+| pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                                    |
+| pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                                    |
 | server       | Enables the server but not any particular interface or endpoint.                                                            |
 | server-bin   | Enables the building of the provided `pass-it-on-server` server binary while not require any specific interface or endpoint |
 | vendored-tls | Enables vendored tls for reqwest.                                                                                           |
+
+
+## Future Plans
+- Add Discord webhook endpoint
+- Add Email endpoint
+- Enable TLS support for the server
+- Make the HTTP interface path configurable instead of the hardcoded /notification

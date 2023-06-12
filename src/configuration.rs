@@ -1,6 +1,6 @@
 use crate::endpoints::{Endpoint, EndpointChannel};
 use crate::interfaces::Interface;
-use crate::notifications::ValidatedNotification;
+use crate::notifications::{Key, ValidatedNotification};
 use crate::Error;
 use tokio::sync::broadcast;
 use tokio::sync::broadcast::{Receiver, Sender};
@@ -19,7 +19,7 @@ pub use self::server_configuration_file::ServerConfigFileParser;
 /// Server configuration that can be used to start the server.
 #[derive(Debug)]
 pub struct ServerConfiguration {
-    key: [u8; 32],
+    key: Key,
     interfaces: Vec<Box<dyn Interface + Send>>,
     endpoints: Vec<Box<dyn Endpoint + Send>>,
 }
@@ -28,7 +28,7 @@ pub struct ServerConfiguration {
 impl ServerConfiguration {
     /// Create a new `ServerConfiguration`.
     pub fn new(
-        key: [u8; 32],
+        key: Key,
         interfaces: Vec<Box<dyn Interface + Send>>,
         endpoints: Vec<Box<dyn Endpoint + Send>>,
     ) -> Result<Self, Error> {
@@ -47,8 +47,8 @@ impl ServerConfiguration {
         endpoints
     }
 
-    /// Return server key value.
-    pub fn key(&self) -> &[u8; 32] {
+    /// Return server key value as a byte array.
+    pub fn key(&self) -> &Key {
         &self.key
     }
 
@@ -78,19 +78,19 @@ impl ServerConfiguration {
 /// Client configuration that can be used to start the client.
 #[derive(Debug)]
 pub struct ClientConfiguration {
-    key: [u8; 32],
+    key: Key,
     interfaces: Vec<Box<dyn Interface + Send>>,
 }
 
 impl ClientConfiguration {
     /// Create a new `ClientConfiguration`.
-    pub fn new(key: [u8; 32], interfaces: Vec<Box<dyn Interface + Send>>) -> Result<Self, Error> {
+    pub fn new(key: Key, interfaces: Vec<Box<dyn Interface + Send>>) -> Result<Self, Error> {
         let config = Self { key, interfaces };
         Self::validate(config)
     }
     /// Return client key value.
-    pub fn key(&self) -> [u8; 32] {
-        self.key
+    pub fn key(&self) -> &Key {
+        &self.key
     }
 
     /// Return all client interfaces.
