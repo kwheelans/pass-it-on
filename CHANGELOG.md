@@ -1,3 +1,7 @@
+# v0.2.1
+## Bugfix
+- Fix issue with use statements for endpoints when only client is enabled
+
 # v0.2.0
 - Add vendored-tls feature
 - Add missing as_bytes method to Key struct
