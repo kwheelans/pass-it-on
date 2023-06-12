@@ -1,9 +1,6 @@
-use crate::endpoints::{Endpoint, EndpointChannel};
 use crate::interfaces::Interface;
-use crate::notifications::{Key, ValidatedNotification};
+use crate::notifications::Key;
 use crate::Error;
-use tokio::sync::broadcast;
-use tokio::sync::broadcast::{Receiver, Sender};
 
 #[cfg(feature = "client")]
 pub mod client_configuration_file;
@@ -14,6 +11,8 @@ pub mod server_configuration_file;
 pub use self::client_configuration_file::ClientConfigFileParser;
 #[cfg(feature = "server")]
 pub use self::server_configuration_file::ServerConfigFileParser;
+#[cfg(feature = "server")]
+use crate::endpoints::{Endpoint, EndpointChannel};
 
 #[cfg(feature = "server")]
 /// Server configuration that can be used to start the server.
@@ -37,6 +36,10 @@ impl ServerConfiguration {
     }
 
     pub(crate) fn endpoint_channels(&self) -> Vec<EndpointChannel> {
+        use tokio::sync::broadcast;
+        use tokio::sync::broadcast::{Receiver, Sender};
+        use crate::notifications::ValidatedNotification;
+
         let mut endpoints = Vec::new();
         for endpoint in &self.endpoints {
             let (endpoint_tx, _endpoint_rx): (Sender<ValidatedNotification>, Receiver<ValidatedNotification>) =
