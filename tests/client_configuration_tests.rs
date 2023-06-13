@@ -1,14 +1,13 @@
-use pass_it_on::ClientConfigFileParser;
+use pass_it_on::notifications::Key;
 use pass_it_on::ClientConfiguration;
 use pass_it_on::Error;
-use pass_it_on::notifications::Key;
 
 const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 
 #[test]
 #[cfg(unix)]
 fn client_valid_config_unix() {
-    let config = ClientConfigFileParser::from(
+    let config = ClientConfiguration::from_toml(
         r#"
     [client]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -35,7 +34,7 @@ fn client_valid_config_unix() {
 #[test]
 #[cfg(windows)]
 fn client_valid_config_windows() {
-    let config = ClientConfigFileParser::from(
+    let config = ClientConfiguration::from_toml(
         r#"
     [client]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -56,7 +55,7 @@ fn client_valid_config_windows() {
 
 #[test]
 fn server_invalid_key_length() {
-    let config = ClientConfigFileParser::from(
+    let config = ClientConfiguration::from_toml(
         r#"
     [client]
     key = "asdffdsa12346785"

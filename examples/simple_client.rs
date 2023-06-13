@@ -1,6 +1,6 @@
 use log::{debug, info, warn, LevelFilter};
 use pass_it_on::notifications::{Key, Notification};
-use pass_it_on::ClientConfigFileParser;
+use pass_it_on::ClientConfiguration;
 use pass_it_on::{start_client, Error};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::mpsc;
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Error> {
         .init()
         .unwrap();
 
-    let config = ClientConfigFileParser::from(CLIENT_TOML_CONFIG)?;
+    let config = ClientConfiguration::from_toml(CLIENT_TOML_CONFIG)?;
     let messages = get_test_messages(config.key());
     let (interface_tx, interface_rx) = mpsc::channel(100);
 

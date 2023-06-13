@@ -1,8 +1,7 @@
 use pass_it_on::endpoints::file::FileEndpoint;
 use pass_it_on::endpoints::Endpoint;
-use pass_it_on::Error;
 use pass_it_on::notifications::Key;
-use pass_it_on::ServerConfigFileParser;
+use pass_it_on::Error;
 use pass_it_on::ServerConfiguration;
 
 const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
@@ -10,7 +9,7 @@ const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 #[test]
 #[cfg(unix)]
 fn server_valid_config_unix() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -52,7 +51,7 @@ fn server_valid_config_unix() {
 #[test]
 #[cfg(windows)]
 fn server_valid_config_windows() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -89,7 +88,7 @@ fn server_valid_config_windows() {
 
 #[test]
 fn server_invalid_key_length() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "123456789"
@@ -139,7 +138,7 @@ fn endpoint_not_defined() {
 
 #[test]
 fn file_configfile_path_is_blank() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -162,7 +161,7 @@ fn file_configfile_path_is_blank() {
 
 #[test]
 fn file_configfile_path_notification_is_blank() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"

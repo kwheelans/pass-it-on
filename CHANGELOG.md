@@ -1,6 +1,11 @@
 # v0.3.1
 ## Breaking Changes
 - Notification and message structs that accepted `&[u8; 32]` have been changed to `&Key`
+- `ClientConfigFileParser` is no longer exposed in the API. `ClientConfiguration::from_toml` should be used for parsing a configuration file.
+- `ServerConfigFileParser` is no longer exposed in the API. `ServerConfiguration::from_toml` should be used for parsing a configuration file.
+
+# v0.3.0
+- accidentally published on crates.io and yanked
 
 # v0.2.1
 ## Bugfix

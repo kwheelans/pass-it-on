@@ -1,7 +1,7 @@
 use log::{error, info, LevelFilter};
 use pass_it_on::start_server;
 use pass_it_on::Error;
-use pass_it_on::ServerConfigFileParser;
+use pass_it_on::ServerConfiguration;
 use std::path::PathBuf;
 
 const LOG_TARGET: &str = "pass_it_on_server";
@@ -35,7 +35,7 @@ async fn run() -> Result<(), Error> {
         };
 
         info!(target: LOG_TARGET, "Reading configuration from: {}", config_path.to_str().unwrap());
-        ServerConfigFileParser::from(std::fs::read_to_string(config_path)?.as_str())?
+        ServerConfiguration::from_toml(std::fs::read_to_string(config_path)?.as_str())?
     };
 
     start_server(server_config, None).await

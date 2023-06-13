@@ -101,6 +101,7 @@ port = 8080
 | http-server  | Enables the HTTP interface for just server.                                                                                 |
 | interfaces   | Enables the Interface and InterfaceConfig traits.                                                                           |
 | matrix       | Enables the matrix endpoint.                                                                                                |
+| parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                          |
 | pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                         |
 | pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                                    |
 | pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                                    |

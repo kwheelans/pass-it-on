@@ -44,7 +44,7 @@ pub enum Error {
     #[error("Serde_json Error: {0}")]
     SerdeJsonError(#[from] serde_json::Error),
 
-    #[cfg(any(feature = "server", feature = "client"))]
+    #[cfg(feature = "parse-cfg")]
     /// Pass-thru `toml::de::Error`.
     #[error("Serde_json Error: {0}")]
     SerdeTomlError(#[from] toml::de::Error),

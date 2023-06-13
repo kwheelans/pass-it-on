@@ -1,12 +1,12 @@
 use crate::configuration::{valid_key_length, ClientConfiguration};
 use crate::interfaces::{Interface, InterfaceConfig};
+use crate::notifications::Key;
 use crate::Error;
 use serde::Deserialize;
-use crate::notifications::Key;
 
 /// Client configuration parsed from TOML that handles any [`InterfaceConfig`][`crate::interfaces::InterfaceConfig`].
 #[derive(Deserialize)]
-pub struct ClientConfigFileParser {
+pub(super) struct ClientConfigFileParser {
     client: ClientConfigFile,
 }
 

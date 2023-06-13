@@ -1,18 +1,13 @@
+#[cfg(all(feature = "parse-cfg", feature = "client"))]
+mod client_configuration_file;
+#[cfg(all(feature = "parse-cfg", feature = "server"))]
+mod server_configuration_file;
+
+#[cfg(feature = "server")]
+use crate::endpoints::{Endpoint, EndpointChannel};
 use crate::interfaces::Interface;
 use crate::notifications::Key;
 use crate::Error;
-
-#[cfg(feature = "client")]
-pub mod client_configuration_file;
-#[cfg(feature = "server")]
-pub mod server_configuration_file;
-
-#[cfg(feature = "client")]
-pub use self::client_configuration_file::ClientConfigFileParser;
-#[cfg(feature = "server")]
-pub use self::server_configuration_file::ServerConfigFileParser;
-#[cfg(feature = "server")]
-use crate::endpoints::{Endpoint, EndpointChannel};
 
 #[cfg(feature = "server")]
 /// Server configuration that can be used to start the server.
@@ -35,10 +30,16 @@ impl ServerConfiguration {
         Self::validate(config)
     }
 
+    #[cfg(all(feature = "parse-cfg", feature = "server"))]
+    /// Parse [`ServerConfiguration`] from provided TOML
+    pub fn from_toml(toml_str: &str) -> Result<Self, Error> {
+        server_configuration_file::ServerConfigFileParser::from(toml_str)
+    }
+
     pub(crate) fn endpoint_channels(&self) -> Vec<EndpointChannel> {
+        use crate::notifications::ValidatedNotification;
         use tokio::sync::broadcast;
         use tokio::sync::broadcast::{Receiver, Sender};
-        use crate::notifications::ValidatedNotification;
 
         let mut endpoints = Vec::new();
         for endpoint in &self.endpoints {
@@ -78,6 +79,7 @@ impl ServerConfiguration {
     }
 }
 
+#[cfg(feature = "client")]
 /// Client configuration that can be used to start the client.
 #[derive(Debug)]
 pub struct ClientConfiguration {
@@ -85,12 +87,20 @@ pub struct ClientConfiguration {
     interfaces: Vec<Box<dyn Interface + Send>>,
 }
 
+#[cfg(feature = "client")]
 impl ClientConfiguration {
     /// Create a new `ClientConfiguration`.
     pub fn new(key: Key, interfaces: Vec<Box<dyn Interface + Send>>) -> Result<Self, Error> {
         let config = Self { key, interfaces };
         Self::validate(config)
     }
+
+    #[cfg(all(feature = "parse-cfg", feature = "client"))]
+    /// Parse [`ClientConfiguration`] from provided TOML
+    pub fn from_toml(toml_str: &str) -> Result<Self, Error> {
+        client_configuration_file::ClientConfigFileParser::from(toml_str)
+    }
+
     /// Return client key value.
     pub fn key(&self) -> &Key {
         &self.key

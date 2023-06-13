@@ -25,7 +25,7 @@
 //!
 //! # #[tokio::main]
 //! async fn main() -> Result<(), Error> {
-//!     let config = ClientConfigFileParser::from(CLIENT_TOML_CONFIG)?;
+//!     let config = ClientConfiguration::from_toml(CLIENT_TOML_CONFIG)?;
 //!     let notification_key = Key::generate("NOTIFICATION_NAME", &config.key());
 //!     let (interface_tx, interface_rx) = mpsc::channel(100);
 //!
@@ -58,6 +58,7 @@
 //! | http-server  | Enables the HTTP interface for just server.                                                                                 |
 //! | interfaces   | Enables the Interface and InterfaceConfig traits.                                                                           |
 //! | matrix       | Enables the matrix endpoint.                                                                                                |
+//! | parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                          |
 //! | pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                         |
 //! | pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                                    |
 //! | pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                                    |
@@ -83,9 +84,9 @@ pub(crate) mod shutdown;
 #[cfg(feature = "client")]
 pub use self::client::start_client;
 #[cfg(feature = "client")]
-pub use self::configuration::{ClientConfigFileParser, ClientConfiguration};
+pub use self::configuration::ClientConfiguration;
 #[cfg(feature = "server")]
-pub use self::configuration::{ServerConfigFileParser, ServerConfiguration};
+pub use self::configuration::ServerConfiguration;
 pub use self::error::Error;
 #[cfg(feature = "server")]
 pub use self::server::start_server;

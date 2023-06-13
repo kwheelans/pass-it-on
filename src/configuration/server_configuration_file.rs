@@ -1,14 +1,14 @@
 use crate::configuration::{valid_key_length, ServerConfiguration};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::interfaces::{Interface, InterfaceConfig};
+use crate::notifications::Key;
 use crate::Error;
 use serde::Deserialize;
-use crate::notifications::Key;
 
 /// Server configuration parsed from TOML that handles any [`InterfaceConfig`][`crate::interfaces::InterfaceConfig`]
 /// and [`EndpointConfig`][`crate::endpoints::EndpointConfig`].
 #[derive(Deserialize)]
-pub struct ServerConfigFileParser {
+pub(super) struct ServerConfigFileParser {
     server: ServerConfigFile,
 }
 
