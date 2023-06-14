@@ -14,6 +14,12 @@ pub struct Message {
     time: u128,
 }
 
+/// A [`Message`] that has been assigned a notification name
+pub struct ClientReadyMessage {
+    message: Message,
+    notification_name: String,
+}
+
 /// [`Notification`] that has been validated against identified as a particular notification name.
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct ValidatedNotification {
@@ -39,8 +45,7 @@ pub struct Key {
 
 impl Notification {
     /// Create a new `Notification` from a text value and key for notification name.
-    pub fn new(message: &str, notification_key: &Key) -> Notification {
-        let message = Message::new(message);
+    pub fn new(message: Message, notification_key: &Key) -> Notification {
         let key = message.create_key(notification_key).to_hex();
         Notification { message, key }
     }
@@ -116,9 +121,38 @@ impl Message {
     }
 
     /// Create a [`Key`] for this [`Message`] based on the [`Key`] for the notification name.
-    pub fn create_key(&self, notification_key: &Key) -> Key {
-        let hash_string = format!("{}{}", self.text(), self.time().to_string());
+    fn create_key(&self, notification_key: &Key) -> Key {
+        let hash_string = format!("{}{}", self.text, self.time);
         Key::generate(hash_string.as_str(), notification_key)
+    }
+
+    /// Assign a notification name to a [`Message`] and transform it into a [`ClientReadyMessage`]
+    pub fn to_client_ready_message(self, notification_name: &str) -> ClientReadyMessage {
+        ClientReadyMessage::new(notification_name, self)
+    }
+}
+
+impl ClientReadyMessage {
+    /// Create a new `ClientReadyMessage`
+    pub(crate) fn new(notification_name: &str, message: Message) -> Self {
+        Self { notification_name: notification_name.to_string(), message }
+    }
+
+    /// Create a [`Notification`] for the contained [`Message`] based on the notification name and client [`Key`]
+    pub fn to_notification(self, client_key: &Key) -> Notification {
+        let key = self.message.create_key(client_key);
+        let message = self.message;
+        Notification::new(message, &key)
+    }
+
+    /// Return inner [`Message`]
+    pub fn message(&self) -> &Message {
+        &self.message
+    }
+
+    /// Return assigned notification name
+    pub fn notification_name(&self) -> &str {
+        &self.notification_name
     }
 }
 

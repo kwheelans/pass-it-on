@@ -1,5 +1,17 @@
 # Pass-It-On
+[![crates.io](https://img.shields.io/crates/v/pass-it-on)](https://crates.io/crates/pass-it-on)
+[![Released API docs](https://docs.rs/pass-it-on/badge.svg)](https://docs.rs/pass-it-on/)
+[![MIT licensed](https://img.shields.io/crates/l/pass-it-on)](./LICENSE)
+
 A library that provides a simple notification client and server that receives messages and passes them on to endpoints.
+
+## Usage
+This library was designed to enable the creation of clients that handle the business of when and what notification should be sent and then pass
+that to the client which handles sending it across the configured interface to the pass-it-on server where the endpoints are configured.
+The idea is to allow a single instance of the server to handle messages from many clients which may or may not be going to the same endpoint.
+
+Which notifications are 
+TODO
 
 
 ## Key Features 
@@ -81,6 +93,7 @@ key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
 type = "pipe"
 path = '/path/to/pipe.fifo'
 group_read_permission = true
+group_write_permission = true
 
 [[client.interface]]
 type = "http"
@@ -91,23 +104,23 @@ port = 8080
 
 ## Feature Flags
 
-| Feature      | Description                                                                                                                 |
-|--------------|-----------------------------------------------------------------------------------------------------------------------------|
-| client       | Enables the client but not any particular interface.                                                                        |
-| endpoints    | Enables the Endpoint and EndpointConfig traits.                                                                             |
-| file         | Enables the regular file endpoint.                                                                                          |
-| http         | Enables the HTTP interface client and server.                                                                               |
-| http-client  | Enables the HTTP interface for just client.                                                                                 |
-| http-server  | Enables the HTTP interface for just server.                                                                                 |
-| interfaces   | Enables the Interface and InterfaceConfig traits.                                                                           |
-| matrix       | Enables the matrix endpoint.                                                                                                |
-| parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                          |
-| pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                         |
-| pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                                    |
-| pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                                    |
-| server       | Enables the server but not any particular interface or endpoint.                                                            |
-| server-bin   | Enables the building of the provided `pass-it-on-server` server binary while not require any specific interface or endpoint |
-| vendored-tls | Enables vendored tls for reqwest.                                                                                           |
+| Feature      | Description                                                                                                          |
+|--------------|----------------------------------------------------------------------------------------------------------------------|
+| client       | Enables the client but not any particular interface.                                                                 |
+| endpoints    | Enables the Endpoint and EndpointConfig traits.                                                                      |
+| file         | Enables the regular file endpoint.                                                                                   |
+| http         | Enables the HTTP interface client and server.                                                                        |
+| http-client  | Enables the HTTP interface for just client.                                                                          |
+| http-server  | Enables the HTTP interface for just server.                                                                          |
+| interfaces   | Enables the Interface and InterfaceConfig traits.                                                                    |
+| matrix       | Enables the matrix endpoint.                                                                                         |
+| parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                   |
+| pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                  |
+| pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                             |
+| pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                             |
+| server       | Enables the server but not any particular interface or endpoint.                                                     |
+| server-bin   | Enables the building of the provided `pass-it-on-server` binary while not require any specific interface or endpoint |
+| vendored-tls | Enables vendored tls for reqwest.                                                                                    |
 
 
 ## Future Plans

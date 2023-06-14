@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-/// Errors returned by pass-it-on.
+/// Errors returned by pass-it-on library.
 #[derive(Error, Debug)]
 pub enum Error {
     /// Key length must be 32 bytes.

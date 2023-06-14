@@ -1,5 +1,5 @@
 use log::{debug, info, warn, LevelFilter};
-use pass_it_on::notifications::{Key, Notification};
+use pass_it_on::notifications::{ClientReadyMessage, Message};
 use pass_it_on::ClientConfiguration;
 use pass_it_on::{start_client, Error};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -31,7 +31,7 @@ async fn main() -> Result<(), Error> {
         .unwrap();
 
     let config = ClientConfiguration::from_toml(CLIENT_TOML_CONFIG)?;
-    let messages = get_test_messages(config.key());
+    let messages = get_test_messages();
     let (interface_tx, interface_rx) = mpsc::channel(100);
 
     info!(target: LOG_TARGET, "Sending test messages");
@@ -47,12 +47,13 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn get_test_messages(client_server_key: &Key) -> Vec<Notification> {
-    let key = Key::generate(NOTIFICATION_NAME, client_server_key);
-
+fn get_test_messages() -> Vec<ClientReadyMessage> {
     let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
     let msg1 = format!("Simple Client test message test message : {}", time);
     let msg2 = format!("Simple Client Another message : {}", time);
 
-    vec![Notification::new(msg1.as_str(), &key), Notification::new(msg2.as_str(), &key)]
+    vec![
+        Message::new(msg1.as_str()).to_client_ready_message(NOTIFICATION_NAME),
+        Message::new(msg2.as_str()).to_client_ready_message(NOTIFICATION_NAME),
+    ]
 }

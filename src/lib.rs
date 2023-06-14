@@ -25,13 +25,13 @@
 //!
 //! # #[tokio::main]
 //! async fn main() -> Result<(), Error> {
+//!     const NOTIFICATION_NAME: &str = "test1";
 //!     let config = ClientConfiguration::from_toml(CLIENT_TOML_CONFIG)?;
-//!     let notification_key = Key::generate("NOTIFICATION_NAME", &config.key());
 //!     let (interface_tx, interface_rx) = mpsc::channel(100);
 //!
 //!     let messages = vec![
-//!         Notification::new("A message to be sent", &notification_key),
-//!         Notification::new("Another message", &notification_key),
+//!         Message::new("A message to be sent").to_client_ready_message(NOTIFICATION_NAME),
+//!         Message::new("Another message").to_client_ready_message(NOTIFICATION_NAME),
 //!     ];
 //!
 //!     for message in messages {
