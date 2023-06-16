@@ -10,8 +10,8 @@ This library was designed to enable the creation of clients that handle the busi
 that to the client which handles sending it across the configured interface to the pass-it-on server where the endpoints are configured.
 The idea is to allow a single instance of the server to handle messages from many clients which may or may not be going to the same endpoint.
 
-Which notifications are 
-TODO
+Which notifications are go to a particular endpoint can be controlled by adding a notification name `notifications` field in the server configuration
+that matches the notification name that is used in the `ClientReadyMessage` by the client.
 
 
 ## Key Features 
