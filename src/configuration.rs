@@ -41,6 +41,7 @@ impl ServerConfiguration {
         use tokio::sync::broadcast;
         use tokio::sync::broadcast::{Receiver, Sender};
 
+
         let mut endpoints = Vec::new();
         for endpoint in &self.endpoints {
             let (endpoint_tx, _endpoint_rx): (Sender<ValidatedNotification>, Receiver<ValidatedNotification>) =
