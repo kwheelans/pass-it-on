@@ -4,7 +4,7 @@ use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
 use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
-use log::{debug, info, warn};
+use log::{info, warn};
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;

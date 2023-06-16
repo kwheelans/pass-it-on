@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::StreamDeserializer;
 use std::collections::HashSet;
 use std::time::{SystemTime, UNIX_EPOCH};
-use log::debug;
 
 /// The actual message data that is being transmitted in a [`Notification`].
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, Clone)]
