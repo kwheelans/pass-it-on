@@ -47,7 +47,9 @@ async fn receive_notifications(
 ) {
     info!(target: LIB_LOG_TARGET, "Client waiting for notifications");
     while let Some(client_ready_msg) = notification_rx.recv().await {
-        match interface_tx.send(client_ready_msg.to_notification(&key)) {
+        let notification = client_ready_msg.to_notification(&key);
+        debug!(target: LIB_LOG_TARGET, "Sending Notification: {:?}", notification);
+        match interface_tx.send(notification) {
             Ok(ok) => debug!(target: LIB_LOG_TARGET, "Message passed to client {} interfaces", ok),
             Err(error) => warn!(target: LIB_LOG_TARGET, "Client broadcast channel send error: {}", error),
         }

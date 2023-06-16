@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::StreamDeserializer;
 use std::collections::HashSet;
 use std::time::{SystemTime, UNIX_EPOCH};
+use log::debug;
 
 /// The actual message data that is being transmitted in a [`Notification`].
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, Clone)]
@@ -140,7 +141,7 @@ impl ClientReadyMessage {
 
     /// Create a [`Notification`] for the contained [`Message`] based on the notification name and client [`Key`]
     pub fn to_notification(self, client_key: &Key) -> Notification {
-        let key = self.message.create_key(client_key);
+        let key = Key::generate(self.notification_name(), client_key);
         let message = self.message;
         Notification::new(message, &key)
     }

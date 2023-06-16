@@ -53,6 +53,7 @@ async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endp
         for notification in notifications {
             match notification {
                 Ok(note) => {
+                    debug!(target: LIB_LOG_TARGET, "Notification received: {:?}", note);
                     for endpoint in &endpoints {
                         for (sub_name, keys) in endpoint.keys() {
                             if note.validate_set(keys) {

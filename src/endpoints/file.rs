@@ -4,7 +4,7 @@ use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
 use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
-use log::{info, warn};
+use log::{debug, info, warn};
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
@@ -82,8 +82,12 @@ impl Endpoint for FileEndpoint {
     }
 
     fn generate_keys(&self, hash_key: &Key) -> HashMap<String, HashSet<Key>> {
-        let keys: HashSet<Key> =
-            self.notifications().iter().map(|sub_name| Key::generate(sub_name.as_str(), hash_key)).collect();
+        let keys: HashSet<Key> = self
+            .notifications()
+            .iter()
+            .map(|notification_name| Key::generate(notification_name.as_str(), hash_key))
+            .collect();
+
         let mut map = HashMap::new();
         map.insert("".to_string(), keys);
         map
