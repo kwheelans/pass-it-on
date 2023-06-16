@@ -1,7 +1,7 @@
 use pass_it_on::endpoints::file::FileEndpoint;
 use pass_it_on::endpoints::Endpoint;
+use pass_it_on::notifications::Key;
 use pass_it_on::Error;
-use pass_it_on::ServerConfigFileParser;
 use pass_it_on::ServerConfiguration;
 
 const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
@@ -9,7 +9,7 @@ const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 #[test]
 #[cfg(unix)]
 fn server_valid_config_unix() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -51,7 +51,7 @@ fn server_valid_config_unix() {
 #[test]
 #[cfg(windows)]
 fn server_valid_config_windows() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -88,7 +88,7 @@ fn server_valid_config_windows() {
 
 #[test]
 fn server_invalid_key_length() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "123456789"
@@ -122,7 +122,7 @@ fn server_invalid_key_length() {
 
 #[test]
 fn interface_not_defined() {
-    let config = ServerConfiguration::new(*VALID_KEY, Vec::new(), Vec::new());
+    let config = ServerConfiguration::new(Key::from_bytes(VALID_KEY), Vec::new(), Vec::new());
 
     assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
 }
@@ -131,14 +131,14 @@ fn interface_not_defined() {
 fn endpoint_not_defined() {
     let notifications = ["test1".to_string(), "test2".to_string()];
     let endpoint: Box<dyn Endpoint + Send> = Box::new(FileEndpoint::new("path", notifications.as_ref()));
-    let config = ServerConfiguration::new(*VALID_KEY, Vec::new(), vec![endpoint]);
+    let config = ServerConfiguration::new(Key::from_bytes(VALID_KEY), Vec::new(), vec![endpoint]);
 
     assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
 }
 
 #[test]
 fn file_configfile_path_is_blank() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -161,7 +161,7 @@ fn file_configfile_path_is_blank() {
 
 #[test]
 fn file_configfile_path_notification_is_blank() {
-    let config = ServerConfigFileParser::from(
+    let config = ServerConfiguration::from_toml(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"

@@ -1,6 +1,6 @@
 use crate::configuration::ClientConfiguration;
 use crate::interfaces::setup_client_interfaces;
-use crate::notifications::Notification;
+use crate::notifications::{ClientReadyMessage, Key, Notification};
 use crate::shutdown::listen_for_shutdown;
 use crate::{Error, LIB_LOG_TARGET};
 use log::{debug, info, warn};
@@ -8,16 +8,17 @@ use tokio::sync::{broadcast, mpsc, watch};
 
 const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 
-/// Start the client with provided [`ClientConfiguration`] and `Receiver<Notification>` channel.
+/// Start the client with provided [`ClientConfiguration`] and `Receiver<ClientReadyMessage>` channel.
 ///
 /// Client listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
 pub async fn start_client(
     client_config: ClientConfiguration,
-    notification_rx: mpsc::Receiver<Notification>,
+    notification_rx: mpsc::Receiver<ClientReadyMessage>,
     wait_for_shutdown_secs: Option<u64>,
 ) -> Result<(), Error> {
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
     let (interface_tx, _interface_rx) = broadcast::channel(100);
+    let key = client_config.key().clone();
 
     // Setup interfaces to send notifications to
     let interfaces = client_config.interfaces();
@@ -25,7 +26,7 @@ pub async fn start_client(
 
     // Monitor for incoming notifications
     tokio::spawn(async move {
-        receive_notifications(notification_rx, interface_tx).await;
+        receive_notifications(notification_rx, interface_tx, key).await;
     });
 
     // Shutdown
@@ -40,12 +41,13 @@ pub async fn start_client(
 }
 
 async fn receive_notifications(
-    mut notification_rx: mpsc::Receiver<Notification>,
+    mut notification_rx: mpsc::Receiver<ClientReadyMessage>,
     interface_tx: broadcast::Sender<Notification>,
+    key: Key,
 ) {
     info!(target: LIB_LOG_TARGET, "Client waiting for notifications");
-    while let Some(notification) = notification_rx.recv().await {
-        match interface_tx.send(notification) {
+    while let Some(client_ready_msg) = notification_rx.recv().await {
+        match interface_tx.send(client_ready_msg.to_notification(&key)) {
             Ok(ok) => debug!(target: LIB_LOG_TARGET, "Message passed to client {} interfaces", ok),
             Err(error) => warn!(target: LIB_LOG_TARGET, "Client broadcast channel send error: {}", error),
         }

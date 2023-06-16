@@ -9,7 +9,7 @@ use tokio::sync::{mpsc, watch};
 
 const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 
-/// Start the server with provided `ServerConfiguration`.
+/// Start the server with provided [`ServerConfiguration`].
 ///
 /// Server listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
 pub async fn start_server(

@@ -14,6 +14,12 @@ pub struct Message {
     time: u128,
 }
 
+/// A [`Message`] that has been assigned a notification name
+pub struct ClientReadyMessage {
+    message: Message,
+    notification_name: String,
+}
+
 /// [`Notification`] that has been validated against identified as a particular notification name.
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct ValidatedNotification {
@@ -39,9 +45,8 @@ pub struct Key {
 
 impl Notification {
     /// Create a new `Notification` from a text value and key for notification name.
-    pub fn new(message: &str, hash_key: &[u8; 32]) -> Notification {
-        let message = Message::new(message);
-        let key = message.create_key(hash_key).to_hex();
+    pub fn new(message: Message, notification_key: &Key) -> Notification {
+        let key = message.create_key(notification_key).to_hex();
         Notification { message, key }
     }
 
@@ -71,7 +76,7 @@ impl Notification {
 
     /// Compare provided notification name ['Key'] to this notification.
     pub(crate) fn validate(&self, hash_key: &Key) -> bool {
-        let new_key = self.message.create_key(hash_key.hash.as_bytes());
+        let new_key = self.message.create_key(hash_key);
         self.key == new_key.to_hex()
     }
 
@@ -115,12 +120,39 @@ impl Message {
         self.time
     }
 
-    /// Create a [`Key`] for this [`Message`].
-    pub fn create_key(&self, key: &[u8; 32]) -> Key {
-        let mut hasher = blake3::Hasher::new_keyed(key);
-        hasher.update(self.text.as_bytes());
-        hasher.update(self.time.to_string().as_bytes());
-        Key::from_bytes(hasher.finalize().as_bytes())
+    /// Create a [`Key`] for this [`Message`] based on the [`Key`] for the notification name.
+    fn create_key(&self, notification_key: &Key) -> Key {
+        let hash_string = format!("{}{}", self.text, self.time);
+        Key::generate(hash_string.as_str(), notification_key)
+    }
+
+    /// Assign a notification name to a [`Message`] and transform it into a [`ClientReadyMessage`]
+    pub fn to_client_ready_message(self, notification_name: &str) -> ClientReadyMessage {
+        ClientReadyMessage::new(notification_name, self)
+    }
+}
+
+impl ClientReadyMessage {
+    /// Create a new `ClientReadyMessage`
+    pub(crate) fn new(notification_name: &str, message: Message) -> Self {
+        Self { notification_name: notification_name.to_string(), message }
+    }
+
+    /// Create a [`Notification`] for the contained [`Message`] based on the notification name and client [`Key`]
+    pub fn to_notification(self, client_key: &Key) -> Notification {
+        let key = self.message.create_key(client_key);
+        let message = self.message;
+        Notification::new(message, &key)
+    }
+
+    /// Return inner [`Message`]
+    pub fn message(&self) -> &Message {
+        &self.message
+    }
+
+    /// Return assigned notification name
+    pub fn notification_name(&self) -> &str {
+        &self.notification_name
     }
 }
 
@@ -143,8 +175,8 @@ impl ValidatedNotification {
 
 impl Key {
     /// Generate a new keyed hash based on the provide notification name.
-    pub fn generate(name: &str, hash_key: &[u8; 32]) -> Key {
-        let mut hasher = blake3::Hasher::new_keyed(hash_key);
+    pub fn generate(name: &str, hash_key: &Key) -> Key {
+        let mut hasher = blake3::Hasher::new_keyed(hash_key.as_bytes());
         hasher.update(name.as_bytes());
         Self { hash: hasher.finalize() }
     }

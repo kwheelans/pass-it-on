@@ -39,7 +39,7 @@ pub trait Endpoint: DynClone + Send + Debug {
     /// This is useful for endpoints like Matrix where multiple rooms can be setup, but all notifications going to the endpoint
     /// do not go to all rooms.
     /// For endpoints like File where this is not applicable all notifications can go under a single key.
-    fn generate_keys(&self, hash_key: &[u8; 32]) -> HashMap<String, HashSet<Key>>;
+    fn generate_keys(&self, hash_key: &Key) -> HashMap<String, HashSet<Key>>;
 }
 
 dyn_clone::clone_trait_object!(Endpoint);

@@ -9,29 +9,29 @@
 //! [`Notification`][crate::notifications::Notification] values and send them in the expected format to server.
 //!
 //! ```
-//! use pass_it_on::notifications::{Key, Notification};
-//! use pass_it_on::{ClientConfigFileParser, start_client, Error};
-//! use tokio::sync::mpsc;
+//! # use pass_it_on::notifications::{Key, Notification};
+//! # use pass_it_on::{ClientConfigFileParser, start_client, Error};
+//! # use tokio::sync::mpsc;
+//! #
+//! # const CLIENT_TOML_CONFIG: &str = r#"
+//! #    [client]
+//! #    key = "UVXu7wtbXHWNgAr6rWyPnaZbZK9aYin8"
+//! #
+//! #    [[client.interface]]
+//! #    type = "http"
+//! #    port = 8080
+//! #
+//! # "#;
 //!
-//! const CLIENT_TOML_CONFIG: &str = r#"
-//!     [client]
-//!     key = "UVXu7wtbXHWNgAr6rWyPnaZbZK9aYin8"
-//!
-//!     [[client.interface]]
-//!     type = "http"
-//!     port = 8080
-//!
-//! "#;
-//!
-//! #[tokio::main]
+//! # #[tokio::main]
 //! async fn main() -> Result<(), Error> {
-//!     let config = ClientConfigFileParser::from(CLIENT_TOML_CONFIG)?;
-//!     let notification_key = Key::generate("NOTIFICATION_NAME", &config.key());
+//!     const NOTIFICATION_NAME: &str = "test1";
+//!     let config = ClientConfiguration::from_toml(CLIENT_TOML_CONFIG)?;
 //!     let (interface_tx, interface_rx) = mpsc::channel(100);
 //!
 //!     let messages = vec![
-//!         Notification::new("A message to be sent", notification_key.as_bytes()),
-//!         Notification::new("Another message", notification_key.as_bytes()),
+//!         Message::new("A message to be sent").to_client_ready_message(NOTIFICATION_NAME),
+//!         Message::new("Another message").to_client_ready_message(NOTIFICATION_NAME),
 //!     ];
 //!
 //!     for message in messages {
@@ -45,6 +45,26 @@
 //!     Ok(())
 //! }
 //! ```
+//!
+//! ## Feature Flags
+//!
+//! | Feature      | Description                                                                                                          |
+//! |--------------|----------------------------------------------------------------------------------------------------------------------|
+//! | client       | Enables the client but not any particular interface.                                                                 |
+//! | endpoints    | Enables the Endpoint and EndpointConfig traits.                                                                      |
+//! | file         | Enables the regular file endpoint.                                                                                   |
+//! | http         | Enables the HTTP interface client and server.                                                                        |
+//! | http-client  | Enables the HTTP interface for just client.                                                                          |
+//! | http-server  | Enables the HTTP interface for just server.                                                                          |
+//! | interfaces   | Enables the Interface and InterfaceConfig traits.                                                                    |
+//! | matrix       | Enables the matrix endpoint.                                                                                         |
+//! | parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                   |
+//! | pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                  |
+//! | pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                             |
+//! | pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                             |
+//! | server       | Enables the server but not any particular interface or endpoint.                                                     |
+//! | server-bin   | Enables the building of the provided `pass-it-on-server` binary while not require any specific interface or endpoint |
+//! | vendored-tls | Enables vendored tls for reqwest.                                                                                    |
 
 #[cfg(feature = "client")]
 mod client;
@@ -64,9 +84,9 @@ pub(crate) mod shutdown;
 #[cfg(feature = "client")]
 pub use self::client::start_client;
 #[cfg(feature = "client")]
-pub use self::configuration::{ClientConfigFileParser, ClientConfiguration};
+pub use self::configuration::ClientConfiguration;
 #[cfg(feature = "server")]
-pub use self::configuration::{ServerConfigFileParser, ServerConfiguration};
+pub use self::configuration::ServerConfiguration;
 pub use self::error::Error;
 #[cfg(feature = "server")]
 pub use self::server::start_server;
