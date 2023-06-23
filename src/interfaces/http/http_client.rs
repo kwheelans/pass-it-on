@@ -1,6 +1,6 @@
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
-use log::{debug, warn};
+use log::{debug, error, warn};
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
 
@@ -26,7 +26,10 @@ pub(super) async fn start_sending(
                             Err(error) => warn!(target: LIB_LOG_TARGET, "HTTP Client Response Error: {}", error ),
                         }
                     },
-                    Err(error) => warn!("Broadcast Receiver Error: {}", error),
+                    Err(error) => {
+                        error!(target: LIB_LOG_TARGET, "Broadcast Receiver Error: {}", error);
+                        break;
+                    },
                 }
             }
 

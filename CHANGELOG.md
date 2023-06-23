@@ -1,3 +1,7 @@
+# v0.3.2
+## Fixes
+- Stop looping on http and pipe client interfaces when input channel is closed
+
 # v0.3.1
 ## Breaking Changes
 - Notification and message structs that accepted `&[u8; 32]` have been changed to `&Key`

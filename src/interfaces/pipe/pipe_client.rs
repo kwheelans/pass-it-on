@@ -1,6 +1,6 @@
 use crate::notifications::Notification;
 use crate::{Error, LIB_LOG_TARGET};
-use log::{error, warn};
+use log::error;
 use std::path::Path;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
@@ -29,7 +29,10 @@ pub async fn write_pipe<P: AsRef<Path>>(
                             },
                         }
                     },
-                    Err(error) => warn!(target: LIB_LOG_TARGET, "{}", error),
+                    Err(error) => {
+                        error!(target: LIB_LOG_TARGET, "Broadcast Receiver Error: {}", error);
+                        break;
+                    }
                 }
             }
 

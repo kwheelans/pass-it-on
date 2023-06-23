@@ -37,7 +37,7 @@ pub enum Error {
 
     // ### Converting from other error types ###
     /// Pass-thru [`std::io::Error`].
-    #[error("STD::IO Error: {0}")]
+    #[error("std::io Error: {0}")]
     IOError(#[from] std::io::Error),
 
     /// Pass-thru `serde_json::Error`.

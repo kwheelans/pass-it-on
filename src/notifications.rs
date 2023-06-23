@@ -74,12 +74,14 @@ impl Notification {
         Ok(serde_json::to_string(self)?)
     }
 
+    #[allow(dead_code)]
     /// Compare provided notification name ['Key'] to this notification.
     pub(crate) fn validate(&self, hash_key: &Key) -> bool {
         let new_key = self.message.create_key(hash_key);
         self.key == new_key.to_hex()
     }
 
+    #[allow(dead_code)]
     /// Compare provided set of  notification name ['Key']s to this notification.
     pub(crate) fn validate_set(&self, hash_keys: &HashSet<Key>) -> bool {
         for hash_key in hash_keys {

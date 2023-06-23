@@ -39,6 +39,7 @@ pub trait Interface: DynClone + Send + Debug {
 
 dyn_clone::clone_trait_object!(Interface);
 
+#[cfg(feature = "server")]
 pub(crate) async fn setup_server_interfaces(
     interfaces: Vec<Box<dyn Interface + Send>>,
     interface_tx: mpsc::Sender<String>,
@@ -50,6 +51,7 @@ pub(crate) async fn setup_server_interfaces(
     Ok(())
 }
 
+#[cfg(feature = "client")]
 pub(crate) async fn setup_client_interfaces(
     interfaces: Vec<Box<dyn Interface + Send>>,
     interface_rx: broadcast::Receiver<Notification>,
