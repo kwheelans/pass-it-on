@@ -6,8 +6,8 @@
 A library that provides a simple notification client and server that receives messages and passes them on to endpoints.
 
 ## Usage
-This library was designed to enable the creation of clients that handle the business of when and what notification should be sent and then pass
-that to the client which handles sending it across the configured interface to the pass-it-on server where the endpoints are configured.
+This library was designed to enable the creation of processes that handle the business of when and what notification should be sent and then pass
+those notifications to the pass-it-on client which handles sending it across the configured interface to the pass-it-on server where the endpoints are configured.
 The idea is to allow a single instance of the server to handle messages from many clients which may or may not be going to the same endpoint.
 
 Which notifications are go to a particular endpoint can be controlled by adding a notification name `notifications` field in the server configuration
@@ -126,5 +126,6 @@ port = 8080
 ## Future Plans
 - Add Discord webhook endpoint
 - Add Email endpoint
+- Enable encryption support for Matrix endpoint
 - Enable TLS support for the server
 - Make the HTTP interface path configurable instead of the hardcoded /notification
