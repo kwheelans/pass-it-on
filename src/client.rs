@@ -26,7 +26,7 @@ pub async fn start_client(
 
     // Monitor for incoming notifications
     tokio::spawn(async move {
-        receive_notifications(notification_rx, interface_tx, key).await;
+        receive_notifications(notification_rx, interface_tx, shutdown_rx.clone(), key).await;
     });
 
     // Shutdown
@@ -43,15 +43,28 @@ pub async fn start_client(
 async fn receive_notifications(
     mut notification_rx: mpsc::Receiver<ClientReadyMessage>,
     interface_tx: broadcast::Sender<Notification>,
+    shutdown: watch::Receiver<bool>,
     key: Key,
 ) {
     info!(target: LIB_LOG_TARGET, "Client waiting for notifications");
-    while let Some(client_ready_msg) = notification_rx.recv().await {
-        let notification = client_ready_msg.to_notification(&key);
-        debug!(target: LIB_LOG_TARGET, "Sending Notification: {:?}", notification);
-        match interface_tx.send(notification) {
-            Ok(ok) => debug!(target: LIB_LOG_TARGET, "Message passed to client {} interfaces", ok),
-            Err(error) => warn!(target: LIB_LOG_TARGET, "Client broadcast channel send error: {}", error),
+
+    let mut shutdown_rx = shutdown.clone();
+    loop {
+        tokio::select! {
+            msg = notification_rx.recv() => {
+                if let Some(client_ready_msg) = msg {
+                    let notification = client_ready_msg.to_notification(&key);
+                    debug!(target: LIB_LOG_TARGET, "Client Sending Notification: {:?}", notification);
+                    match interface_tx.send(notification) {
+                        Ok(ok) => debug!(target: LIB_LOG_TARGET, "Message passed to client {} interfaces", ok),
+                        Err(error) => warn!(target: LIB_LOG_TARGET, "Client broadcast channel send error: {}", error),
+                    }
+                }
+            }
+
+            _ = shutdown_rx.changed() => {
+                 break;
+                }
         }
     }
 }

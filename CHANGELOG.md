@@ -1,5 +1,9 @@
 # v0.3.2
 ## Fixes
+- Ensure client shuts down correctly
+
+# v0.3.2
+## Fixes
 - Stop looping on http and pipe client interfaces when input channel is closed
 
 # v0.3.1
