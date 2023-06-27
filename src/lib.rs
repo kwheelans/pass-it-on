@@ -82,7 +82,7 @@ mod server;
 pub(crate) mod shutdown;
 
 #[cfg(feature = "client")]
-pub use self::client::start_client;
+pub use self::client::{start_client, start_client_arc};
 #[cfg(feature = "client")]
 pub use self::configuration::ClientConfiguration;
 #[cfg(feature = "server")]
