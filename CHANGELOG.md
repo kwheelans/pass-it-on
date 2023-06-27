@@ -1,4 +1,4 @@
-# v0.3.2
+# v0.3.3
 ## Fixes
 - Ensure client shuts down correctly
 
