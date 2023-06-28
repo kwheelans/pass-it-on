@@ -79,7 +79,7 @@ impl Interface for HttpSocketInterface {
 
         let socket = SocketAddr::new(self.ip_or_default(), self.port());
 
-        tokio::spawn(async move { start_monitoring(interface_tx.clone(), shutdown, socket).await });
+        tokio::spawn(async move { start_monitoring(interface_tx, shutdown, socket).await });
         Ok(())
     }
 

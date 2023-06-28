@@ -2,7 +2,7 @@ use crate::configuration::ClientConfiguration;
 use crate::interfaces::setup_client_interfaces;
 use crate::notifications::{ClientReadyMessage, Key, Notification};
 use crate::shutdown::listen_for_shutdown;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
 use log::{debug, info, warn};
 use std::sync::{Arc, Mutex};
 use tokio::sync::{broadcast, mpsc, watch};
@@ -18,7 +18,7 @@ pub async fn start_client(
     wait_for_shutdown_secs: Option<u64>,
 ) -> Result<(), Error> {
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
-    let (interface_tx, interface_rx) = broadcast::channel(100);
+    let (interface_tx, interface_rx) = broadcast::channel(CHANNEL_BUFFER);
     let key = client_config.key().clone();
 
     // Setup interfaces to send notifications to
@@ -46,7 +46,7 @@ pub async fn start_client_arc(
     wait_for_shutdown_secs: Option<u64>,
 ) -> Result<(), Error> {
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
-    let (interface_tx, interface_rx) = broadcast::channel(100);
+    let (interface_tx, interface_rx) = broadcast::channel(CHANNEL_BUFFER);
     let key = client_config.key().clone();
 
     // Setup interfaces to send notifications to

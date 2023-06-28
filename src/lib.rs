@@ -93,3 +93,4 @@ pub use self::server::start_server;
 
 /// Logging target value used for the library.
 pub const LIB_LOG_TARGET: &str = "pass_it_on";
+const CHANNEL_BUFFER: usize = 200;

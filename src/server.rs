@@ -3,7 +3,7 @@ use crate::endpoints::{setup_endpoints, EndpointChannel};
 use crate::interfaces::setup_server_interfaces;
 use crate::notifications::{Notification, ValidatedNotification};
 use crate::shutdown::listen_for_shutdown;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
 use log::{debug, info, warn};
 use tokio::sync::{mpsc, watch};
 
@@ -18,7 +18,7 @@ pub async fn start_server(
 ) -> Result<(), Error> {
     // Setup channels
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
-    let (interface_tx, interface_rx) = mpsc::channel(100);
+    let (interface_tx, interface_rx) = mpsc::channel(CHANNEL_BUFFER);
 
     // Start monitoring the configured interfaces
     let interfaces = server_config.interfaces();

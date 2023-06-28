@@ -1,6 +1,9 @@
 # v0.4.0
 ## Features
-- Added `start_client_arc` which has the same functionality of the `start_client` function but accepts a `Arc<Mutex<Vec<ClientReadyMessage>>>`
+- Added `start_client_arc` which has the same functionality of the `start_client` function but accepts a `Arc<Mutex<Vec<ClientReadyMessage>>>`.
+
+## Fixes
+- Internal changes to client to ensure it continues to receive passed notifications.
 
 # v0.3.3
 ## Fixes

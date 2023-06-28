@@ -7,7 +7,7 @@ mod server_configuration_file;
 use crate::endpoints::{Endpoint, EndpointChannel};
 use crate::interfaces::Interface;
 use crate::notifications::Key;
-use crate::Error;
+use crate::{Error, CHANNEL_BUFFER};
 
 #[cfg(feature = "server")]
 /// Server configuration that can be used to start the server.
@@ -44,7 +44,7 @@ impl ServerConfiguration {
         let mut endpoints = Vec::new();
         for endpoint in &self.endpoints {
             let (endpoint_tx, _endpoint_rx): (Sender<ValidatedNotification>, Receiver<ValidatedNotification>) =
-                broadcast::channel(100);
+                broadcast::channel(CHANNEL_BUFFER);
             let keys = endpoint.generate_keys(&self.key);
             endpoints.push(EndpointChannel::from(endpoint.clone(), endpoint_tx, keys));
         }
