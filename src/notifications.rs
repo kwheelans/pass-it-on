@@ -15,6 +15,7 @@ pub struct Message {
 }
 
 /// A [`Message`] that has been assigned a notification name
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct ClientReadyMessage {
     message: Message,
     notification_name: String,

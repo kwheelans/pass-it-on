@@ -7,7 +7,7 @@ mod server_configuration_file;
 use crate::endpoints::{Endpoint, EndpointChannel};
 use crate::interfaces::Interface;
 use crate::notifications::Key;
-use crate::{Error, CHANNEL_BUFFER};
+use crate::Error;
 
 #[cfg(feature = "server")]
 /// Server configuration that can be used to start the server.
@@ -38,6 +38,7 @@ impl ServerConfiguration {
 
     pub(crate) fn endpoint_channels(&self) -> Vec<EndpointChannel> {
         use crate::notifications::ValidatedNotification;
+        use crate::CHANNEL_BUFFER;
         use tokio::sync::broadcast;
         use tokio::sync::broadcast::{Receiver, Sender};
 
