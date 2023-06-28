@@ -7,7 +7,7 @@ use dyn_clone::DynClone;
 use std::fmt::Debug;
 use tokio::sync::{broadcast, mpsc, watch};
 
-#[cfg(all(unix, feature = "pipe"))]
+#[cfg(all(unix, any(feature = "pipe-client", feature = "pipe-server", feature = "pipe")))]
 pub mod pipe;
 
 #[cfg(any(feature = "http-client", feature = "http-server"))]

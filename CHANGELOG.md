@@ -4,6 +4,7 @@
 
 ## Fixes
 - Internal changes to client to ensure it continues to receive passed notifications.
+- Fix cfg statement for pipe interface
 
 # v0.3.3
 ## Fixes
