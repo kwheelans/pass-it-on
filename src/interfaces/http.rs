@@ -98,11 +98,11 @@ impl Interface for HttpSocketInterface {
         interface_rx: broadcast::Receiver<Notification>,
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        use crate::interfaces::http::http_client::start_sending;
+        use crate::interfaces::http::http_client::start_sending_alt;
 
         let url = format!("http://{}:{}/notification", self.ip_or_default(), self.port);
 
-        tokio::spawn(async move { start_sending(interface_rx, shutdown, url.as_str()).await });
+        tokio::spawn(async move { start_sending_alt(interface_rx, shutdown, url.as_str()).await });
         Ok(())
     }
 

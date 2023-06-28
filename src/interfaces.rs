@@ -5,6 +5,7 @@ use crate::Error;
 use async_trait::async_trait;
 use dyn_clone::DynClone;
 use std::fmt::Debug;
+use std::time::Duration;
 use tokio::sync::{broadcast, mpsc, watch};
 
 #[cfg(all(unix, any(feature = "pipe-client", feature = "pipe-server", feature = "pipe")))]
@@ -12,6 +13,11 @@ pub mod pipe;
 
 #[cfg(any(feature = "http-client", feature = "http-server"))]
 pub mod http;
+
+#[allow(dead_code)]
+pub(crate) const SECOND: Duration = Duration::from_secs(1);
+#[allow(dead_code)]
+pub(crate) const NANOSECOND: Duration = Duration::from_nanos(1);
 
 /// A data structure that can be deserialized and converted into an [`Interface`].
 #[typetag::deserialize(tag = "type")]
