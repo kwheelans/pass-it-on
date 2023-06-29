@@ -9,18 +9,14 @@ use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
 use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
-use log::{error, info};
-use nix::sys::stat::{FchmodatFlags, Mode};
+#[cfg(feature = "pipe-server")]
+use nix::sys::stat::Mode;
 use serde::Deserialize;
-use std::path::{Path, PathBuf};
+#[cfg(feature = "pipe-server")]
+use std::path::Path;
+use std::path::PathBuf;
 use tokio::sync::mpsc::Sender;
 use tokio::sync::{broadcast, watch};
-
-const USER_RWX: Mode = Mode::S_IRWXU;
-const GROUP_READ: Mode = Mode::S_IRGRP;
-const GROUP_WRITE: Mode = Mode::S_IWGRP;
-const OTHER_READ: Mode = Mode::S_IROTH;
-const OTHER_WRITE: Mode = Mode::S_IWOTH;
 
 /// Data structure to represent the Named Pipe [`Interface`].
 #[derive(Debug, Clone)]
@@ -101,6 +97,14 @@ impl Interface for PipeInterface {
     #[cfg(feature = "pipe-server")]
     async fn receive(&self, interface_tx: Sender<String>, shutdown: watch::Receiver<bool>) -> Result<(), Error> {
         use crate::interfaces::pipe::pipe_server::read_pipe;
+        use log::info;
+
+        const USER_RWX: Mode = Mode::S_IRWXU;
+        const GROUP_READ: Mode = Mode::S_IRGRP;
+        const GROUP_WRITE: Mode = Mode::S_IWGRP;
+        const OTHER_READ: Mode = Mode::S_IROTH;
+        const OTHER_WRITE: Mode = Mode::S_IWOTH;
+
         let path = self.path().clone();
         let pipe_permissions = {
             let mut permissions = vec![USER_RWX];
@@ -134,11 +138,7 @@ impl Interface for PipeInterface {
     }
 
     #[cfg(not(feature = "pipe-server"))]
-    async fn receive(
-        &self,
-        _interface_tx: mpsc::Sender<String>,
-        _shutdown: watch::Receiver<bool>,
-    ) -> Result<(), Error> {
+    async fn receive(&self, _interface_tx: Sender<String>, _shutdown: watch::Receiver<bool>) -> Result<(), Error> {
         Err(Error::DisabledInterfaceFunction("Pipe receive".to_string()))
     }
 
@@ -149,11 +149,13 @@ impl Interface for PipeInterface {
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
         use crate::interfaces::pipe::pipe_client::write_pipe;
+        use log::error;
+
         let path = self.path.clone();
         tokio::spawn(async move {
             match write_pipe(path, interface_tx, shutdown).await {
                 Ok(_) => (),
-                Err(error) => error!("Pipe write error {}", error),
+                Err(error) => error!(target: LIB_LOG_TARGET, "Pipe write error {}", error),
             }
         });
         Ok(())
@@ -169,6 +171,7 @@ impl Interface for PipeInterface {
     }
 }
 
+#[cfg(feature = "pipe-server")]
 fn create_pipe<P: AsRef<Path>>(path: P, permissions: Mode) -> Result<(), Error> {
     match nix::unistd::mkfifo(path.as_ref(), permissions) {
         Err(e) => Err(Error::NixErrorNoError(e)),
@@ -176,6 +179,7 @@ fn create_pipe<P: AsRef<Path>>(path: P, permissions: Mode) -> Result<(), Error> 
     }
 }
 
+#[cfg(feature = "pipe-server")]
 fn create_permissions(permissions: Vec<Mode>) -> Mode {
     let mut set_permission = Mode::empty();
     for permission in permissions {
@@ -187,11 +191,14 @@ fn create_permissions(permissions: Vec<Mode>) -> Mode {
     set_permission
 }
 
+#[cfg(feature = "pipe-server")]
 fn set_permissions<P: AsRef<Path>>(path: P, permissions: Mode) -> Result<(), Error> {
+    use nix::sys::stat::FchmodatFlags;
     nix::sys::stat::fchmodat(None, path.as_ref(), permissions, FchmodatFlags::NoFollowSymlink)?;
     Ok(())
 }
 
+#[cfg(feature = "pipe-server")]
 async fn cleanup_pipe<P: AsRef<Path>>(path: P) -> Result<(), Error> {
     std::fs::remove_file(path)?;
     Ok(())

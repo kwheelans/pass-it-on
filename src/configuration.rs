@@ -38,13 +38,14 @@ impl ServerConfiguration {
 
     pub(crate) fn endpoint_channels(&self) -> Vec<EndpointChannel> {
         use crate::notifications::ValidatedNotification;
+        use crate::CHANNEL_BUFFER;
         use tokio::sync::broadcast;
         use tokio::sync::broadcast::{Receiver, Sender};
 
         let mut endpoints = Vec::new();
         for endpoint in &self.endpoints {
             let (endpoint_tx, _endpoint_rx): (Sender<ValidatedNotification>, Receiver<ValidatedNotification>) =
-                broadcast::channel(100);
+                broadcast::channel(CHANNEL_BUFFER);
             let keys = endpoint.generate_keys(&self.key);
             endpoints.push(EndpointChannel::from(endpoint.clone(), endpoint_tx, keys));
         }

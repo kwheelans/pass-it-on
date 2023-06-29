@@ -64,7 +64,7 @@ pub enum Error {
     #[error("Matrix OpenStore Error: {0}")]
     MatrixOpenStoreError(#[from] matrix_sdk::store::OpenStoreError),
 
-    #[cfg(all(unix, feature = "pipe"))]
+    #[cfg(all(unix, any(feature = "pipe-client", feature = "pipe-server", feature = "pipe")))]
     /// Pass-thru `nix::errno::Errno`.
     #[error("Nix ErrorNo Error: {0}")]
     NixErrorNoError(#[from] nix::errno::Errno),

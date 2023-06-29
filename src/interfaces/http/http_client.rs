@@ -1,10 +1,11 @@
+use crate::interfaces::{NANOSECOND, SECOND};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
-use log::{debug, error, warn};
+use log::{debug, error, trace, warn};
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
 
-pub(super) async fn start_sending(
+pub(super) async fn start_sending_alt(
     interface_rx: broadcast::Receiver<Notification>,
     shutdown: watch::Receiver<bool>,
     url: &str,
@@ -36,6 +37,11 @@ pub(super) async fn start_sending(
             _ = shutdown_rx.changed() => {
                 break;
             }
+
+            _ = tokio::time::sleep(SECOND) => {
+                trace!(target: LIB_LOG_TARGET, "Sleep timeout reached for http start_sending");
+            }
         }
+        tokio::time::sleep(NANOSECOND).await;
     }
 }
