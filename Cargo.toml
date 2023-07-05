@@ -1,6 +1,6 @@
 [package]
 name = "pass-it-on"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Kevin Wheelans <kevin.wheelans@proton.me>"]
 edition = "2021"
 rust-version = "1.65"
@@ -79,5 +79,6 @@ codegen-units = 1
 [package.metadata.cross.target.aarch64-unknown-linux-gnu]
 pre-build = [
     "dpkg --add-architecture arm64",
-    "apt-get update && apt-get install --assume-yes libssl-dev:arm64"
+    "apt-get update && apt-get install --assume-yes libssl-dev:arm64",
+    "apt-get update && apt-get install --assume-yes libsystemd-dev:arm64"
 ]

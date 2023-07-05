@@ -9,7 +9,7 @@ const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 #[test]
 #[cfg(unix)]
 fn server_valid_config_unix() {
-    let config = ServerConfiguration::from_toml(
+    let config = ServerConfiguration::try_from(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -51,7 +51,7 @@ fn server_valid_config_unix() {
 #[test]
 #[cfg(windows)]
 fn server_valid_config_windows() {
-    let config = ServerConfiguration::from_toml(
+    let config = ServerConfiguration::try_from(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -88,7 +88,7 @@ fn server_valid_config_windows() {
 
 #[test]
 fn server_invalid_key_length() {
-    let config = ServerConfiguration::from_toml(
+    let config = ServerConfiguration::try_from(
         r#"
     [server]
     key = "123456789"
@@ -138,7 +138,7 @@ fn endpoint_not_defined() {
 
 #[test]
 fn file_configfile_path_is_blank() {
-    let config = ServerConfiguration::from_toml(
+    let config = ServerConfiguration::try_from(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -161,7 +161,7 @@ fn file_configfile_path_is_blank() {
 
 #[test]
 fn file_configfile_path_notification_is_blank() {
-    let config = ServerConfiguration::from_toml(
+    let config = ServerConfiguration::try_from(
         r#"
     [server]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"

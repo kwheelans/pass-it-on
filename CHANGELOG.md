@@ -1,3 +1,7 @@
+# v0.5.0
+## Breaking Changes
+- Deprecated `from_toml` for `ClientConfiguration` and `ServerConfiguration` use `try_from` instead.
+
 # v0.4.0
 ## Features
 - Added `start_client_arc` which has the same functionality of the `start_client` function but accepts a `Arc<Mutex<Vec<ClientReadyMessage>>>`.
