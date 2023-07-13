@@ -81,6 +81,7 @@ impl ServerConfiguration {
     }
 }
 
+#[cfg(feature = "server")]
 impl TryFrom<&str> for ServerConfiguration {
     type Error = Error;
 
@@ -137,6 +138,7 @@ fn valid_key_length(key: &str) -> Result<(), Error> {
     }
 }
 
+#[cfg(feature = "client")]
 impl TryFrom<&str> for ClientConfiguration {
     type Error = Error;
 

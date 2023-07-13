@@ -17,7 +17,7 @@ repository = "https://github.com/kwheelans/pass-it-on"
 all-features = true
 
 [features]
-default = ["server-bin","client", "parse-cfg", "pipe", "http", "file", "matrix"]
+default = ["server-bin-full","client"]
 client = ["interfaces", "tokio", "tokio/signal", "tokio/time", "dep:log"]
 endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 file = ["endpoints", "dep:log", "tokio/io-util"]
@@ -31,7 +31,8 @@ pipe = ["pipe-client", "pipe-server"]
 pipe-client = ["interfaces", "dep:log", "dep:nix", "tokio/io-util"]
 pipe-server = ["interfaces", "dep:log", "dep:nix","tokio/io-util"]
 server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:log"]
-server-bin = ["server", "parse-cfg", "dep:directories", "dep:simple_logger"]
+server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix"]
+server-bin-minimal = ["server", "parse-cfg", "dep:directories", "dep:simple_logger"]
 vendored-tls = ["reqwest/native-tls-vendored"]
 
 [dependencies]
@@ -58,7 +59,7 @@ doctest = false
 
 [[bin]]
 name = "pass-it-on-server"
-required-features = ["server-bin"]
+required-features = ["server-bin-minimal"]
 
 [[example]]
 name = "simple_client"
