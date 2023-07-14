@@ -7,8 +7,33 @@ use pass_it_on::ServerConfiguration;
 const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 
 #[test]
-#[cfg(unix)]
-fn server_valid_config_unix() {
+fn server_valid_config_file() {
+    let config = ServerConfiguration::try_from(
+        r#"
+    [server]
+    key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
+
+    [[server.interface]]
+    type = "http"
+    port = 8080
+
+    [[server.endpoint]]
+    type = "file"
+    path = '/test_data/file_endpoint.txt'
+    notifications = ["notification1", "notification2"]
+"#,
+    );
+    match config.as_ref() {
+        Ok(_) => (),
+        Err(e) => println!("{}", e),
+    }
+
+    assert!(config.is_ok());
+}
+
+#[test]
+#[cfg(feature = "pipe-server")]
+fn server_valid_config_pipe() {
     let config = ServerConfiguration::try_from(
         r#"
     [server]
@@ -24,18 +49,6 @@ fn server_valid_config_unix() {
     port = 8080
 
     [[server.endpoint]]
-    type = "matrix"
-    home_server = "example.com"
-    username = "test1"
-    password = "pass"
-    session_store_path = '/test_data/matrix_store'
-    session_store_password = "storepass123"
-
-    [[server.endpoint.room]]
-    room = "!dfsdfsdf:example.com"
-    notifications = ["notification1", "notification2"]
-
-    [[server.endpoint]]
     type = "file"
     path = '/test_data/file_endpoint.txt'
     notifications = ["notification1", "notification2"]
@@ -48,9 +61,10 @@ fn server_valid_config_unix() {
 
     assert!(config.is_ok());
 }
+
 #[test]
-#[cfg(windows)]
-fn server_valid_config_windows() {
+#[cfg(feature = "matrix")]
+fn server_valid_config_matrix() {
     let config = ServerConfiguration::try_from(
         r#"
     [server]
@@ -59,6 +73,11 @@ fn server_valid_config_windows() {
     [[server.interface]]
     type = "http"
     port = 8080
+
+    [[server.endpoint]]
+    type = "file"
+    path = '/test_data/file_endpoint.txt'
+    notifications = ["notification1", "notification2"]
 
     [[server.endpoint]]
     type = "matrix"
@@ -71,11 +90,42 @@ fn server_valid_config_windows() {
     [[server.endpoint.room]]
     room = "!dfsdfsdf:example.com"
     notifications = ["notification1", "notification2"]
+"#,
+    );
+    match config.as_ref() {
+        Ok(_) => (),
+        Err(e) => println!("{}", e),
+    }
+
+    assert!(config.is_ok());
+}
+
+#[test]
+#[cfg(feature = "discord")]
+fn server_valid_config_discord() {
+    let config = ServerConfiguration::try_from(
+        r#"
+    [server]
+    key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
+
+    [[server.interface]]
+    type = "http"
+    port = 8080
 
     [[server.endpoint]]
-    type = "file"
-    path = '/test_data/file_endpoint.txt'
+    type = "discord"
+    url = "https://discord.com/api/123456/asdf9874"
+    username = "test_user"
     notifications = ["notification1", "notification2"]
+
+    [[server.endpoint]]
+    type = "discord"
+    url = "https://discord.com/api/987456/zxcv3214"
+    notifications = ["notification1", "notification2"]
+
+    [server.endpoint.allowed_mentions]
+    parse = ["everyone"]
+
 "#,
     );
     match config.as_ref() {
@@ -98,19 +148,6 @@ fn server_invalid_key_length() {
     port = 8080
 
     [[server.endpoint]]
-    type = "matrix"
-    home_server = "example.com"
-    username = "test1"
-    password = "pass"
-    session_store_path = '/test_data/matrix_store'
-    session_store_password = "storepass123"
-
-    [[server.endpoint.room]]
-    room = "!dfsdfsdf:example.com"
-    notifications = ["notification1", "notification2"]
-
-
-    [[server.endpoints]]
     type = "file"
     path = '/test_data/file_endpoint.txt'
     notifications = ["notification1", "notification2"]

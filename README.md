@@ -37,10 +37,11 @@ Interfaces can be used for both the server and the client.
 ## Endpoints
 Endpoints are the destinations for notifications received by the server.
 
-| Endpoint     | Description                           |
-|--------------|---------------------------------------|
-| Regular File | Write notifications to a file.        |
-| Matrix       | Send notifications to Matrix room(s). |
+| Endpoint        | Description                                  |
+|-----------------|----------------------------------------------|
+| Regular File    | Write notifications to a file.               |
+| Matrix          | Send notifications to Matrix room(s).        |
+| Discord Webhook | Send notifications to Discord via a webhook. |
 
 ## Configuration
 The Server and Client support configuration via a TOML file.
@@ -107,6 +108,7 @@ port = 8080
 | Feature            | Description                                                                                                            |
 |--------------------|------------------------------------------------------------------------------------------------------------------------|
 | client             | Enables the client but not any particular interface.                                                                   |
+| discord            | Enables the discord webhook endpoint.                                                                                  |
 | endpoints          | Enables the Endpoint and EndpointConfig traits.                                                                        |
 | file               | Enables the regular file endpoint.                                                                                     |
 | http               | Enables the HTTP interface client and server.                                                                          |
@@ -125,8 +127,7 @@ port = 8080
 
 
 ## Future Plans
-- Add Discord webhook endpoint
 - Add Email endpoint
 - Enable encryption support for Matrix endpoint
 - Enable TLS support for the server
-- Make the HTTP interface path configurable instead of the hardcoded /notification
+- Make the HTTP interface path configurable instead of the hardcoded `/notification`
