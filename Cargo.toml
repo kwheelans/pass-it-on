@@ -19,6 +19,7 @@ all-features = true
 [features]
 default = ["server-bin-full","client"]
 client = ["interfaces", "tokio", "tokio/signal", "tokio/time", "dep:log"]
+discord = ["endpoints", "dep:log", "reqwest"]
 endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 file = ["endpoints", "dep:log", "tokio/io-util"]
 http = ["http-client", "http-server"]
@@ -31,7 +32,7 @@ pipe = ["pipe-client", "pipe-server"]
 pipe-client = ["interfaces", "dep:log", "dep:nix", "tokio/io-util"]
 pipe-server = ["interfaces", "dep:log", "dep:nix","tokio/io-util"]
 server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:log"]
-server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix"]
+server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord"]
 server-bin-minimal = ["server", "parse-cfg", "dep:directories", "dep:simple_logger"]
 vendored-tls = ["reqwest/native-tls-vendored"]
 
@@ -71,7 +72,7 @@ required-features = ["client", "parse-cfg"]
 
 [[test]]
 name = "server_configuration_tests"
-required-features = ["server", "http-server", "parse-cfg"]
+required-features = ["server", "http-server", "parse-cfg", "file"]
 
 [profile.release]
 lto = true

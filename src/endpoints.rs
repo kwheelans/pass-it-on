@@ -8,11 +8,12 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use tokio::sync::{broadcast, watch};
 
-#[cfg(feature = "matrix")]
-pub mod matrix;
-
+#[cfg(feature = "discord")]
+pub mod discord;
 #[cfg(feature = "file")]
 pub mod file;
+#[cfg(feature = "matrix")]
+pub mod matrix;
 
 /// A data structure that can be deserialized and converted into an [`Endpoint`].
 #[typetag::deserialize(tag = "type")]
