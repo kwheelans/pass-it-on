@@ -1,6 +1,6 @@
 [package]
 name = "pass-it-on"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Kevin Wheelans <kevin.wheelans@proton.me>"]
 edition = "2021"
 rust-version = "1.65"
@@ -17,8 +17,9 @@ repository = "https://github.com/kwheelans/pass-it-on"
 all-features = true
 
 [features]
-default = ["server-bin","client", "parse-cfg", "pipe", "http", "file", "matrix"]
+default = ["server-bin-full","client"]
 client = ["interfaces", "tokio", "tokio/signal", "tokio/time", "dep:log"]
+discord = ["endpoints", "dep:log", "reqwest"]
 endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 file = ["endpoints", "dep:log", "tokio/io-util"]
 http = ["http-client", "http-server"]
@@ -31,7 +32,8 @@ pipe = ["pipe-client", "pipe-server"]
 pipe-client = ["interfaces", "dep:log", "dep:nix", "tokio/io-util"]
 pipe-server = ["interfaces", "dep:log", "dep:nix","tokio/io-util"]
 server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:log"]
-server-bin = ["server", "parse-cfg", "dep:directories", "dep:simple_logger"]
+server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord"]
+server-bin-minimal = ["server", "parse-cfg", "dep:directories", "dep:simple_logger"]
 vendored-tls = ["reqwest/native-tls-vendored"]
 
 [dependencies]
@@ -58,7 +60,7 @@ doctest = false
 
 [[bin]]
 name = "pass-it-on-server"
-required-features = ["server-bin"]
+required-features = ["server-bin-minimal"]
 
 [[example]]
 name = "simple_client"
@@ -70,7 +72,7 @@ required-features = ["client", "parse-cfg"]
 
 [[test]]
 name = "server_configuration_tests"
-required-features = ["server", "http-server", "parse-cfg"]
+required-features = ["server", "http-server", "parse-cfg", "file"]
 
 [profile.release]
 lto = true
@@ -79,5 +81,6 @@ codegen-units = 1
 [package.metadata.cross.target.aarch64-unknown-linux-gnu]
 pre-build = [
     "dpkg --add-architecture arm64",
-    "apt-get update && apt-get install --assume-yes libssl-dev:arm64"
+    "apt-get update && apt-get install --assume-yes libssl-dev:arm64",
+    "apt-get update && apt-get install --assume-yes libsystemd-dev:arm64"
 ]

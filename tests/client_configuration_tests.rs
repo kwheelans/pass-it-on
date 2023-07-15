@@ -7,7 +7,7 @@ const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 #[test]
 #[cfg(unix)]
 fn client_valid_config_unix() {
-    let config = ClientConfiguration::from_toml(
+    let config = ClientConfiguration::try_from(
         r#"
     [client]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -34,7 +34,7 @@ fn client_valid_config_unix() {
 #[test]
 #[cfg(windows)]
 fn client_valid_config_windows() {
-    let config = ClientConfiguration::from_toml(
+    let config = ClientConfiguration::try_from(
         r#"
     [client]
     key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
@@ -55,7 +55,7 @@ fn client_valid_config_windows() {
 
 #[test]
 fn server_invalid_key_length() {
-    let config = ClientConfiguration::from_toml(
+    let config = ClientConfiguration::try_from(
         r#"
     [client]
     key = "asdffdsa12346785"

@@ -30,7 +30,7 @@ async fn main() -> Result<(), Error> {
         .init()
         .unwrap();
 
-    let config = ClientConfiguration::from_toml(CLIENT_TOML_CONFIG)?;
+    let config = ClientConfiguration::try_from(CLIENT_TOML_CONFIG)?;
     let messages = get_test_messages();
     let (interface_tx, interface_rx) = mpsc::channel(100);
 
@@ -53,7 +53,7 @@ fn get_test_messages() -> Vec<ClientReadyMessage> {
     let msg2 = format!("Simple Client Another message : {}", time);
 
     vec![
-        Message::new(msg1.as_str()).to_client_ready_message(NOTIFICATION_NAME),
-        Message::new(msg2.as_str()).to_client_ready_message(NOTIFICATION_NAME),
+        Message::new(msg1).to_client_ready_message(NOTIFICATION_NAME),
+        Message::new(msg2).to_client_ready_message(NOTIFICATION_NAME),
     ]
 }

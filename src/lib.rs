@@ -48,23 +48,25 @@
 //!
 //! ## Feature Flags
 //!
-//! | Feature      | Description                                                                                                          |
-//! |--------------|----------------------------------------------------------------------------------------------------------------------|
-//! | client       | Enables the client but not any particular interface.                                                                 |
-//! | endpoints    | Enables the Endpoint and EndpointConfig traits.                                                                      |
-//! | file         | Enables the regular file endpoint.                                                                                   |
-//! | http         | Enables the HTTP interface client and server.                                                                        |
-//! | http-client  | Enables the HTTP interface for just client.                                                                          |
-//! | http-server  | Enables the HTTP interface for just server.                                                                          |
-//! | interfaces   | Enables the Interface and InterfaceConfig traits.                                                                    |
-//! | matrix       | Enables the matrix endpoint.                                                                                         |
-//! | parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                   |
-//! | pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                  |
-//! | pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                             |
-//! | pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                             |
-//! | server       | Enables the server but not any particular interface or endpoint.                                                     |
-//! | server-bin   | Enables the building of the provided `pass-it-on-server` binary while not require any specific interface or endpoint |
-//! | vendored-tls | Enables vendored tls for reqwest.                                                                                    |
+//! | Feature            | Description                                                                                                            |
+//! |--------------------|------------------------------------------------------------------------------------------------------------------------|
+//! | client             | Enables the client but not any particular interface.                                                                   |
+//! | discord            | Enables the discord webhook endpoint.                                                                                  |
+//! | endpoints          | Enables the Endpoint and EndpointConfig traits.                                                                        |
+//! | file               | Enables the regular file endpoint.                                                                                     |
+//! | http               | Enables the HTTP interface client and server.                                                                          |
+//! | http-client        | Enables the HTTP interface for just client.                                                                            |
+//! | http-server        | Enables the HTTP interface for just server.                                                                            |
+//! | interfaces         | Enables the Interface and InterfaceConfig traits.                                                                      |
+//! | matrix             | Enables the matrix endpoint.                                                                                           |
+//! | parse-cfg          | Enables parsing of client or server configurations from TOML when those features are also enabled.                     |
+//! | pipe               | Enables the named pipe interface client and server. **(Unix only)**                                                    |
+//! | pipe-client        | Enables the named pipe interface client. **(Unix only)**                                                               |
+//! | pipe-server        | Enables the named pipe interface server. **(Unix only)**                                                               |
+//! | server             | Enables the server but not any particular interface or endpoint.                                                       |
+//! | server-bin-full    | Enables the building of the provided `pass-it-on-server` binary with all available interfaces and endpoints            |
+//! | server-bin-minimal | Enables the building of the provided `pass-it-on-server` binary while not requiring any specific interface or endpoint |
+//! | vendored-tls       | Enables vendored tls for reqwest.                                                                                      |
 
 #[cfg(feature = "client")]
 mod client;

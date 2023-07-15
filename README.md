@@ -37,10 +37,11 @@ Interfaces can be used for both the server and the client.
 ## Endpoints
 Endpoints are the destinations for notifications received by the server.
 
-| Endpoint     | Description                           |
-|--------------|---------------------------------------|
-| Regular File | Write notifications to a file.        |
-| Matrix       | Send notifications to Matrix room(s). |
+| Endpoint        | Description                                  |
+|-----------------|----------------------------------------------|
+| Regular File    | Write notifications to a file.               |
+| Matrix          | Send notifications to Matrix room(s).        |
+| Discord Webhook | Send notifications to Discord via a webhook. |
 
 ## Configuration
 The Server and Client support configuration via a TOML file.
@@ -82,6 +83,15 @@ notifications = ["notification_id4"]
 type = "file"
 path = '/test_data/file_endpoint.txt'
 notifications = ["notification_id1", "notification_id3"]
+
+[[server.endpoint]]
+type = "discord"
+url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
+notifications = ["notification_id1", "notification_id3"]
+
+[server.endpoint.allowed_mentions]
+parse = ["everyone"]
+
 ```
 
 ### Client Configuration Example
@@ -104,28 +114,29 @@ port = 8080
 
 ## Feature Flags
 
-| Feature      | Description                                                                                                          |
-|--------------|----------------------------------------------------------------------------------------------------------------------|
-| client       | Enables the client but not any particular interface.                                                                 |
-| endpoints    | Enables the Endpoint and EndpointConfig traits.                                                                      |
-| file         | Enables the regular file endpoint.                                                                                   |
-| http         | Enables the HTTP interface client and server.                                                                        |
-| http-client  | Enables the HTTP interface for just client.                                                                          |
-| http-server  | Enables the HTTP interface for just server.                                                                          |
-| interfaces   | Enables the Interface and InterfaceConfig traits.                                                                    |
-| matrix       | Enables the matrix endpoint.                                                                                         |
-| parse-cfg    | Enables parsing of client or server configurations from TOML when those features are also enabled.                   |
-| pipe         | Enables the named pipe interface client and server. **(Unix only)**                                                  |
-| pipe-client  | Enables the named pipe interface client. **(Unix only)**                                                             |
-| pipe-server  | Enables the named pipe interface server. **(Unix only)**                                                             |
-| server       | Enables the server but not any particular interface or endpoint.                                                     |
-| server-bin   | Enables the building of the provided `pass-it-on-server` binary while not require any specific interface or endpoint |
-| vendored-tls | Enables vendored tls for reqwest.                                                                                    |
+| Feature            | Description                                                                                                            |
+|--------------------|------------------------------------------------------------------------------------------------------------------------|
+| client             | Enables the client but not any particular interface.                                                                   |
+| discord            | Enables the discord webhook endpoint.                                                                                  |
+| endpoints          | Enables the Endpoint and EndpointConfig traits.                                                                        |
+| file               | Enables the regular file endpoint.                                                                                     |
+| http               | Enables the HTTP interface client and server.                                                                          |
+| http-client        | Enables the HTTP interface for just client.                                                                            |
+| http-server        | Enables the HTTP interface for just server.                                                                            |
+| interfaces         | Enables the Interface and InterfaceConfig traits.                                                                      |
+| matrix             | Enables the matrix endpoint.                                                                                           |
+| parse-cfg          | Enables parsing of client or server configurations from TOML when those features are also enabled.                     |
+| pipe               | Enables the named pipe interface client and server. **(Unix only)**                                                    |
+| pipe-client        | Enables the named pipe interface client. **(Unix only)**                                                               |
+| pipe-server        | Enables the named pipe interface server. **(Unix only)**                                                               |
+| server             | Enables the server but not any particular interface or endpoint.                                                       |
+| server-bin-full    | Enables the building of the provided `pass-it-on-server` binary with all available interfaces and endpoints            |
+| server-bin-minimal | Enables the building of the provided `pass-it-on-server` binary while not requiring any specific interface or endpoint |
+| vendored-tls       | Enables vendored tls for reqwest.                                                                                      |
 
 
 ## Future Plans
-- Add Discord webhook endpoint
 - Add Email endpoint
 - Enable encryption support for Matrix endpoint
 - Enable TLS support for the server
-- Make the HTTP interface path configurable instead of the hardcoded /notification
+- Make the HTTP interface path configurable instead of the hardcoded `/notification`

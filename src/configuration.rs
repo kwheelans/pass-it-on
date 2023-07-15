@@ -31,6 +31,7 @@ impl ServerConfiguration {
     }
 
     #[cfg(all(feature = "parse-cfg", feature = "server"))]
+    #[deprecated(since = "0.5.0", note = "use `try_from` instead")]
     /// Parse [`ServerConfiguration`] from provided TOML
     pub fn from_toml(toml_str: &str) -> Result<Self, Error> {
         server_configuration_file::ServerConfigFileParser::from(toml_str)
@@ -52,7 +53,7 @@ impl ServerConfiguration {
         endpoints
     }
 
-    /// Return server key value as a byte array.
+    /// Return server [`Key`] value.
     pub fn key(&self) -> &Key {
         &self.key
     }
@@ -80,6 +81,15 @@ impl ServerConfiguration {
     }
 }
 
+#[cfg(feature = "server")]
+impl TryFrom<&str> for ServerConfiguration {
+    type Error = Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        server_configuration_file::ServerConfigFileParser::from(value)
+    }
+}
+
 #[cfg(feature = "client")]
 /// Client configuration that can be used to start the client.
 #[derive(Debug)]
@@ -97,12 +107,13 @@ impl ClientConfiguration {
     }
 
     #[cfg(all(feature = "parse-cfg", feature = "client"))]
+    #[deprecated(since = "0.5.0", note = "use `try_from` instead")]
     /// Parse [`ClientConfiguration`] from provided TOML
     pub fn from_toml(toml_str: &str) -> Result<Self, Error> {
         client_configuration_file::ClientConfigFileParser::from(toml_str)
     }
 
-    /// Return client key value.
+    /// Return client [`Key`] value.
     pub fn key(&self) -> &Key {
         &self.key
     }
@@ -124,5 +135,14 @@ fn valid_key_length(key: &str) -> Result<(), Error> {
     match key.len() == 32 {
         true => Ok(()),
         false => Err(Error::InvalidKeyLength(key.len() as u8)),
+    }
+}
+
+#[cfg(feature = "client")]
+impl TryFrom<&str> for ClientConfiguration {
+    type Error = Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        client_configuration_file::ClientConfigFileParser::from(value)
     }
 }

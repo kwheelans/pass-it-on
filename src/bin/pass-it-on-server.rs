@@ -35,7 +35,7 @@ async fn run() -> Result<(), Error> {
         };
 
         info!(target: LOG_TARGET, "Reading configuration from: {}", config_path.to_str().unwrap());
-        ServerConfiguration::from_toml(std::fs::read_to_string(config_path)?.as_str())?
+        ServerConfiguration::try_from(std::fs::read_to_string(config_path)?.as_str())?
     };
 
     start_server(server_config, None).await
