@@ -83,6 +83,15 @@ notifications = ["notification_id4"]
 type = "file"
 path = '/test_data/file_endpoint.txt'
 notifications = ["notification_id1", "notification_id3"]
+
+[[server.endpoint]]
+type = "discord"
+url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
+notifications = ["notification_id1", "notification_id3"]
+
+[server.endpoint.allowed_mentions]
+parse = ["everyone"]
+
 ```
 
 ### Client Configuration Example
