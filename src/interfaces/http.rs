@@ -1,4 +1,20 @@
 //! HTTP [`Interface`] and [`InterfaceConfig`] implementation
+//!
+//! # Server Configuration Example
+//! ```toml
+//! [[server.interface]]
+//! type = "http"
+//! ip = "127.0.0.1"
+//! port = 8080
+//! ```
+//!
+//! # Client Configuration Example
+//! ```toml
+//! [[client.interface]]
+//! type = "http"
+//! ip = "127.0.0.1"
+//! port = 8080
+//! ```
 
 #[cfg(feature = "http-client")]
 pub(crate) mod http_client;

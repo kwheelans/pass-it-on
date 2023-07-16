@@ -1,0 +1,54 @@
+###################################
+# Pass-it-on Server Configuration #
+###################################
+# Server key must be 32 characters/bytes and must match the clients key
+
+[server]
+key = "replace me"
+
+
+[[server.interface]]
+type = "http"
+ip = "127.0.0.1"
+port = 8080
+
+
+#########################
+# File Endpoint Example #
+#########################
+
+# [[server.endpoint]]
+# type = "file"
+# path = '/test_data/file_endpoint.txt'
+# notifications = ["notification_id1", "notification_id2"]
+
+
+###########################
+# Matrix Endpoint Example #
+###########################
+
+# [[server.endpoint]]
+# type = "matrix"
+# home_server = "example.com"
+# username = "test1"
+# password = "password"
+# session_store_path = '/path/to/session/store/matrix_store'
+# session_store_password = "storepassword"
+
+
+# [[server.endpoint.room]]
+# room = "#matrix-room:example.com"
+# notifications = ["notification_id3"]
+
+
+############################
+# Discord Endpoint Example #
+############################
+
+# [[server.endpoint]]
+# type = "discord"
+# url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
+# notifications = ["notification_id1", "notification_id3"]
+
+# [server.endpoint.allowed_mentions]
+# parse = ["everyone"]

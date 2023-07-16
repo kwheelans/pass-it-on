@@ -1,4 +1,22 @@
 //! Discord webhook [`Endpoint`] and [`EndpointConfig`] implementation
+//!
+//!
+//! # Configuration Example
+//! ```toml
+//! [[server.endpoint]]
+//! type = "discord"
+//! url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
+//! username = "Bot Name"
+//! avatar_url = "https://example.com/avatar/url"
+//! tts = true
+//! notifications = ["notification_id1", "notification_id3"]
+//!
+//! [server.endpoint.allowed_mentions]
+//! parse = ["everyone"]
+//! roles = ["role1"]
+//! users = ["user1"]
+//! replied_user = false
+//! ```
 
 pub(crate) mod webhook;
 

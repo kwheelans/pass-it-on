@@ -1,4 +1,23 @@
 //! Matrix [`Endpoint`] and [`EndpointConfig`] implementation
+//!
+//! ```toml
+//! [[server.endpoint]]
+//! type = "matrix"
+//! home_server = "example.com"
+//! username = "test1"
+//! password = "password"
+//! session_store_path = '/path/to/session/store/matrix_store'
+//! session_store_password = "storepassword"
+//!
+//!
+//! [[server.endpoint.room]]
+//! room = "#matrix-room:example.com"
+//! notifications = ["notification_id1"]
+//!
+//! [[server.endpoint.room]]
+//! room = "#another-room:example.com"
+//! notifications = ["notification_id2"]
+//! ```
 
 pub(crate) mod notify;
 

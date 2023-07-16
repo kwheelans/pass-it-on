@@ -1,4 +1,12 @@
 //! Regular file [`Endpoint`] and [`EndpointConfig`] implementation
+//!
+//! # Configuration Example
+//! ```toml
+//! [[server.endpoint]]
+//! type = "file"
+//! path = 'path/to/file_endpoint.txt'
+//! notifications = ["notification_id1", "notification_id2"]
+//! ```
 
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};

@@ -1,3 +1,12 @@
+# v0.6.0
+## Changes
+- Changed default path for pass-it-on-server bin.
+- Changed CLI for pass-it-on-server bin to use clap.
+
+## Features
+- added systemd service file under resources.
+- added server configuration example under resources.
+
 # v0.5.0
 ## Breaking Changes
 - Deprecated `from_toml` for `ClientConfiguration` and `ServerConfiguration` use `try_from` instead.

@@ -1,4 +1,21 @@
 //! Pipe [`Interface`] and [`InterfaceConfig`]  implementation
+//!
+//! # Server Configuration Example
+//! ```toml
+//! [[server.interface]]
+//! type = "pipe"
+//! path = '/path/to/pipe.fifo'
+//! group_read_permission = true
+//! ```
+//!
+//! # Client Configuration Example
+//! ```toml
+//! [[client.interface]]
+//! type = "pipe"
+//! path = '/path/to/pipe.fifo'
+//! group_read_permission = true
+//! group_write_permission = true
+//! ```
 
 #[cfg(feature = "pipe-client")]
 pub(crate) mod pipe_client;

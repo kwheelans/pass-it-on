@@ -1,6 +1,6 @@
 [package]
 name = "pass-it-on"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Kevin Wheelans <kevin.wheelans@proton.me>"]
 edition = "2021"
 rust-version = "1.65"
@@ -33,12 +33,13 @@ pipe-client = ["interfaces", "dep:log", "dep:nix", "tokio/io-util"]
 pipe-server = ["interfaces", "dep:log", "dep:nix","tokio/io-util"]
 server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:log"]
 server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord"]
-server-bin-minimal = ["server", "parse-cfg", "dep:directories", "dep:simple_logger"]
+server-bin-minimal = ["server", "parse-cfg", "dep:clap", "dep:directories", "dep:simple_logger"]
 vendored-tls = ["reqwest/native-tls-vendored"]
 
 [dependencies]
 async-trait = { version = "0.1", optional = true }
 blake3 = "1"
+clap  = { version = "4.3", features = ["derive", "cargo"], optional = true }
 directories = { version = "5.0", optional = true }
 dyn-clone = { version = "1.0", optional = true }
 log = { version = "0.4", optional = true }
@@ -47,7 +48,7 @@ nix = { version = "0.26", features = ["fs", "net"], default-features = false, op
 reqwest = { version = "0.11", optional = true }
 serde = { version = "1", features = ["default", "derive"] }
 serde_json = "1"
-simple_logger = { version = "4.1", optional = true }
+simple_logger = { version = "4.2", optional = true }
 thiserror = "1"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"], default-features = false, optional = true }
 toml = { version = "0.7", features = ["parse"], default-features = false, optional = true }
