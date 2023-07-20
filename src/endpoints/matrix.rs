@@ -97,62 +97,26 @@ impl MatrixRoomConfigFile {
 
 #[typetag::deserialize(name = "matrix")]
 impl EndpointConfig for MatrixConfigFile {
-    fn to_endpoint(&self) -> Box<dyn Endpoint + Send> {
-        let home_server = self.home_server.as_str();
-        let username = self.username.as_str();
-        let password = self.password.as_str();
-        let session_store_path = self.session_store_path.as_str();
-        let session_store_password = self.session_store_password.as_str();
-        let rooms = {
-            let mut rooms: Vec<_> = Vec::new();
-            for (room, notifications) in self.rooms() {
-                rooms.push(MatrixRoom::new(room, notifications));
-            }
-            rooms
-        };
-
-        Box::new(MatrixEndpoint::new(
-            home_server,
-            username,
-            password,
-            session_store_path,
-            session_store_password,
-            rooms,
-        ))
-    }
-
-    fn validate(&self) -> Result<(), Error> {
-        if self.home_server.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Matrix configuration home_server is blank".to_string()));
-        }
-
-        if self.username.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Matrix configuration username is blank".to_string()));
-        }
-
-        if self.room.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Matrix configuration has no rooms setup".to_string()));
-        }
-
-        Ok(())
+    fn to_endpoint(&self) -> Result<Box<dyn Endpoint + Send>, Error> {
+        Ok(Box::new(MatrixEndpoint::try_from(self)?))
     }
 }
 
 impl MatrixEndpoint {
     /// Create a new `MatrixEndpoint`.
-    pub fn new(
-        home_server: &str,
-        username: &str,
-        password: &str,
-        session_store_path: &str,
-        session_store_password: &str,
+    pub fn new<S: AsRef<str>>(
+        home_server: S,
+        username: S,
+        password: S,
+        session_store_path: S,
+        session_store_password: S,
         rooms: Vec<MatrixRoom>,
     ) -> Self {
-        let home_server = home_server.to_string();
-        let username = username.to_string();
-        let password = password.to_string();
-        let session_store_path = PathBuf::from(session_store_path);
-        let session_store_password = session_store_password.to_string();
+        let home_server = home_server.as_ref().into();
+        let username = username.as_ref().into();
+        let password = password.as_ref().into();
+        let session_store_path = PathBuf::from(session_store_path.as_ref());
+        let session_store_password = session_store_password.as_ref().into();
         Self { home_server, username, password, session_store_path, session_store_password, rooms }
     }
 
@@ -184,6 +148,41 @@ impl MatrixEndpoint {
     /// Return the matrix rooms setup for this matrix endpoint.
     pub fn rooms(&self) -> &[MatrixRoom] {
         &self.rooms
+    }
+}
+
+impl TryFrom<&MatrixConfigFile> for MatrixEndpoint {
+    type Error = Error;
+
+    fn try_from(value: &MatrixConfigFile) -> Result<Self, Self::Error> {
+        if value.home_server.is_empty() {
+            return Err(Error::InvalidEndpointConfiguration("Matrix configuration home_server is blank".to_string()));
+        }
+
+        if value.username.is_empty() {
+            return Err(Error::InvalidEndpointConfiguration("Matrix configuration username is blank".to_string()));
+        }
+
+        if value.room.is_empty() {
+            return Err(Error::InvalidEndpointConfiguration("Matrix configuration has no rooms setup".to_string()));
+        }
+
+        let rooms = {
+            let mut rooms: Vec<_> = Vec::new();
+            for (room, notifications) in value.rooms() {
+                rooms.push(MatrixRoom::new(room, notifications));
+            }
+            rooms
+        };
+
+        Ok(MatrixEndpoint::new(
+            value.home_server.as_str(),
+            value.username.as_str(),
+            value.password.as_str(),
+            value.session_store_path.as_str(),
+            value.session_store_password.as_str(),
+            rooms,
+        ))
     }
 }
 

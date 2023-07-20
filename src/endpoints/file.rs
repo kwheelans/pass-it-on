@@ -15,7 +15,6 @@ use async_trait::async_trait;
 use log::{info, warn};
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
 use tokio::io::{AsyncWriteExt, BufWriter};
@@ -55,24 +54,28 @@ impl FileEndpoint {
     }
 }
 
-#[typetag::deserialize(name = "file")]
-impl EndpointConfig for FileConfigFile {
-    fn to_endpoint(&self) -> Box<dyn Endpoint + Send> {
-        Box::new(FileEndpoint::new(self.path.deref(), self.notifications.deref()))
-    }
+impl TryFrom<&FileConfigFile> for FileEndpoint {
+    type Error = Error;
 
-    fn validate(&self) -> Result<(), Error> {
-        if self.path.is_empty() {
+    fn try_from(value: &FileConfigFile) -> Result<Self, Self::Error> {
+        if value.path.is_empty() {
             return Err(Error::InvalidEndpointConfiguration("File configuration path is blank".to_string()));
         }
 
-        if self.notifications.is_empty() {
+        if value.notifications.is_empty() {
             return Err(Error::InvalidEndpointConfiguration(
                 "File configuration has no notifications setup".to_string(),
             ));
         }
 
-        Ok(())
+        Ok(FileEndpoint::new(value.path.as_str(), &value.notifications))
+    }
+}
+
+#[typetag::deserialize(name = "file")]
+impl EndpointConfig for FileConfigFile {
+    fn to_endpoint(&self) -> Result<Box<dyn Endpoint + Send>, Error> {
+        Ok(Box::new(FileEndpoint::try_from(self)?))
     }
 }
 

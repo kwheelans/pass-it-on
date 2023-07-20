@@ -5,7 +5,7 @@ use log::{debug, error, trace, warn};
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
 
-pub(super) async fn start_sending_alt(
+pub(super) async fn start_sending(
     interface_rx: broadcast::Receiver<Notification>,
     shutdown: watch::Receiver<bool>,
     url: &str,

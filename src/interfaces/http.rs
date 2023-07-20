@@ -4,7 +4,7 @@
 //! ```toml
 //! [[server.interface]]
 //! type = "http"
-//! ip = "127.0.0.1"
+//! host = "127.0.0.1"
 //! port = 8080
 //! ```
 //!
@@ -12,7 +12,7 @@
 //! ```toml
 //! [[client.interface]]
 //! type = "http"
-//! ip = "127.0.0.1"
+//! host = "127.0.0.1"
 //! port = 8080
 //! ```
 
@@ -26,63 +26,91 @@ use crate::notifications::Notification;
 use crate::Error;
 use async_trait::async_trait;
 use serde::Deserialize;
-use std::net::{IpAddr, Ipv4Addr};
-use std::str::FromStr;
+use std::net::SocketAddr;
 use tokio::sync::{broadcast, mpsc, watch};
+use url::{ParseError, Url};
 
-const LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
+const LOCALHOST: &str = "http://localhost";
+const HTTP: &str = "http";
+const HTTPS: &str = "https";
+const DEFAULT_PORT: u16 = 8080;
 
 /// Data structure to represent the HTTP Socket [`Interface`].
 #[derive(Debug, Clone)]
 pub struct HttpSocketInterface {
-    ip: Option<String>,
-    port: u32,
+    host: Url,
+    tls: bool,
+    port: u16,
 }
 
 /// Data structure to represent the HTTP Socket [`InterfaceConfig`].
 #[derive(Debug, Deserialize, PartialEq, Eq, Hash, Clone)]
+#[serde(default)]
 pub(crate) struct HttpSocketConfigFile {
-    pub ip: Option<String>,
+    pub host: String,
+    pub tls: bool,
     pub port: i64,
 }
 
 impl HttpSocketInterface {
     /// Create a new `HttpSocketInterface`.
-    pub fn new(ip: Option<&str>, port: u32) -> Self {
-        let ip = ip.map(|ip| ip.to_string());
-        Self { ip, port }
+    pub fn new(host_url: &Url) -> Self {
+        let host = host_url.clone();
+        let tls = host.scheme().eq_ignore_ascii_case(HTTPS);
+        let port = host.port().unwrap_or(DEFAULT_PORT);
+        Self { host, tls, port }
     }
 
     /// Return the IP address.
-    pub fn ip(&self) -> Option<&str> {
-        self.ip.as_deref()
+    pub fn host(&self) -> &str {
+        self.host.as_str()
     }
 
     /// Return the IP address if it exists or the default address(127.0.0.1).
-    pub fn ip_or_default(&self) -> IpAddr {
-        match self.ip() {
-            None => IpAddr::from(LOCALHOST),
-            Some(ip) => IpAddr::from_str(ip).unwrap_or(IpAddr::from(LOCALHOST)),
-        }
+    pub fn sockets(&self) -> Result<Vec<SocketAddr>, Error> {
+        Ok(self.host.socket_addrs(|| Some(self.port()))?)
     }
 
     /// Return the port.
     pub fn port(&self) -> u16 {
-        self.port as u16
+        self.port
+    }
+}
+
+impl Default for HttpSocketConfigFile {
+    fn default() -> Self {
+        Self { host: LOCALHOST.into(), tls: false, port: DEFAULT_PORT as i64 }
+    }
+}
+
+impl Default for HttpSocketInterface {
+    fn default() -> Self {
+        Self { host: Url::parse(LOCALHOST).unwrap(), tls: false, port: DEFAULT_PORT }
+    }
+}
+
+impl TryFrom<&HttpSocketConfigFile> for HttpSocketInterface {
+    type Error = Error;
+
+    fn try_from(value: &HttpSocketConfigFile) -> Result<Self, Self::Error> {
+        if !(value.port < u16::MAX as i64 && value.port > u16::MIN as i64) {
+            return Err(Error::InvalidPortNumber(value.port));
+        }
+        let mut url = parse_url(value.host.as_str())?;
+        match value.tls {
+            true => url.set_scheme(HTTPS),
+            false => url.set_scheme(HTTP),
+        }
+        .unwrap();
+        url.set_port(Some(value.port as u16)).unwrap();
+        Ok(Self { host: url, tls: value.tls, port: value.port as u16 })
     }
 }
 
 #[typetag::deserialize(name = "http")]
 impl InterfaceConfig for HttpSocketConfigFile {
-    fn to_interface(&self) -> Box<dyn Interface + Send> {
-        Box::new(HttpSocketInterface::new(self.ip.as_deref(), self.port as u32))
-    }
-
-    fn validate(&self) -> Result<(), Error> {
-        match self.port < u16::MAX as i64 && self.port > u16::MIN as i64 {
-            true => Ok(()),
-            false => Err(Error::InvalidPortNumber(self.port)),
-        }
+    fn to_interface(&self) -> Result<Box<dyn Interface + Send>, Error> {
+        Ok(Box::new(HttpSocketInterface::try_from(self)?))
     }
 }
 
@@ -91,11 +119,13 @@ impl Interface for HttpSocketInterface {
     #[cfg(feature = "http-server")]
     async fn receive(&self, interface_tx: mpsc::Sender<String>, shutdown: watch::Receiver<bool>) -> Result<(), Error> {
         use crate::interfaces::http::http_server::start_monitoring;
-        use std::net::SocketAddr;
 
-        let socket = SocketAddr::new(self.ip_or_default(), self.port());
+        for socket in self.sockets()? {
+            let itx = interface_tx.clone();
+            let srx = shutdown.clone();
+            tokio::spawn(async move { start_monitoring(itx, srx, socket).await });
+        }
 
-        tokio::spawn(async move { start_monitoring(interface_tx, shutdown, socket).await });
         Ok(())
     }
 
@@ -114,11 +144,12 @@ impl Interface for HttpSocketInterface {
         interface_rx: broadcast::Receiver<Notification>,
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        use crate::interfaces::http::http_client::start_sending_alt;
+        use crate::interfaces::http::http_client::start_sending;
 
-        let url = format!("http://{}:{}/notification", self.ip_or_default(), self.port);
+        let mut url = self.host.clone();
+        url.set_path("notification");
 
-        tokio::spawn(async move { start_sending_alt(interface_rx, shutdown, url.as_str()).await });
+        tokio::spawn(async move { start_sending(interface_rx, shutdown, url.as_str()).await });
         Ok(())
     }
 
@@ -129,5 +160,15 @@ impl Interface for HttpSocketInterface {
         _shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
         Err(Error::DisabledInterfaceFunction("HTTP send".to_string()))
+    }
+}
+
+fn parse_url(value: &str) -> Result<Url, Error> {
+    match Url::parse(value) {
+        Ok(url) => Ok(url),
+        Err(error) if error == ParseError::RelativeUrlWithoutBase => {
+            parse_url(format!("{}://{}", HTTP, value).as_str())
+        }
+        Err(error) => Err(error.into()),
     }
 }

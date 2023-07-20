@@ -4,8 +4,8 @@ mod client_configuration_file;
 mod server_configuration_file;
 
 #[cfg(feature = "server")]
-use crate::endpoints::{Endpoint, EndpointChannel};
-use crate::interfaces::Interface;
+use crate::endpoints::{Endpoint, EndpointChannel, EndpointConfig};
+use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Key;
 use crate::Error;
 
@@ -145,4 +145,16 @@ impl TryFrom<&str> for ClientConfiguration {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         client_configuration_file::ClientConfigFileParser::from(value)
     }
+}
+
+#[cfg(all(feature = "parse-cfg", feature = "client"))]
+fn collect_interfaces(
+    interface_configs: Vec<Box<dyn InterfaceConfig>>,
+) -> Result<Vec<Box<dyn Interface + Send>>, Error> {
+    interface_configs.iter().map(|cfg| cfg.to_interface()).collect()
+}
+
+#[cfg(all(feature = "parse-cfg", feature = "server"))]
+fn collect_endpoints(endpoint_configs: Vec<Box<dyn EndpointConfig>>) -> Result<Vec<Box<dyn Endpoint + Send>>, Error> {
+    endpoint_configs.iter().map(|cfg| cfg.to_endpoint()).collect()
 }

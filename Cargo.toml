@@ -23,8 +23,8 @@ discord = ["endpoints", "dep:log", "reqwest"]
 endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 file = ["endpoints", "dep:log", "tokio/io-util"]
 http = ["http-client", "http-server"]
-http-client = ["interfaces", "reqwest", "dep:log"]
-http-server = ["interfaces", "dep:warp", "dep:log"]
+http-client = ["interfaces", "reqwest", "dep:url", "dep:log"]
+http-server = ["interfaces", "dep:url", "dep:warp", "dep:log"]
 interfaces = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 matrix = ["endpoints", "dep:log", "dep:matrix-sdk"]
 parse-cfg = ["dep:toml"]
@@ -53,6 +53,7 @@ thiserror = "1"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"], default-features = false, optional = true }
 toml = { version = "0.7", features = ["parse"], default-features = false, optional = true }
 typetag = { version = "0.2", optional = true }
+url = { version = "2.4", optional = true }
 warp = { version = "0.3", optional = true }
 
 [lib]

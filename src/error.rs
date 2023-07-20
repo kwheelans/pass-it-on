@@ -68,4 +68,9 @@ pub enum Error {
     /// Pass-thru `nix::errno::Errno`.
     #[error("Nix ErrorNo Error: {0}")]
     NixErrorNoError(#[from] nix::errno::Errno),
+
+    #[cfg(any(feature = "http-client", feature = "http-server"))]
+    /// Pass-thru `url::ParseError`.
+    #[error("Url Parse Error: {0}")]
+    UrlParseError(#[from] url::ParseError),
 }
