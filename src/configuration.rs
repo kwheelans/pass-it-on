@@ -147,7 +147,7 @@ impl TryFrom<&str> for ClientConfiguration {
     }
 }
 
-#[cfg(all(feature = "parse-cfg", feature = "client"))]
+#[cfg(all(feature = "parse-cfg", any(feature = "client", feature = "server")))]
 fn collect_interfaces(
     interface_configs: Vec<Box<dyn InterfaceConfig>>,
 ) -> Result<Vec<Box<dyn Interface + Send>>, Error> {

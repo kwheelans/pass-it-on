@@ -30,7 +30,7 @@ Interfaces can be used for both the server and the client.
 
 | Interface | Description                                                                          |
 |-----------|--------------------------------------------------------------------------------------|
-| HTTP      | Communication between the client and server using the HTTP protocol.                 |
+| Http      | Communication between the client and server using the Http/Https protocol.           |
 | Pipe      | Communication between the client and server using a FIFO Named Pipe. (**Unix Only**) |
 
 
@@ -61,6 +61,7 @@ group_read_permission = true
 
 [[server.interface]]
 type = "http"
+host = "192.168.1.2"
 port = 8080
 
 [[server.endpoint]]
@@ -107,7 +108,7 @@ group_write_permission = true
 
 [[client.interface]]
 type = "http"
-ip = "192.168.1.2"
+host = "192.168.1.2"
 port = 8080
 ```
 
@@ -120,9 +121,9 @@ port = 8080
 | discord            | Enables the discord webhook endpoint.                                                                                  |
 | endpoints          | Enables the Endpoint and EndpointConfig traits.                                                                        |
 | file               | Enables the regular file endpoint.                                                                                     |
-| http               | Enables the HTTP interface client and server.                                                                          |
-| http-client        | Enables the HTTP interface for just client.                                                                            |
-| http-server        | Enables the HTTP interface for just server.                                                                            |
+| http               | Enables the Http interface client and server.                                                                          |
+| http-client        | Enables the Http interface for just the client.                                                                        |
+| http-server        | Enables the Http interface for just the server.                                                                        |
 | interfaces         | Enables the Interface and InterfaceConfig traits.                                                                      |
 | matrix             | Enables the matrix endpoint.                                                                                           |
 | parse-cfg          | Enables parsing of client or server configurations from TOML when those features are also enabled.                     |
@@ -138,5 +139,4 @@ port = 8080
 ## Future Plans
 - Add Email endpoint
 - Enable encryption support for Matrix endpoint
-- Enable TLS support for the server
 - Make the HTTP interface path configurable instead of the hardcoded `/notification`

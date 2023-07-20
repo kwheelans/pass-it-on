@@ -14,6 +14,7 @@
 - added server configuration example under resources.
 - added error conversion for `Url::ParseError`
 - http configuration file now uses `host` and accepts both IP addresses and URLs.
+- Add TLS support for the 
 
 # v0.5.0
 ## Breaking Changes

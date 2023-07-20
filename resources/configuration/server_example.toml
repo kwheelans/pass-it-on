@@ -9,7 +9,7 @@ key = "replace me"
 
 [[server.interface]]
 type = "http"
-ip = "127.0.0.1"
+host = "http://localhost"
 port = 8080
 
 
