@@ -23,7 +23,7 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
 
     let filter2 = warp::path!("notification").and(notification_json_body()).and(sender).and_then(receive_notification);
 
-    info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {}", socket);
+    info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
     match tls {
         true => {
             let (_address, server) = warp::serve(filter2)
@@ -42,11 +42,6 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
             server.await;
         }
     };
-    /*    let (_address, server) = warp::serve(filter2).bind_with_graceful_shutdown(socket, async move {
-        shutdown_rx.changed().await.ok().unwrap_or_default();
-    });*/
-
-    //server.await;
 }
 
 async fn receive_notification(

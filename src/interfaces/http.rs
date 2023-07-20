@@ -1,11 +1,23 @@
 //! HTTP [`Interface`] and [`InterfaceConfig`] implementation
 //!
 //! # Server Configuration Example
+//! ## Configuration for Localhost
 //! ```toml
 //! [[server.interface]]
 //! type = "http"
 //! host = "http://localhost"
 //! port = 8080
+//! ```
+//!
+//! ## Configuration with TLS
+//! ```toml
+//! [[server.interface]]
+//! type = "http"
+//! host = "example.com"
+//! port = 8080
+//! tls = true
+//! tls_cert_path = "/path/to/certificate/cert.pem"
+//! tls_key_path = "/path/to/private/key/key.pem"
 //! ```
 //!
 //! # Client Configuration Example

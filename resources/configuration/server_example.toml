@@ -6,11 +6,37 @@
 [server]
 key = "replace me"
 
-
+###########################################
+# HTTP Socket Interface Localhost Example #
+###########################################
 [[server.interface]]
 type = "http"
-host = "http://localhost"
+host = "localhost"
 port = 8080
+
+
+#####################################
+# HTTP Socket Interface TLS Example #
+#####################################
+# [[server.interface]]
+# type = "http"
+# host = "obsidian.wheelans.net"
+# port = 8081
+# tls = true
+# tls_cert_path = "/path/to/certificate/cert.pem"
+# tls_key_path = "/path/to/private/key/key.pem"
+
+
+###########################
+# Pipe Interface  Example #
+###########################
+# [[server.interface]]
+# type = "pipe"
+# path = '/path/to/pipe.fifo'
+# group_read_permission = true
+# group_write_permission = true
+# other_read_permission = true
+# other_write_permission = false
 
 
 #########################
@@ -26,7 +52,6 @@ port = 8080
 ###########################
 # Matrix Endpoint Example #
 ###########################
-
 # [[server.endpoint]]
 # type = "matrix"
 # home_server = "example.com"
@@ -34,7 +59,6 @@ port = 8080
 # password = "password"
 # session_store_path = '/path/to/session/store/matrix_store'
 # session_store_password = "storepassword"
-
 
 # [[server.endpoint.room]]
 # room = "#matrix-room:example.com"
@@ -44,7 +68,6 @@ port = 8080
 ############################
 # Discord Endpoint Example #
 ############################
-
 # [[server.endpoint]]
 # type = "discord"
 # url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
