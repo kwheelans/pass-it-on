@@ -14,7 +14,7 @@ const CLIENT_TOML_CONFIG: &str = r#"
 
     [[client.interface]]
     type = "http"
-    ip = "127.0.0.1"
+    host = "127.0.0.1"
     port = 8080
 
 "#;

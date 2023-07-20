@@ -1,0 +1,22 @@
+[Unit]
+Description=Pass-it-on Server
+After=network-online.target
+
+[Service]
+DynamicUser=true
+User=pass-it-on
+ExecPaths=/usr/bin
+
+PrivateUsers=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+
+ExecStart=/usr/bin/pass-it-on-server --configuration /etc/pass-it-on/server.toml
+
+[Install]
+WantedBy=multi-user.target

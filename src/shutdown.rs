@@ -7,7 +7,6 @@ use tokio::sync::watch;
 pub(crate) async fn listen_for_shutdown(shutdown_tx: watch::Sender<bool>, seconds_to_wait: u64) {
     use tokio::signal::unix::{signal, SignalKind};
     // Listen for SIGTERM and SIGINT to know when shutdown
-    info!(target: LIB_LOG_TARGET, "Listening for shutdown signals");
     let mut sigterm = signal(SignalKind::terminate()).expect("unable to listen for terminate signal");
     let mut sigint = signal(SignalKind::interrupt()).expect("unable to listen for interrupt signal");
 

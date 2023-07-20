@@ -1,3 +1,21 @@
+# v0.6.0
+## Breaking Changes
+### Server Binary
+- Changed default path for pass-it-on-server bin.
+- Changed CLI for pass-it-on-server bin to use clap.
+
+### Library
+- removed `validate` method from `EndpointConfig` trait and changed `to_endpoint` return type to `Result<Box<dyn Endpoint + Send>, Error>`
+- removed `validate` method from `InterfaceConfig` trait and changed `to_interface` return type to `Result<Box<dyn Interface + Send>, Error>`
+- http configuration file now uses `host` and not `ip` to specify the ip address
+
+## Features
+- added systemd service file under resources.
+- added server configuration example under resources.
+- added error conversion for `Url::ParseError`
+- http configuration file now uses `host` and accepts both IP addresses and URLs.
+- Add TLS support for the 
+
 # v0.5.0
 ## Breaking Changes
 - Deprecated `from_toml` for `ClientConfiguration` and `ServerConfiguration` use `try_from` instead.

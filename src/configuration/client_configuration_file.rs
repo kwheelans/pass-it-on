@@ -1,4 +1,4 @@
-use crate::configuration::{valid_key_length, ClientConfiguration};
+use crate::configuration::{collect_interfaces, valid_key_length, ClientConfiguration};
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Key;
 use crate::Error;
@@ -20,11 +20,7 @@ impl ClientConfigFileParser {
     /// Parse [`ClientConfiguration`] from provided TOML.
     pub fn from(string: &str) -> Result<ClientConfiguration, Error> {
         let parsed: ClientConfigFileParser = toml::from_str(string)?;
-        parsed.validate()
-    }
-
-    fn validate(&self) -> Result<ClientConfiguration, Error> {
-        self.client.validate()
+        parsed.client.try_into()
     }
 }
 
@@ -32,16 +28,16 @@ impl ClientConfigFile {
     fn key(&self) -> [u8; 32] {
         self.key.clone().into_bytes().try_into().unwrap()
     }
+}
 
-    fn validate(&self) -> Result<ClientConfiguration, Error> {
-        valid_key_length(self.key.as_str())?;
+impl TryFrom<ClientConfigFile> for ClientConfiguration {
+    type Error = Error;
 
-        for cfg in self.interface.iter() {
-            cfg.validate()?
-        }
+    fn try_from(value: ClientConfigFile) -> Result<Self, Self::Error> {
+        valid_key_length(value.key.as_str())?;
+        let key = value.key();
+        let interfaces: Vec<Box<dyn Interface + Send>> = collect_interfaces(value.interface)?;
 
-        let interfaces: Vec<Box<dyn Interface + Send>> = self.interface.iter().map(|cfg| cfg.to_interface()).collect();
-
-        ClientConfiguration::new(Key::from_bytes(&self.key()), interfaces)
+        ClientConfiguration::new(Key::from_bytes(&key), interfaces)
     }
 }

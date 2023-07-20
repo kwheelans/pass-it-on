@@ -1,4 +1,4 @@
-use crate::configuration::{valid_key_length, ServerConfiguration};
+use crate::configuration::{collect_endpoints, collect_interfaces, valid_key_length, ServerConfiguration};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Key;
@@ -23,11 +23,7 @@ impl ServerConfigFileParser {
     /// Parse [`ServerConfiguration`] from provided TOML
     pub fn from(string: &str) -> Result<ServerConfiguration, Error> {
         let parsed: ServerConfigFileParser = toml::from_str(string)?;
-        parsed.validate()
-    }
-
-    fn validate(&self) -> Result<ServerConfiguration, Error> {
-        self.server.validate()
+        parsed.server.try_into()
     }
 }
 
@@ -35,21 +31,17 @@ impl ServerConfigFile {
     fn key(&self) -> [u8; 32] {
         self.key.clone().into_bytes().try_into().unwrap()
     }
+}
 
-    fn validate(&self) -> Result<ServerConfiguration, Error> {
-        valid_key_length(self.key.as_str())?;
-        let key = Key::from_bytes(&self.key());
+impl TryFrom<ServerConfigFile> for ServerConfiguration {
+    type Error = Error;
 
-        for cfg in self.interface.iter() {
-            cfg.validate()?
-        }
+    fn try_from(value: ServerConfigFile) -> Result<Self, Self::Error> {
+        valid_key_length(value.key.as_str())?;
 
-        for cfg in self.endpoint.iter() {
-            cfg.validate()?
-        }
-
-        let interfaces: Vec<Box<dyn Interface + Send>> = self.interface.iter().map(|cfg| cfg.to_interface()).collect();
-        let endpoints: Vec<Box<dyn Endpoint + Send>> = self.endpoint.iter().map(|cfg| cfg.to_endpoint()).collect();
+        let key = Key::from_bytes(&value.key());
+        let interfaces: Vec<Box<dyn Interface + Send>> = collect_interfaces(value.interface)?;
+        let endpoints: Vec<Box<dyn Endpoint + Send>> = collect_endpoints(value.endpoint)?;
 
         ServerConfiguration::new(key, interfaces, endpoints)
     }

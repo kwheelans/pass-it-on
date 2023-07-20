@@ -1,4 +1,21 @@
 //! Pipe [`Interface`] and [`InterfaceConfig`]  implementation
+//!
+//! # Server Configuration Example
+//! ```toml
+//! [[server.interface]]
+//! type = "pipe"
+//! path = '/path/to/pipe.fifo'
+//! group_read_permission = true
+//! ```
+//!
+//! # Client Configuration Example
+//! ```toml
+//! [[client.interface]]
+//! type = "pipe"
+//! path = '/path/to/pipe.fifo'
+//! group_read_permission = true
+//! group_write_permission = true
+//! ```
 
 #[cfg(feature = "pipe-client")]
 pub(crate) mod pipe_client;
@@ -71,24 +88,28 @@ impl PipeInterface {
     }
 }
 
-#[typetag::deserialize(name = "pipe")]
-impl InterfaceConfig for PipeConfigFile {
-    fn to_interface(&self) -> Box<dyn Interface + Send> {
-        Box::new(PipeInterface::new(
-            self.path.as_str(),
-            self.group_read_permission.unwrap_or(false),
-            self.group_write_permission.unwrap_or(false),
-            self.other_read_permission.unwrap_or(false),
-            self.other_write_permission.unwrap_or(false),
-        ))
-    }
+impl TryFrom<&PipeConfigFile> for PipeInterface {
+    type Error = Error;
 
-    fn validate(&self) -> Result<(), Error> {
-        if self.path.is_empty() {
+    fn try_from(value: &PipeConfigFile) -> Result<Self, Self::Error> {
+        if value.path.is_empty() {
             return Err(Error::InvalidInterfaceConfiguration("Pipe path is empty".to_string()));
         }
 
-        Ok(())
+        Ok(Self {
+            path: PathBuf::from(value.path.as_str()),
+            group_read: value.group_read_permission.unwrap_or(false),
+            group_write: value.group_write_permission.unwrap_or(false),
+            other_read: value.other_read_permission.unwrap_or(false),
+            other_write: value.other_write_permission.unwrap_or(false),
+        })
+    }
+}
+
+#[typetag::deserialize(name = "pipe")]
+impl InterfaceConfig for PipeConfigFile {
+    fn to_interface(&self) -> Result<Box<dyn Interface + Send>, Error> {
+        Ok(Box::new(PipeInterface::try_from(self)?))
     }
 }
 

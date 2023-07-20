@@ -23,10 +23,7 @@ pub(crate) const NANOSECOND: Duration = Duration::from_nanos(1);
 #[typetag::deserialize(tag = "type")]
 pub trait InterfaceConfig {
     /// Convert this `InterfaceConfig` into an [`Interface`].
-    fn to_interface(&self) -> Box<dyn Interface + Send>;
-
-    /// Perform any necessary validations on the configuration to ensure it's usable.
-    fn validate(&self) -> Result<(), Error>;
+    fn to_interface(&self) -> Result<Box<dyn Interface + Send>, Error>;
 }
 
 /// A data structure that contains information and functions needed to communicate on a particular interface between the server and client.

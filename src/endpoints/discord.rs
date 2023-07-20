@@ -1,4 +1,22 @@
 //! Discord webhook [`Endpoint`] and [`EndpointConfig`] implementation
+//!
+//!
+//! # Configuration Example
+//! ```toml
+//! [[server.endpoint]]
+//! type = "discord"
+//! url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
+//! username = "Bot Name"
+//! avatar_url = "https://example.com/avatar/url"
+//! tts = true
+//! notifications = ["notification_id1", "notification_id3"]
+//!
+//! [server.endpoint.allowed_mentions]
+//! parse = ["everyone"]
+//! roles = ["role1"]
+//! users = ["user1"]
+//! replied_user = false
+//! ```
 
 pub(crate) mod webhook;
 
@@ -39,20 +57,8 @@ pub struct DiscordEndpoint {
 
 #[typetag::deserialize(name = "discord")]
 impl EndpointConfig for DiscordConfigFile {
-    fn to_endpoint(&self) -> Box<dyn Endpoint + Send> {
-        Box::new(DiscordEndpoint::from(self))
-    }
-
-    fn validate(&self) -> Result<(), Error> {
-        if self.url.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Discord configuration url is blank".to_string()));
-        }
-        if self.notifications.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration(
-                "Discord configuration has no notifications setup".to_string(),
-            ));
-        }
-        Ok(())
+    fn to_endpoint(&self) -> Result<Box<dyn Endpoint + Send>, Error> {
+        Ok(Box::new(DiscordEndpoint::try_from(self)?))
     }
 }
 
@@ -82,18 +88,27 @@ impl Endpoint for DiscordEndpoint {
     }
 }
 
-impl From<&DiscordConfigFile> for DiscordEndpoint {
-    fn from(value: &DiscordConfigFile) -> Self {
-        let allowed_mentions = value.allowed_mentions.clone().map_or(AllowedMentions::default(), AllowedMentions::from);
+impl TryFrom<&DiscordConfigFile> for DiscordEndpoint {
+    type Error = Error;
 
-        Self {
+    fn try_from(value: &DiscordConfigFile) -> Result<Self, Self::Error> {
+        if value.url.is_empty() {
+            return Err(Error::InvalidEndpointConfiguration("Discord configuration url is blank".to_string()));
+        }
+        if value.notifications.is_empty() {
+            return Err(Error::InvalidEndpointConfiguration(
+                "Discord configuration has no notifications setup".to_string(),
+            ));
+        }
+        let allowed_mentions = value.allowed_mentions.clone().map_or(AllowedMentions::default(), AllowedMentions::from);
+        Ok(Self {
             url: value.url.clone(),
             username: value.username.clone(),
             avatar_url: value.avatar_url.clone(),
             tts: value.tts,
             allowed_mentions,
             notifications: value.notifications.clone(),
-        }
+        })
     }
 }
 

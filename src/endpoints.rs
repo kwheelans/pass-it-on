@@ -19,10 +19,7 @@ pub mod matrix;
 #[typetag::deserialize(tag = "type")]
 pub trait EndpointConfig {
     /// Convert this `EndpointConfig` into an [`Endpoint`].
-    fn to_endpoint(&self) -> Box<dyn Endpoint + Send>;
-
-    /// Perform any necessary validations on the configuration to ensure it's usable.
-    fn validate(&self) -> Result<(), Error>;
+    fn to_endpoint(&self) -> Result<Box<dyn Endpoint + Send>, Error>;
 }
 
 /// A data structure that contains information and functions need the server needs to send messages to endpoint.

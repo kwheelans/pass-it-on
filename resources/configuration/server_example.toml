@@ -1,0 +1,77 @@
+###################################
+# Pass-it-on Server Configuration #
+###################################
+# Server key must be 32 characters/bytes and must match the clients key
+
+[server]
+key = "replace me"
+
+###########################################
+# HTTP Socket Interface Localhost Example #
+###########################################
+[[server.interface]]
+type = "http"
+host = "localhost"
+port = 8080
+
+
+#####################################
+# HTTP Socket Interface TLS Example #
+#####################################
+# [[server.interface]]
+# type = "http"
+# host = "obsidian.wheelans.net"
+# port = 8081
+# tls = true
+# tls_cert_path = "/path/to/certificate/cert.pem"
+# tls_key_path = "/path/to/private/key/key.pem"
+
+
+###########################
+# Pipe Interface  Example #
+###########################
+# [[server.interface]]
+# type = "pipe"
+# path = '/path/to/pipe.fifo'
+# group_read_permission = true
+# group_write_permission = true
+# other_read_permission = true
+# other_write_permission = false
+
+
+#########################
+# File Endpoint Example #
+#########################
+
+# [[server.endpoint]]
+# type = "file"
+# path = '/test_data/file_endpoint.txt'
+# notifications = ["notification_id1", "notification_id2"]
+
+
+###########################
+# Matrix Endpoint Example #
+###########################
+# [[server.endpoint]]
+# type = "matrix"
+# home_server = "example.com"
+# username = "test1"
+# password = "password"
+# session_store_path = '/path/to/session/store/matrix_store'
+# session_store_password = "storepassword"
+
+# [[server.endpoint.room]]
+# room = "#matrix-room:example.com"
+# notifications = ["notification_id3"]
+
+
+############################
+# Discord Endpoint Example #
+############################
+# [[server.endpoint]]
+# type = "discord"
+# url = "https://discord.com/api/webhooks/webhook_id/webhook_token"
+# notifications = ["notification_id1", "notification_id3"]
+
+# [server.endpoint.allowed_mentions]
+# parse = ["everyone"]
