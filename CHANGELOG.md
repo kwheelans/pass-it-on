@@ -1,3 +1,8 @@
+# v0.6.1
+## Discrepancies
+- Bump toml to 0.8
+- Bump nix to 0.27
+
 # v0.6.0
 ## Breaking Changes
 ### Server Binary
@@ -14,7 +19,7 @@
 - added server configuration example under resources.
 - added error conversion for `Url::ParseError`
 - http configuration file now uses `host` and accepts both IP addresses and URLs.
-- Add TLS support for the 
+- Add TLS support for the server
 
 # v0.5.0
 ## Breaking Changes
