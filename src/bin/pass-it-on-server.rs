@@ -50,5 +50,5 @@ async fn run(args: CliArgs) -> Result<(), Error> {
         ServerConfiguration::try_from(std::fs::read_to_string(config_path)?.as_str())?
     };
 
-    start_server(server_config, None).await
+    start_server(server_config, None, None).await
 }
