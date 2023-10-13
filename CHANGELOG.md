@@ -1,3 +1,17 @@
+# v0.7.0
+## Breaking Changes
+### Library
+- modify following functions to require `Option<tokio::sync::watch::Receiver<bool>>` to shutdown in addition to system signals.
+  - `start_client`
+  - `start_client_arc`
+  - `start_server`
+
+
+# v0.6.1
+## Discrepancies
+- Bump toml to 0.8
+- Bump nix to 0.27
+
 # v0.6.0
 ## Breaking Changes
 ### Server Binary
