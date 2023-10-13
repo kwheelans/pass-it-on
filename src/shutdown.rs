@@ -39,7 +39,11 @@ pub(crate) async fn listen_for_shutdown(
 }
 
 #[cfg(windows)]
-pub(crate) async fn listen_for_shutdown(shutdown_tx: watch::Sender<bool>, seconds_to_wait: u64) {
+pub(crate) async fn listen_for_shutdown(
+    shutdown_tx: watch::Sender<bool>,
+    shutdown: Option<watch::Receiver<bool>>,
+    seconds_to_wait: u64,
+) {
     use tokio::signal::windows::{ctrl_break, ctrl_c};
     // Listen for CTRL-C and CTRL-BREAK to know when shutdown
     let mut sig_ctrl_break = ctrl_break().expect("unable to listen for ctrl-break signal");
