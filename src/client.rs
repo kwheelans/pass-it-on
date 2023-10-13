@@ -5,6 +5,7 @@ use crate::shutdown::listen_for_shutdown;
 use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
 use log::{debug, error, info, trace, warn};
 use std::sync::{Arc, Mutex};
+use tokio::sync::watch::Receiver;
 use tokio::sync::{broadcast, mpsc, watch};
 
 const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
@@ -12,9 +13,12 @@ const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 /// Start the client with provided [`ClientConfiguration`] and `Receiver<ClientReadyMessage>` channel.
 ///
 /// Client listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
+/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shutdown the client in addition to
+/// system signals.
 pub async fn start_client(
     client_config: ClientConfiguration,
     notification_rx: mpsc::Receiver<ClientReadyMessage>,
+    shutdown: Option<Receiver<bool>>,
     wait_for_shutdown_secs: Option<u64>,
 ) -> Result<(), Error> {
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
@@ -31,17 +35,20 @@ pub async fn start_client(
     });
 
     // Shutdown
-    listen_for_shutdown(shutdown_tx, get_shutdown_wait_time(wait_for_shutdown_secs)).await;
+    listen_for_shutdown(shutdown_tx, shutdown, wait_for_shutdown_secs.unwrap_or(DEFAULT_WAIT_FOR_SHUTDOWN_SECS)).await;
 
     Ok(())
 }
 
 /// Start the client with provided [`ClientConfiguration`] and `Arc<Mutex<Vec<ClientReadyMessage>>>`.
 ///
-/// Client listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
+/// Client listens for shutdown signals SIGTERM & SIGINT  on Unix or CTRL-BREAK and CTRL-C on Windows.
+/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shutdown the client in addition to
+/// system signals.
 pub async fn start_client_arc(
     client_config: ClientConfiguration,
     notifications: Arc<Mutex<Vec<ClientReadyMessage>>>,
+    shutdown: Option<Receiver<bool>>,
     wait_for_shutdown_secs: Option<u64>,
 ) -> Result<(), Error> {
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
@@ -58,7 +65,7 @@ pub async fn start_client_arc(
     });
 
     // Shutdown
-    listen_for_shutdown(shutdown_tx, get_shutdown_wait_time(wait_for_shutdown_secs)).await;
+    listen_for_shutdown(shutdown_tx, shutdown, wait_for_shutdown_secs.unwrap_or(DEFAULT_WAIT_FOR_SHUTDOWN_SECS)).await;
 
     Ok(())
 }
@@ -136,12 +143,5 @@ async fn receive_notifications_arc(
             }
         }
         tokio::time::sleep(NANOSECOND).await;
-    }
-}
-
-fn get_shutdown_wait_time(seconds: Option<u64>) -> u64 {
-    match seconds {
-        None => DEFAULT_WAIT_FOR_SHUTDOWN_SECS,
-        Some(secs) => secs,
     }
 }

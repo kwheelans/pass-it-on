@@ -12,8 +12,11 @@ const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 /// Start the server with provided [`ServerConfiguration`].
 ///
 /// Server listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
+/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shutdown the client in addition to
+/// system signals.
 pub async fn start_server(
     server_config: ServerConfiguration,
+    shutdown: Option<watch::Receiver<bool>>,
     wait_for_shutdown_secs: Option<u64>,
 ) -> Result<(), Error> {
     // Setup channels
@@ -39,7 +42,7 @@ pub async fn start_server(
         Some(secs) => secs,
     };
     info!(target: LIB_LOG_TARGET, "Listening for shutdown signals");
-    listen_for_shutdown(shutdown_tx, shutdown_secs).await;
+    listen_for_shutdown(shutdown_tx, shutdown, shutdown_secs).await;
 
     Ok(())
 }
@@ -58,7 +61,7 @@ async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endp
                         for (sub_name, keys) in endpoint.keys() {
                             if note.validate_set(keys) {
                                 let channel = endpoint.channel_sender();
-                                match channel.send(ValidatedNotification::new(sub_name.to_string(), note.message())) {
+                                match channel.send(ValidatedNotification::new(sub_name, note.message())) {
                                     Ok(ok) => {
                                         debug!(target: LIB_LOG_TARGET, "Message sent to endpoint. Subscribers: {}", ok)
                                     }
