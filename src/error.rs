@@ -73,4 +73,9 @@ pub enum Error {
     /// Pass-thru `url::ParseError`.
     #[error("Url Parse Error: {0}")]
     UrlParseError(#[from] url::ParseError),
+
+    #[cfg(feature = "email")]
+    /// Pass-thru `mail_send::Error`.
+    #[error("Mail Send Error: {0}")]
+    MailSendError(#[from] mail_send::Error),
 }

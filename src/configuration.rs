@@ -30,13 +30,6 @@ impl ServerConfiguration {
         Self::validate(config)
     }
 
-    #[cfg(all(feature = "parse-cfg", feature = "server"))]
-    #[deprecated(since = "0.5.0", note = "use `try_from` instead")]
-    /// Parse [`ServerConfiguration`] from provided TOML
-    pub fn from_toml(toml_str: &str) -> Result<Self, Error> {
-        server_configuration_file::ServerConfigFileParser::from(toml_str)
-    }
-
     pub(crate) fn endpoint_channels(&self) -> Vec<EndpointChannel> {
         use crate::notifications::ValidatedNotification;
         use crate::CHANNEL_BUFFER;
@@ -81,7 +74,7 @@ impl ServerConfiguration {
     }
 }
 
-#[cfg(feature = "server")]
+#[cfg(all(feature = "parse-cfg", feature = "server"))]
 impl TryFrom<&str> for ServerConfiguration {
     type Error = Error;
 
@@ -104,13 +97,6 @@ impl ClientConfiguration {
     pub fn new(key: Key, interfaces: Vec<Box<dyn Interface + Send>>) -> Result<Self, Error> {
         let config = Self { key, interfaces };
         Self::validate(config)
-    }
-
-    #[cfg(all(feature = "parse-cfg", feature = "client"))]
-    #[deprecated(since = "0.5.0", note = "use `try_from` instead")]
-    /// Parse [`ClientConfiguration`] from provided TOML
-    pub fn from_toml(toml_str: &str) -> Result<Self, Error> {
-        client_configuration_file::ClientConfigFileParser::from(toml_str)
     }
 
     /// Return client [`Key`] value.
@@ -138,7 +124,7 @@ fn valid_key_length(key: &str) -> Result<(), Error> {
     }
 }
 
-#[cfg(feature = "client")]
+#[cfg(all(feature = "parse-cfg", feature = "client"))]
 impl TryFrom<&str> for ClientConfiguration {
     type Error = Error;
 

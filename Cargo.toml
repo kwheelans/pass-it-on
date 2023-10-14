@@ -20,6 +20,7 @@ all-features = true
 default = ["server-bin-full","client"]
 client = ["interfaces", "tokio", "tokio/signal", "tokio/time", "dep:log"]
 discord = ["endpoints", "dep:log", "reqwest"]
+email = ["endpoints", "dep:log", "dep:mail-send"]
 endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 file = ["endpoints", "dep:log", "tokio/io-util"]
 http = ["http-client", "http-server"]
@@ -32,7 +33,7 @@ pipe = ["pipe-client", "pipe-server"]
 pipe-client = ["interfaces", "dep:log", "dep:nix", "tokio/io-util"]
 pipe-server = ["interfaces", "dep:log", "dep:nix","tokio/io-util"]
 server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:log"]
-server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord"]
+server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord", "email"]
 server-bin-minimal = ["server", "parse-cfg", "dep:clap", "dep:directories", "dep:simple_logger"]
 vendored-tls = ["reqwest/native-tls-vendored"]
 
@@ -43,6 +44,7 @@ clap  = { version = "4.4", features = ["derive", "cargo"], optional = true }
 directories = { version = "5.0", optional = true }
 dyn-clone = { version = "1.0", optional = true }
 log = { version = "0.4", optional = true }
+mail-send = { version = "0.4", optional = true }
 matrix-sdk = { version = "0.6", optional = true }
 nix = { version = "0.27", features = ["fs", "net"], default-features = false, optional = true }
 reqwest = { version = "0.11", optional = true }

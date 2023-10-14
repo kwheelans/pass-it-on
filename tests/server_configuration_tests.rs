@@ -137,6 +137,48 @@ fn server_valid_config_discord() {
 }
 
 #[test]
+#[cfg(feature = "email")]
+fn server_valid_config_email() {
+    let config = ServerConfiguration::try_from(
+        r#"
+    [server]
+    key = "sdfsf4633ghf44dfhdfhQdhdfhewaasg"
+
+    [[server.interface]]
+    type = "http"
+    port = 8080
+
+    [[server.endpoint]]
+    type = "email"
+    hostname = "smtp.example.com"
+    port = 8080
+    from = "asdf@example.com"
+    to = ["qwerty@example.com"]
+    subject = "test_email"
+    notifications = ["notification1", "notification2"]
+
+        [[server.endpoint]]
+    type = "email"
+    hostname = "smtp2.example.com"
+    port = 8081
+    username = "test_user"
+    password = "test_password"
+    from = "asdf@example.com"
+    to = ["qwerty@example.com"]
+    subject = "test_email"
+    notifications = ["notification3", "notification4"]
+
+"#,
+    );
+    match config.as_ref() {
+        Ok(_) => (),
+        Err(e) => println!("{}", e),
+    }
+
+    assert!(config.is_ok());
+}
+
+#[test]
 fn server_invalid_key_length() {
     let config = ServerConfiguration::try_from(
         r#"
