@@ -16,6 +16,9 @@ ProtectKernelModules=true
 ProtectControlGroups=true
 NoNewPrivileges=true
 
+Restart=on-failure
+RestartSec=30
+
 ExecStart=/usr/bin/pass-it-on-server --configuration /etc/pass-it-on/server.toml
 
 [Install]
