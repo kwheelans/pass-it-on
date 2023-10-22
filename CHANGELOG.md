@@ -1,3 +1,19 @@
+# v0.8.0
+## Features
+- Added Email endpoint functionality
+
+## Breaking Changes
+- Removed the deprecated function `from_toml` for `ClientConfiguration` and `ServerConfiguration`.
+
+## Changes
+- add restart on failure for systemd service and pass-it-on-server-sysusers.conf
+- Minor update to simple_client example
+
+
+# v0.7.1
+## Fixes
+- Fix listen for shutdown on windows
+
 # v0.7.0
 ## Breaking Changes
 ### Library
