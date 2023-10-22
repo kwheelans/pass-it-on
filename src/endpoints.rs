@@ -10,6 +10,8 @@ use tokio::sync::{broadcast, watch};
 
 #[cfg(feature = "discord")]
 pub mod discord;
+#[cfg(feature = "email")]
+pub mod email;
 #[cfg(feature = "file")]
 pub mod file;
 #[cfg(feature = "matrix")]

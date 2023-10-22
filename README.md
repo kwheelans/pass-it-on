@@ -42,6 +42,7 @@ Endpoints are the destinations for notifications received by the server.
 | Regular File    | Write notifications to a file.               |
 | Matrix          | Send notifications to Matrix room(s).        |
 | Discord Webhook | Send notifications to Discord via a webhook. |
+| Email           | Send notifications via SMTP email.           |
 
 ## Configuration
 The Server and Client support configuration via a TOML file.
@@ -93,6 +94,17 @@ notifications = ["notification_id1", "notification_id3"]
 [server.endpoint.allowed_mentions]
 parse = ["everyone"]
 
+[[server.endpoint]]
+type = "email"
+hostname = "smtp.example.com"
+port = 587
+username = "test_user"
+password = "test_password"
+from = "asdf@example.com"
+to = ["qwerty@example.com"]
+subject = "test_email"
+notifications = ["notification1", "notification2"]
+
 ```
 
 ### Client Configuration Example
@@ -119,7 +131,8 @@ port = 8080
 |--------------------|------------------------------------------------------------------------------------------------------------------------|
 | client             | Enables the client but not any particular interface.                                                                   |
 | discord            | Enables the discord webhook endpoint.                                                                                  |
-| endpoints          | Enables the Endpoint and EndpointConfig traits.                                                                        |
+| email              | Enables the email endpoint.                                                                                            |
+| endpoints          | Enables the `Endpoint` and `EndpointConfig` traits.                                                                    |
 | file               | Enables the regular file endpoint.                                                                                     |
 | http               | Enables the Http interface client and server.                                                                          |
 | http-client        | Enables the Http interface for just the client.                                                                        |
@@ -137,6 +150,5 @@ port = 8080
 
 
 ## Future Plans
-- Add Email endpoint
 - Enable encryption support for Matrix endpoint
 - Make the HTTP interface path configurable instead of the hardcoded `/notification`

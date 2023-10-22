@@ -6,6 +6,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::{mpsc, watch};
 
 const NOTIFICATION_NAME: &str = "test1";
+const SAMPLE_MESSAGE_COUNT: usize = 1;
 const LOG_TARGET: &str = "pass_it_on_client_example";
 
 const CLIENT_TOML_CONFIG: &str = r#"
@@ -31,7 +32,7 @@ async fn main() -> Result<(), Error> {
         .unwrap();
 
     let config = ClientConfiguration::try_from(CLIENT_TOML_CONFIG)?;
-    let messages = get_test_messages();
+    let messages = get_test_messages(SAMPLE_MESSAGE_COUNT, NOTIFICATION_NAME);
     let (interface_tx, interface_rx) = mpsc::channel(100);
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
@@ -56,13 +57,13 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn get_test_messages() -> Vec<ClientReadyMessage> {
-    let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
-    let msg1 = format!("Simple Client test message test message : {}", time);
-    let msg2 = format!("Simple Client Another message : {}", time);
+fn get_test_messages(msg_count: usize, notification_name: &str) -> Vec<ClientReadyMessage> {
+    let mut messages = Vec::with_capacity(msg_count);
 
-    vec![
-        Message::new(msg1).to_client_ready_message(NOTIFICATION_NAME),
-        Message::new(msg2).to_client_ready_message(NOTIFICATION_NAME),
-    ]
+    for n in 1..=msg_count {
+        let time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
+        let msg = format!("Simple Client test message test message #{}: {}", n, time);
+        messages.push(Message::new(msg).to_client_ready_message(notification_name))
+    }
+    messages
 }
