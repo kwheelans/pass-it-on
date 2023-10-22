@@ -1,4 +1,18 @@
 //! Email [`Endpoint`] and [`EndpointConfig`] implementation
+//!
+//! # Configuration Example
+//! ```toml
+//! [[server.endpoint]]
+//! type = "email"
+//! hostname = "smtp.example.com"
+//! port = 587
+//! username = "test_user"
+//! password = "test_password"
+//! from = "asdf@example.com"
+//! to = ["qwerty@example.com"]
+//! subject = "test_email"
+//! notifications = ["notification1", "notification2"]
+//! ```
 
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};

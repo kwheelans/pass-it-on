@@ -151,22 +151,13 @@ fn server_valid_config_email() {
     [[server.endpoint]]
     type = "email"
     hostname = "smtp.example.com"
-    port = 8080
-    from = "asdf@example.com"
-    to = ["qwerty@example.com"]
-    subject = "test_email"
-    notifications = ["notification1", "notification2"]
-
-        [[server.endpoint]]
-    type = "email"
-    hostname = "smtp2.example.com"
-    port = 8081
+    port = 587
     username = "test_user"
     password = "test_password"
     from = "asdf@example.com"
     to = ["qwerty@example.com"]
     subject = "test_email"
-    notifications = ["notification3", "notification4"]
+    notifications = ["notification1", "notification2"]
 
 "#,
     );

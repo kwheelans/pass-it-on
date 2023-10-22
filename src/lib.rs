@@ -52,6 +52,7 @@
 //! |--------------------|------------------------------------------------------------------------------------------------------------------------|
 //! | client             | Enables the client but not any particular interface.                                                                   |
 //! | discord            | Enables the discord webhook endpoint.                                                                                  |
+//! | email              | Enables the email endpoint.                                                                                            |
 //! | endpoints          | Enables the Endpoint and EndpointConfig traits.                                                                        |
 //! | file               | Enables the regular file endpoint.                                                                                     |
 //! | http               | Enables the HTTP interface client and server.                                                                          |
