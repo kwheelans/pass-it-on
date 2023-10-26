@@ -86,6 +86,10 @@ pub(crate) mod shutdown;
 
 #[cfg(feature = "client")]
 pub use self::client::{start_client, start_client_arc};
+#[cfg(all(feature = "client", feature = "parse-cfg"))]
+pub use self::configuration::client_configuration_file::ClientConfigFile;
+#[cfg(all(feature = "server", feature = "parse-cfg"))]
+pub use self::configuration::server_configuration_file::ServerConfigFile;
 #[cfg(feature = "client")]
 pub use self::configuration::ClientConfiguration;
 #[cfg(feature = "server")]

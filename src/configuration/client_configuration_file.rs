@@ -10,8 +10,9 @@ pub(super) struct ClientConfigFileParser {
     client: ClientConfigFile,
 }
 
+/// Serde compatible representation of [`ClientConfiguration`]
 #[derive(Deserialize)]
-struct ClientConfigFile {
+pub struct ClientConfigFile {
     key: String,
     interface: Vec<Box<dyn InterfaceConfig>>,
 }

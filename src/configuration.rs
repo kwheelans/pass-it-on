@@ -1,7 +1,7 @@
 #[cfg(all(feature = "parse-cfg", feature = "client"))]
-mod client_configuration_file;
+pub mod client_configuration_file;
 #[cfg(all(feature = "parse-cfg", feature = "server"))]
-mod server_configuration_file;
+pub mod server_configuration_file;
 
 #[cfg(feature = "server")]
 use crate::endpoints::{Endpoint, EndpointChannel, EndpointConfig};

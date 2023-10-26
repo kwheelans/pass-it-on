@@ -12,8 +12,9 @@ pub(super) struct ServerConfigFileParser {
     server: ServerConfigFile,
 }
 
+/// Serde compatible representation of [`ServerConfiguration`]
 #[derive(Deserialize)]
-struct ServerConfigFile {
+pub struct ServerConfigFile {
     key: String,
     interface: Vec<Box<dyn InterfaceConfig>>,
     endpoint: Vec<Box<dyn EndpointConfig>>,
