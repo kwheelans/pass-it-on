@@ -1,3 +1,7 @@
+#  v0.9.0
+## Features
+- Expose `ClientConfigFile` and `ServerConfigFile` so that they can be included in parsing.
+
 # v0.8.0
 ## Features
 - Added Email endpoint functionality
