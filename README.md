@@ -2,6 +2,7 @@
 [![crates.io](https://img.shields.io/crates/v/pass-it-on)](https://crates.io/crates/pass-it-on)
 [![Released API docs](https://docs.rs/pass-it-on/badge.svg)](https://docs.rs/pass-it-on/)
 [![MIT licensed](https://img.shields.io/crates/l/pass-it-on)](./LICENSE)
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/kwheelans/pass-it-on/latest?logo=docker)
 
 A library that provides a simple notification client and server that receives messages and passes them on to endpoints.
 
