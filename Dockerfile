@@ -19,7 +19,7 @@ RUN cargo build --release --bin pass-it-on-server  --no-default-features --featu
 # Final image
 FROM debian:12-slim
 
-RUN mkdir /pass-it-on /config
+RUN mkdir /pass-it-on
 WORKDIR /pass-it-on
 
 ENV PATH=/pass-it-on:$PATH \
@@ -27,7 +27,6 @@ LOG_LEVEL=Info
 
 COPY --from=builder /pass-it-on/target/release/pass-it-on-server /pass-it-on
 ADD resources/docker/start_server.sh /pass-it-on/
-ADD resources/docker/default_server_config.toml /config/server.toml
 VOLUME /config
 
 CMD ["/bin/sh","start_server.sh"]
