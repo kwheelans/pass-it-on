@@ -1,7 +1,7 @@
 # v0.10.0
 ## Changes
 - bump dependencies
-- Add dockerfile
+- Add Dockerfile
 
 #  v0.9.0
 ## Features
