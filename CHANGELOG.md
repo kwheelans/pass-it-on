@@ -1,3 +1,8 @@
+# v0.10.0
+## Changes
+- bump dependencies
+- Add dockerfile
+
 #  v0.9.0
 ## Features
 - Expose `ClientConfigFile` and `ServerConfigFile` so that they can be included in parsing.

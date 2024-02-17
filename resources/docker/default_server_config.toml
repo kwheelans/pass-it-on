@@ -1,0 +1,12 @@
+[server]
+key = "XUari3MyhPhYFVFLgHEvtaWaEW3QtoQs"
+
+[[server.interface]]
+type = "http"
+host = "127.0.0.1"
+port = 8080
+
+[[server.endpoint]]
+type = "file"
+path = 'docker_test.txt'
+notifications = ["docker_test"]
