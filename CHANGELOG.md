@@ -1,3 +1,7 @@
+# v0.10.1
+## Changes
+- Remove default server config from Dockerfile
+
 # v0.10.0
 ## Changes
 - bump dependencies
