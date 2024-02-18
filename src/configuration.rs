@@ -21,11 +21,12 @@ pub struct ServerConfiguration {
 #[cfg(feature = "server")]
 impl ServerConfiguration {
     /// Create a new `ServerConfiguration`.
-    pub fn new(
-        key: Key,
+    pub fn new<S: AsRef<str>>(
+        key: S,
         interfaces: Vec<Box<dyn Interface + Send>>,
         endpoints: Vec<Box<dyn Endpoint + Send>>,
     ) -> Result<Self, Error> {
+        let key = Key::derive_shared_key(key);
         let config = Self { key, interfaces, endpoints };
         Self::validate(config)
     }
@@ -94,7 +95,8 @@ pub struct ClientConfiguration {
 #[cfg(feature = "client")]
 impl ClientConfiguration {
     /// Create a new `ClientConfiguration`.
-    pub fn new(key: Key, interfaces: Vec<Box<dyn Interface + Send>>) -> Result<Self, Error> {
+    pub fn new<S: AsRef<str>>(key: S, interfaces: Vec<Box<dyn Interface + Send>>) -> Result<Self, Error> {
+        let key = Key::derive_shared_key(key);
         let config = Self { key, interfaces };
         Self::validate(config)
     }
@@ -114,13 +116,6 @@ impl ClientConfiguration {
             return Err(Error::MissingInterface);
         }
         Ok(config)
-    }
-}
-
-fn valid_key_length(key: &str) -> Result<(), Error> {
-    match key.len() == 32 {
-        true => Ok(()),
-        false => Err(Error::InvalidKeyLength(key.len() as u8)),
     }
 }
 

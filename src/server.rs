@@ -12,7 +12,7 @@ const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 /// Start the server with provided [`ServerConfiguration`].
 ///
 /// Server listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
-/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shutdown the client in addition to
+/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shut down the client in addition to
 /// system signals.
 pub async fn start_server(
     server_config: ServerConfiguration,
@@ -37,10 +37,7 @@ pub async fn start_server(
     });
 
     // Shutdown
-    let shutdown_secs = match wait_for_shutdown_secs {
-        None => DEFAULT_WAIT_FOR_SHUTDOWN_SECS,
-        Some(secs) => secs,
-    };
+    let shutdown_secs = wait_for_shutdown_secs.unwrap_or(DEFAULT_WAIT_FOR_SHUTDOWN_SECS);
     info!(target: LIB_LOG_TARGET, "Listening for shutdown signals");
     listen_for_shutdown(shutdown_tx, shutdown, shutdown_secs).await;
 

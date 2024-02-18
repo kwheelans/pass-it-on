@@ -1,3 +1,8 @@
+# v0.11.0
+## Breaking Changes
+- The `key` field in client and server configuration can now be any length. However both client and server must use 0.11+ of the pass-it-on library.
+- Remove the `InvalidKeyLength` error as it no longer has any use.
+
 # v0.10.1
 ## Changes
 - Remove default server config from Dockerfile

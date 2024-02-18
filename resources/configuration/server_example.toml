@@ -1,7 +1,7 @@
 ###################################
 # Pass-it-on Server Configuration #
 ###################################
-# Server key must be 32 characters/bytes and must match the clients key
+# Server key and cleint key value must match
 
 [server]
 key = "replace me"

@@ -1,6 +1,5 @@
-use crate::configuration::{collect_interfaces, valid_key_length, ClientConfiguration};
+use crate::configuration::{collect_interfaces, ClientConfiguration};
 use crate::interfaces::{Interface, InterfaceConfig};
-use crate::notifications::Key;
 use crate::Error;
 use serde::Deserialize;
 
@@ -25,20 +24,11 @@ impl ClientConfigFileParser {
     }
 }
 
-impl ClientConfigFile {
-    fn key(&self) -> [u8; 32] {
-        self.key.clone().into_bytes().try_into().unwrap()
-    }
-}
-
 impl TryFrom<ClientConfigFile> for ClientConfiguration {
     type Error = Error;
 
     fn try_from(value: ClientConfigFile) -> Result<Self, Self::Error> {
-        valid_key_length(value.key.as_str())?;
-        let key = value.key();
         let interfaces: Vec<Box<dyn Interface + Send>> = collect_interfaces(value.interface)?;
-
-        ClientConfiguration::new(Key::from_bytes(&key), interfaces)
+        ClientConfiguration::new(value.key.as_str(), interfaces)
     }
 }

@@ -102,3 +102,4 @@ pub use self::server::start_server;
 pub const LIB_LOG_TARGET: &str = "pass_it_on";
 #[allow(dead_code)]
 const CHANNEL_BUFFER: usize = 200;
+const KEY_CONTEXT: &str = "pass-it-on 2024-02-18 client-server shared-key";

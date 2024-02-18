@@ -1,10 +1,7 @@
 use pass_it_on::endpoints::file::FileEndpoint;
 use pass_it_on::endpoints::Endpoint;
-use pass_it_on::notifications::Key;
 use pass_it_on::Error;
 use pass_it_on::ServerConfiguration;
-
-const VALID_KEY: &[u8; 32] = b"sdfsf4633ghf44dfhdfhQdhdfhewaasg";
 
 #[test]
 fn server_valid_config_file() {
@@ -170,29 +167,8 @@ fn server_valid_config_email() {
 }
 
 #[test]
-fn server_invalid_key_length() {
-    let config = ServerConfiguration::try_from(
-        r#"
-    [server]
-    key = "123456789"
-
-    [[server.interface]]
-    type = "http"
-    port = 8080
-
-    [[server.endpoint]]
-    type = "file"
-    path = '/test_data/file_endpoint.txt'
-    notifications = ["notification1", "notification2"]
-"#,
-    );
-
-    assert_eq!(config.unwrap_err().to_string(), Error::InvalidKeyLength(9).to_string())
-}
-
-#[test]
 fn interface_not_defined() {
-    let config = ServerConfiguration::new(Key::from_bytes(VALID_KEY), Vec::new(), Vec::new());
+    let config = ServerConfiguration::new("test key", Vec::new(), Vec::new());
 
     assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
 }
@@ -201,7 +177,7 @@ fn interface_not_defined() {
 fn endpoint_not_defined() {
     let notifications = ["test1".to_string(), "test2".to_string()];
     let endpoint: Box<dyn Endpoint + Send> = Box::new(FileEndpoint::new("path", notifications.as_ref()));
-    let config = ServerConfiguration::new(Key::from_bytes(VALID_KEY), Vec::new(), vec![endpoint]);
+    let config = ServerConfiguration::new("test key", Vec::new(), vec![endpoint]);
 
     assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
 }

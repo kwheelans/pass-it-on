@@ -1,6 +1,6 @@
 //! Representation of notification messages.
 
-use crate::Error;
+use crate::{Error, KEY_CONTEXT};
 use blake3::Hash;
 use serde::{Deserialize, Serialize};
 use serde_json::StreamDeserializer;
@@ -183,6 +183,11 @@ impl Key {
         let mut hasher = blake3::Hasher::new_keyed(hash_key.as_bytes());
         hasher.update(name.as_ref().as_bytes());
         Self { hash: hasher.finalize() }
+    }
+
+    /// Generate a key from the pass-it-on static context and  a provided key string.
+    pub fn derive_shared_key<S: AsRef<str>>(key_string: S) -> Key {
+        Self::from_bytes(&blake3::derive_key(KEY_CONTEXT, key_string.as_ref().as_bytes()))
     }
 
     /// Create `Key` from a byte array.

@@ -1,7 +1,6 @@
-use crate::configuration::{collect_endpoints, collect_interfaces, valid_key_length, ServerConfiguration};
+use crate::configuration::{collect_endpoints, collect_interfaces, ServerConfiguration};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::interfaces::{Interface, InterfaceConfig};
-use crate::notifications::Key;
 use crate::Error;
 use serde::Deserialize;
 
@@ -28,22 +27,13 @@ impl ServerConfigFileParser {
     }
 }
 
-impl ServerConfigFile {
-    fn key(&self) -> [u8; 32] {
-        self.key.clone().into_bytes().try_into().unwrap()
-    }
-}
-
 impl TryFrom<ServerConfigFile> for ServerConfiguration {
     type Error = Error;
 
     fn try_from(value: ServerConfigFile) -> Result<Self, Self::Error> {
-        valid_key_length(value.key.as_str())?;
-
-        let key = Key::from_bytes(&value.key());
         let interfaces: Vec<Box<dyn Interface + Send>> = collect_interfaces(value.interface)?;
         let endpoints: Vec<Box<dyn Endpoint + Send>> = collect_endpoints(value.endpoint)?;
 
-        ServerConfiguration::new(key, interfaces, endpoints)
+        ServerConfiguration::new(value.key.as_str(), interfaces, endpoints)
     }
 }

@@ -3,10 +3,6 @@ use thiserror::Error;
 /// Errors returned by pass-it-on library.
 #[derive(Error, Debug)]
 pub enum Error {
-    /// Key length must be 32 bytes.
-    #[error("Invalid key length, expected 32 and got {0}")]
-    InvalidKeyLength(u8),
-
     /// At least one [`Endpoint`][`crate::endpoints::Endpoint`] needs to be defined for a server.
     #[error("At least one endpoint must be defined")]
     MissingEndpoint,
