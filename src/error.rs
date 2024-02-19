@@ -55,11 +55,6 @@ pub enum Error {
     #[error("Matrix ClientBuild Error: {0}")]
     MatrixClientBuildError(#[from] matrix_sdk::ClientBuildError),
 
-    #[cfg(feature = "matrix")]
-    /// Pass-thru `matrix_sdk::store::OpenStoreError`.
-    #[error("Matrix OpenStore Error: {0}")]
-    MatrixOpenStoreError(#[from] matrix_sdk::store::OpenStoreError),
-
     #[cfg(all(unix, any(feature = "pipe-client", feature = "pipe-server", feature = "pipe")))]
     /// Pass-thru `nix::errno::Errno`.
     #[error("Nix ErrorNo Error: {0}")]

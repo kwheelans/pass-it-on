@@ -1,8 +1,8 @@
 use log::{debug, info, warn};
 use matrix_sdk::config::SyncSettings;
-use matrix_sdk::room::Joined;
+use matrix_sdk::matrix_auth::MatrixSession;
 use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
-use matrix_sdk::{Client, Session};
+use matrix_sdk::{Client, Room};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs;
@@ -19,7 +19,7 @@ const SESSION_DB_NAME: &str = "session_db";
 
 #[derive(Serialize, Deserialize, Clone)]
 pub(super) struct PersistentSession {
-    client_session: Session,
+    client_session: MatrixSession,
     client_info: ClientInfo,
     sync_token: Option<String>,
 }
@@ -85,7 +85,7 @@ impl ClientInfo {
 }
 
 impl PersistentSession {
-    pub fn new(client_info: &ClientInfo, session: &Session, sync_token: Option<String>) -> Self {
+    pub fn new(client_info: &ClientInfo, session: &MatrixSession, sync_token: Option<String>) -> Self {
         PersistentSession { client_info: client_info.clone(), client_session: session.clone(), sync_token }
     }
 }
@@ -93,7 +93,7 @@ impl PersistentSession {
 pub(super) async fn send_messages(
     endpoint_rx: broadcast::Receiver<ValidatedNotification>,
     shutdown: watch::Receiver<bool>,
-    room_list: Vec<Joined>,
+    room_list: Vec<Room>,
     client: &Client,
 ) -> String {
     let mut rx = endpoint_rx.resubscribe();
@@ -112,7 +112,7 @@ pub(super) async fn send_messages(
                         for room in &room_list {
                             if get_all_room_aliases(room).contains(msg_room.as_str()) {
                                 debug!(target: LIB_LOG_TARGET, "Sending Matrix Message to {}", msg_room);
-                                match room.send(msg_text.clone(), None).await {
+                                match room.send(msg_text.clone()).await {
                                     Ok(r) => debug!(target: LIB_LOG_TARGET, "OK: {:?}", r),
                                     Err(e) => debug!(target: LIB_LOG_TARGET, "Error: {}", e),
                                 }
@@ -143,12 +143,13 @@ pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
 pub(super) async fn first_login(client_info: ClientInfo) -> Result<Client, Error> {
     let client = Client::builder()
         .homeserver_url(client_info.homeserver())
-        .sled_store(client_info.db_path(), Some(client_info.store_password()))?
+        .sqlite_store(client_info.db_path(), Some(client_info.store_password()))
         .build()
         .await?;
 
     // Login
     client
+        .matrix_auth()
         .login_username(client_info.username(), client_info.password())
         .initial_device_display_name(INITIAL_DEVICE_NAME)
         .send()
@@ -156,7 +157,7 @@ pub(super) async fn first_login(client_info: ClientInfo) -> Result<Client, Error
     info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
 
     let sync_token = client.sync_once(SyncSettings::default()).await.unwrap().next_batch;
-    let persist = PersistentSession::new(&client_info, &client.session().unwrap(), Some(sync_token));
+    let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
     save_session(&persist)?;
     Ok(client)
@@ -165,14 +166,14 @@ pub(super) async fn first_login(client_info: ClientInfo) -> Result<Client, Error
 pub(super) async fn resume_session(client_info: ClientInfo) -> Result<Client, Error> {
     let client = Client::builder()
         .homeserver_url(client_info.homeserver())
-        .sled_store(client_info.db_path(), Some(client_info.store_password()))?
+        .sqlite_store(client_info.db_path(), Some(client_info.store_password()))
         .build()
         .await?;
     let session = parse_session(client_info.session_path().as_path())?;
 
-    client.restore_login(session.client_session).await?;
+    client.matrix_auth().restore_session(session.client_session).await?;
     let sync_token = client.sync_once(SyncSettings::default()).await.unwrap().next_batch;
-    let persist = PersistentSession::new(&client_info, &client.session().unwrap(), Some(sync_token));
+    let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
     save_session(&persist)?;
     Ok(client)
@@ -207,7 +208,7 @@ fn validate_room(room: &str, default_server: &str) -> Result<String, Error> {
     }
 }
 
-pub(super) async fn process_rooms(client: &Client, room_map: &[MatrixRoom]) -> Vec<Joined> {
+pub(super) async fn process_rooms(client: &Client, room_map: &[MatrixRoom]) -> Vec<Room> {
     let default_server = get_default_server(client);
     let joined_rooms = client.joined_rooms();
     let mut valid_rooms = Vec::new();
@@ -228,7 +229,7 @@ pub(super) async fn process_rooms(client: &Client, room_map: &[MatrixRoom]) -> V
     valid_rooms
 }
 
-fn get_all_room_aliases(room: &Joined) -> HashSet<String> {
+fn get_all_room_aliases(room: &Room) -> HashSet<String> {
     let mut room_alias: HashSet<_> = room.alt_aliases().into_iter().map(|alias| alias.to_string()).collect();
     if let Some(cannon_alias) = room.canonical_alias() {
         room_alias.insert(cannon_alias.to_string());
@@ -248,7 +249,7 @@ pub(super) async fn print_client_debug(client: &Client) {
     let uid = client.user_id().unwrap();
     let device = client.device_id().unwrap();
     let csstatus = client.encryption().cross_signing_status().await.unwrap();
-    let homeserver = client.homeserver().await;
+    let homeserver = client.homeserver();
     debug!(target: LIB_LOG_TARGET, "==================================================");
     debug!(target: LIB_LOG_TARGET, "User ID: {} Servername: {}", uid, uid.server_name());
     debug!(target: LIB_LOG_TARGET, "Device ID: {}", device);
@@ -262,9 +263,9 @@ pub(super) async fn print_client_debug(client: &Client) {
         debug!(target: LIB_LOG_TARGET, "Canonical Alias: {:?}", r.canonical_alias());
         debug!(target: LIB_LOG_TARGET, "Room ID: {:?}", r.room_id());
         debug!(target: LIB_LOG_TARGET, "Alt Alias: {:?}", r.alt_aliases());
-        debug!(target: LIB_LOG_TARGET, "is encrypted: {:?}", r.is_encrypted());
+        debug!(target: LIB_LOG_TARGET, "is encrypted: {:?}", r.is_encrypted().await);
         debug!(target: LIB_LOG_TARGET, "is public: {:?}", r.is_public());
-        debug!(target: LIB_LOG_TARGET, "is direct: {:?}", r.is_direct());
+        debug!(target: LIB_LOG_TARGET, "is direct: {:?}", r.is_direct().await);
         debug!(target: LIB_LOG_TARGET, "is tombstoned: {:?}", r.is_tombstoned());
         debug!(target: LIB_LOG_TARGET, "==================================================");
     }
