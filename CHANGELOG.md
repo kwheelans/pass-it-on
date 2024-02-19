@@ -1,3 +1,7 @@
+# v0.12.0
+## Changes
+- Changes to update matrix_sdk to 0.7
+
 # v0.11.0
 ## Breaking Changes
 - The `key` field in client and server configuration can now be any length. However both client and server must use 0.11+ of the pass-it-on library.
