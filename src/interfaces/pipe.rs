@@ -160,7 +160,7 @@ impl Interface for PipeInterface {
 
     #[cfg(not(feature = "pipe-server"))]
     async fn receive(&self, _interface_tx: Sender<String>, _shutdown: watch::Receiver<bool>) -> Result<(), Error> {
-        Err(Error::DisabledInterfaceFunction("Pipe receive".to_string()))
+        Err(Error::DisabledInterfaceFeature("pipe-server".to_string()))
     }
 
     #[cfg(feature = "pipe-client")]
@@ -188,7 +188,7 @@ impl Interface for PipeInterface {
         _interface_rx: broadcast::Receiver<Notification>,
         _shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        Err(Error::DisabledInterfaceFunction("Pipe send".to_string()))
+        Err(Error::DisabledInterfaceFeature("pipe-client".to_string()))
     }
 }
 

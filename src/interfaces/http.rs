@@ -184,7 +184,7 @@ impl Interface for HttpSocketInterface {
         _interface_tx: mpsc::Sender<String>,
         _shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        Err(Error::DisabledInterfaceFunction("HTTP receive".to_string()))
+        Err(Error::DisabledInterfaceFeature("http-server".to_string()))
     }
 
     #[cfg(feature = "http-client")]
@@ -208,7 +208,7 @@ impl Interface for HttpSocketInterface {
         _interface_rx: broadcast::Receiver<Notification>,
         _shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        Err(Error::DisabledInterfaceFunction("HTTP send".to_string()))
+        Err(Error::DisabledInterfaceFeature("http-client".to_string()))
     }
 }
 

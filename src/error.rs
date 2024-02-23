@@ -29,7 +29,11 @@ pub enum Error {
 
     /// Call to an interface function that is not enabled.
     #[error("Interface function {0} is not enabled")]
-    DisabledInterfaceFunction(String),
+    DisabledInterfaceFeature(String),
+
+    ///
+    #[error("Endpoint feature {0} is not enabled")]
+    DisabledIEndpointFeature(String),
 
     // ### Converting from other error types ###
     /// Pass-thru [`std::io::Error`].
