@@ -14,6 +14,7 @@ use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
 use log::{info, warn};
 use serde::Deserialize;
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tokio::fs::OpenOptions;
@@ -102,6 +103,10 @@ impl Endpoint for FileEndpoint {
         let mut map = HashMap::new();
         map.insert("".to_string(), keys);
         map
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

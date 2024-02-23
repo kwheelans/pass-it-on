@@ -77,3 +77,19 @@ async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endp
         }
     }
 }
+
+#[cfg(feature = "matrix")]
+/// Interactively verify devices for all Matrix endpoints in the provided [`ServerConfiguration`].
+pub async fn verify_matrix_devices(server_config: ServerConfiguration) -> Result<(), Error> {
+    use crate::endpoints::matrix::verify::verify_devices;
+
+    info!(target: LIB_LOG_TARGET, "Running Matrix device verification process");
+    verify_devices(server_config.endpoints()).await
+}
+
+#[cfg(not(feature = "matrix"))]
+/// Interactively verify devices for all Matrix endpoints in the provided [`ServerConfiguration`].
+pub async fn verify_matrix_devices(server_config: ServerConfiguration) -> Result<(), Error> {
+    info!(target: LIB_LOG_TARGET, "Running Matrix device verification process");
+    Err(Error::DisabledIEndpointFeature("matrix".to_string()))
+}

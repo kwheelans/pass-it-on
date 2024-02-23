@@ -20,6 +20,7 @@
 //! ```
 
 pub(crate) mod notify;
+pub(crate) mod verify;
 
 use crate::endpoints::matrix::notify::{
     login, print_client_debug, process_rooms, save_session, send_messages, ClientInfo, PersistentSession,
@@ -30,6 +31,7 @@ use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
 use log::{error, info};
 use serde::Deserialize;
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use tokio::sync::broadcast::Receiver;
@@ -247,5 +249,9 @@ impl Endpoint for MatrixEndpoint {
             keys.insert(room.room().to_string(), room_keys);
         }
         keys
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

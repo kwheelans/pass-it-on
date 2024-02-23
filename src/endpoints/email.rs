@@ -22,6 +22,7 @@ use log::{debug, error, info};
 use mail_send::mail_builder::MessageBuilder;
 use mail_send::SmtpClientBuilder;
 use serde::Deserialize;
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use tokio::sync::{broadcast, watch};
 
@@ -131,6 +132,10 @@ impl Endpoint for EmailEndpoint {
         let mut map = HashMap::new();
         map.insert("".to_string(), keys);
         map
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

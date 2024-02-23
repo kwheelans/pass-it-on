@@ -13,7 +13,7 @@ use crate::endpoints::matrix::{MatrixEndpoint, MatrixRoom};
 use crate::notifications::ValidatedNotification;
 use crate::{Error, LIB_LOG_TARGET};
 
-const INITIAL_DEVICE_NAME: &str = "notification-server";
+const INITIAL_DEVICE_NAME: &str = "pass-it-on-server";
 const SESSION_FILE_NAME: &str = "session_file";
 const SESSION_DB_NAME: &str = "session_db";
 
@@ -172,6 +172,8 @@ pub(super) async fn resume_session(client_info: ClientInfo) -> Result<Client, Er
     let session = parse_session(client_info.session_path().as_path())?;
 
     client.matrix_auth().restore_session(session.client_session).await?;
+    info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
+
     let sync_token = client.sync_once(SyncSettings::default()).await.unwrap().next_batch;
     let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
@@ -251,7 +253,8 @@ pub(super) async fn print_client_debug(client: &Client) {
     let csstatus = client.encryption().cross_signing_status().await.unwrap();
     let homeserver = client.homeserver();
     debug!(target: LIB_LOG_TARGET, "==================================================");
-    debug!(target: LIB_LOG_TARGET, "User ID: {} Servername: {}", uid, uid.server_name());
+    debug!(target: LIB_LOG_TARGET, "User ID: {}", uid);
+    debug!(target: LIB_LOG_TARGET, "User Servername: {}", uid.server_name());
     debug!(target: LIB_LOG_TARGET, "Device ID: {}", device);
     debug!(target: LIB_LOG_TARGET, "Homeserver: {}", homeserver);
     debug!(target: LIB_LOG_TARGET, "Cross Signing status: {:?}", csstatus);

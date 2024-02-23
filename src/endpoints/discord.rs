@@ -28,6 +28,7 @@ use async_trait::async_trait;
 use log::{debug, info, warn};
 use reqwest::Client;
 use serde::Deserialize;
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use tokio::sync::broadcast::Receiver;
 use tokio::sync::watch;
@@ -85,6 +86,10 @@ impl Endpoint for DiscordEndpoint {
         let mut map = HashMap::new();
         map.insert("".to_string(), keys);
         map
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

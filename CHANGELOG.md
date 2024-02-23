@@ -1,10 +1,17 @@
+# v0.13.0
+## Features
+- Add verify matrix devices feature to the pass-it-on server
+
+## Changes
+- Matrix initial device name is now pass-it-on-server
+
 # v0.12.0
 ## Changes
 - Changes to update matrix_sdk to 0.7
 
 # v0.11.0
 ## Breaking Changes
-- The `key` field in client and server configuration can now be any length. However both client and server must use 0.11+ of the pass-it-on library.
+- The `key` field in client and server configuration can now be any length. However, both client and server must use 0.11+ of the pass-it-on library.
 - Remove the `InvalidKeyLength` error as it no longer has any use.
 
 # v0.10.1
@@ -39,14 +46,14 @@
 # v0.7.0
 ## Breaking Changes
 ### Library
-- modify following functions to require `Option<tokio::sync::watch::Receiver<bool>>` to shutdown in addition to system signals.
+- modify following functions to require `Option<tokio::sync::watch::Receiver<bool>>` to shut down in addition to system signals.
   - `start_client`
   - `start_client_arc`
   - `start_server`
 
 
 # v0.6.1
-## Discrepancies
+## Dependencies
 - Bump toml to 0.8
 - Bump nix to 0.27
 

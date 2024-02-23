@@ -4,6 +4,7 @@ use crate::notifications::{Key, ValidatedNotification};
 use crate::Error;
 use async_trait::async_trait;
 use dyn_clone::DynClone;
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use tokio::sync::{broadcast, watch};
@@ -40,6 +41,9 @@ pub trait Endpoint: DynClone + Send + Debug {
     /// do not go to all rooms.
     /// For endpoints like File where this is not applicable all notifications can go under a single key.
     fn generate_keys(&self, hash_key: &Key) -> HashMap<String, HashSet<Key>>;
+
+    /// Get [`Endpoint`] as [`Any`]
+    fn as_any(&self) -> &dyn Any;
 }
 
 dyn_clone::clone_trait_object!(Endpoint);
