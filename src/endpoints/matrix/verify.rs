@@ -72,7 +72,6 @@ async fn request_verification_handler(request: VerificationRequest) {
             | VerificationRequestState::Requested { .. }
             | VerificationRequestState::Ready { .. } => (),
             VerificationRequestState::Transitioned { verification } => {
-                // We only support SAS verification.
                 if let Verification::SasV1(s) = verification {
                     tokio::spawn(sas_verification_handler(s));
                     break;
