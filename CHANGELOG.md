@@ -4,6 +4,7 @@
 
 ## Changes
 - Matrix initial device name is now pass-it-on-server
+- update nix crate to 0.28
 
 # v0.12.0
 ## Changes
