@@ -148,8 +148,3 @@ port = 8080
 | server-bin-full    | Enables the building of the provided `pass-it-on-server` binary with all available interfaces and endpoints            |
 | server-bin-minimal | Enables the building of the provided `pass-it-on-server` binary while not requiring any specific interface or endpoint |
 | vendored-tls       | Enables vendored tls for reqwest.                                                                                      |
-
-
-## Future Plans
-- Enable encryption support for Matrix endpoint
-- Make the HTTP interface path configurable instead of the hardcoded `/notification`
