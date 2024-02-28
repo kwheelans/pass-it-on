@@ -249,19 +249,26 @@ fn get_default_server(client: &Client) -> String {
 
 pub(super) async fn print_client_debug(client: &Client) {
     let uid = client.user_id().unwrap();
-    let device = client.device_id().unwrap();
+    let device = client.encryption().get_own_device().await.unwrap().unwrap();
     let csstatus = client.encryption().cross_signing_status().await.unwrap();
     let homeserver = client.homeserver();
     debug!(target: LIB_LOG_TARGET, "==================================================");
     debug!(target: LIB_LOG_TARGET, "User ID: {}", uid);
     debug!(target: LIB_LOG_TARGET, "User Servername: {}", uid.server_name());
-    debug!(target: LIB_LOG_TARGET, "Device ID: {}", device);
+    debug!(target: LIB_LOG_TARGET, "Device ID: {}", device.device_id());
+    debug!(target: LIB_LOG_TARGET, "Device Display Name: {}", device.display_name().unwrap_or_default());
+    debug!(target: LIB_LOG_TARGET, "Device is verified: {}", device.is_verified());
+    debug!(target: LIB_LOG_TARGET, "Device is cross-signed: {}", device.is_cross_signed_by_owner());
+
     debug!(target: LIB_LOG_TARGET, "Homeserver: {}", homeserver);
     debug!(target: LIB_LOG_TARGET, "Cross Signing status: {:?}", csstatus);
 
     let rooms = client.joined_rooms();
+    debug!(target: LIB_LOG_TARGET, "==================================================");
+    if rooms.is_empty() {
+        debug!(target: LIB_LOG_TARGET, "No rooms have been joined");
+    }
     for r in rooms {
-        debug!(target: LIB_LOG_TARGET, "==================================================");
         debug!(target: LIB_LOG_TARGET, "Room Name: {:?}", r.name().unwrap_or_default());
         debug!(target: LIB_LOG_TARGET, "Canonical Alias: {:?}", r.canonical_alias());
         debug!(target: LIB_LOG_TARGET, "Room ID: {:?}", r.room_id());
@@ -270,6 +277,6 @@ pub(super) async fn print_client_debug(client: &Client) {
         debug!(target: LIB_LOG_TARGET, "is public: {:?}", r.is_public());
         debug!(target: LIB_LOG_TARGET, "is direct: {:?}", r.is_direct().await);
         debug!(target: LIB_LOG_TARGET, "is tombstoned: {:?}", r.is_tombstoned());
-        debug!(target: LIB_LOG_TARGET, "==================================================");
     }
+    debug!(target: LIB_LOG_TARGET, "==================================================");
 }
