@@ -1,3 +1,4 @@
+use crate::interfaces::http::{BASE_PATH, NOTIFICATION_PATH};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
 use log::{info, warn};
@@ -21,12 +22,17 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
     let mut shutdown_rx = shutdown.clone();
     let sender = warp::any().map(move || tx.clone());
 
-    let filter2 = warp::path!("notification").and(notification_json_body()).and(sender).and_then(receive_notification);
+    let filter = warp::post()
+        .and(warp::path(BASE_PATH))
+        .and(warp::path(NOTIFICATION_PATH))
+        .and(notification_json_body())
+        .and(sender)
+        .and_then(receive_notification);
 
     info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
     match tls {
         true => {
-            let (_address, server) = warp::serve(filter2)
+            let (_address, server) = warp::serve(filter)
                 .tls()
                 .cert_path(tls_cert_path.unwrap().as_ref())
                 .key_path(tls_key_path.unwrap().as_ref())
@@ -36,7 +42,7 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
             server.await;
         }
         false => {
-            let (_address, server) = warp::serve(filter2).bind_with_graceful_shutdown(socket, async move {
+            let (_address, server) = warp::serve(filter).bind_with_graceful_shutdown(socket, async move {
                 shutdown_rx.changed().await.ok().unwrap_or_default();
             });
             server.await;

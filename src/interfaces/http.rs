@@ -47,6 +47,8 @@ const LOCALHOST: &str = "http://localhost";
 const HTTP: &str = "http";
 const HTTPS: &str = "https";
 const DEFAULT_PORT: u16 = 8080;
+const BASE_PATH: &str = "pass-it-on";
+const NOTIFICATION_PATH: &str = "notification";
 
 /// Data structure to represent the HTTP Socket [`Interface`].
 #[derive(Debug, Clone)]
@@ -196,7 +198,7 @@ impl Interface for HttpSocketInterface {
         use crate::interfaces::http::http_client::start_sending;
 
         let mut url = self.host.clone();
-        url.set_path("notification");
+        url.set_path(format!("{}{}{}", BASE_PATH, "/", NOTIFICATION_PATH).as_str());
 
         tokio::spawn(async move { start_sending(interface_rx, shutdown, url.as_str()).await });
         Ok(())
