@@ -35,9 +35,9 @@ pub(crate) mod http_server;
 
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
-use crate::Error;
+use crate::{Error, CRATE_VERSION};
 use async_trait::async_trait;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tokio::sync::{broadcast, mpsc, watch};
@@ -49,6 +49,12 @@ const HTTPS: &str = "https";
 const DEFAULT_PORT: u16 = 8080;
 const BASE_PATH: &str = "pass-it-on";
 const NOTIFICATION_PATH: &str = "notification";
+const VERSION_PATH: &str = "version";
+
+#[derive(Debug, Deserialize, Serialize)]
+struct Version {
+    version: String,
+}
 
 /// Data structure to represent the HTTP Socket [`Interface`].
 #[derive(Debug, Clone)]
@@ -69,6 +75,12 @@ pub(crate) struct HttpSocketConfigFile {
     pub port: i64,
     pub tls_cert_path: Option<String>,
     pub tls_key_path: Option<String>,
+}
+
+impl Version {
+    fn new() -> Self {
+        Self { version: CRATE_VERSION.to_string() }
+    }
 }
 
 impl HttpSocketInterface {
@@ -217,9 +229,7 @@ impl Interface for HttpSocketInterface {
 fn parse_url(value: &str) -> Result<Url, Error> {
     match Url::parse(value) {
         Ok(url) => Ok(url),
-        Err(error) if error == ParseError::RelativeUrlWithoutBase => {
-            parse_url(format!("{}://{}", HTTP, value).as_str())
-        }
+        Err(ParseError::RelativeUrlWithoutBase) => parse_url(format!("{}://{}", HTTP, value).as_str()),
         Err(error) => Err(error.into()),
     }
 }

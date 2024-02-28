@@ -1,7 +1,8 @@
-use crate::interfaces::http::{BASE_PATH, NOTIFICATION_PATH};
+use crate::interfaces::http::{Version, BASE_PATH, NOTIFICATION_PATH, VERSION_PATH};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
 use log::{info, warn};
+use serde::Serialize;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::path::Path;
@@ -21,18 +22,28 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
 ) {
     let mut shutdown_rx = shutdown.clone();
     let sender = warp::any().map(move || tx.clone());
+    let server_version = warp::any().map(Version::new);
 
-    let filter = warp::post()
+    let notifications = warp::post()
         .and(warp::path(BASE_PATH))
         .and(warp::path(NOTIFICATION_PATH))
         .and(notification_json_body())
         .and(sender)
         .and_then(receive_notification);
 
+    let version = warp::get()
+        .and(warp::path(BASE_PATH))
+        .and(warp::path(VERSION_PATH))
+        .and(warp::path::end())
+        .and(server_version)
+        .and_then(send_json_response);
+
+    let routes = notifications.or(version);
+
     info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
     match tls {
         true => {
-            let (_address, server) = warp::serve(filter)
+            let (_address, server) = warp::serve(routes)
                 .tls()
                 .cert_path(tls_cert_path.unwrap().as_ref())
                 .key_path(tls_key_path.unwrap().as_ref())
@@ -42,7 +53,7 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
             server.await;
         }
         false => {
-            let (_address, server) = warp::serve(filter).bind_with_graceful_shutdown(socket, async move {
+            let (_address, server) = warp::serve(routes).bind_with_graceful_shutdown(socket, async move {
                 shutdown_rx.changed().await.ok().unwrap_or_default();
             });
             server.await;
@@ -61,6 +72,10 @@ async fn receive_notification(
             Ok(StatusCode::BAD_REQUEST)
         }
     }
+}
+
+async fn send_json_response<R: Serialize>(response: R) -> Result<impl warp::Reply, Infallible> {
+    Ok(warp::reply::json(&response))
 }
 
 fn notification_json_body() -> impl Filter<Extract = (Notification,), Error = warp::Rejection> + Clone {

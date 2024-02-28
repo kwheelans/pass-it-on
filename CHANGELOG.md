@@ -1,3 +1,10 @@
+# Unreleased
+## Breaking Changes
+- Server listens for notification at `POST` method at path `/pass-it-on/notifications`
+
+## Features
+- The `GET` method for path `/pass-it-on/version` will return version number
+
 # v0.13.0
 ## Features
 - Add verify matrix devices feature to the pass-it-on server
