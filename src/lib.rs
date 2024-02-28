@@ -103,5 +103,7 @@ pub use self::server::verify_matrix_devices;
 /// Logging target value used for the library.
 pub const LIB_LOG_TARGET: &str = "pass_it_on";
 #[allow(dead_code)]
+const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
+#[allow(dead_code)]
 const CHANNEL_BUFFER: usize = 200;
 const KEY_CONTEXT: &str = "pass-it-on 2024-02-18 client-server shared-key";
