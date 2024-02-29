@@ -7,10 +7,13 @@ use matrix_sdk::Client;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
+use url::Url;
 
 const INITIAL_DEVICE_NAME: &str = "pass-it-on-server";
-const SESSION_FILE_NAME: &str = "session";
-const SESSION_DB_NAME: &str = "session_db";
+const SESSION_PATH: &str = "session";
+const SESSION_FILE: &str = "matrix-session";
+const SESSION_DB: &str = "db";
+const SECRET_STORE_PATH: &str = "secret_store";
 
 #[derive(Serialize, Deserialize, Clone)]
 pub(super) struct PersistentSession {
@@ -21,7 +24,7 @@ pub(super) struct PersistentSession {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub(super) struct ClientInfo {
-    homeserver: String,
+    homeserver: Url,
     username: String,
     password: String,
     store_path: PathBuf,
@@ -30,14 +33,14 @@ pub(super) struct ClientInfo {
 
 impl ClientInfo {
     pub fn new(
-        homeserver: impl AsRef<str>,
+        homeserver: Url,
         username: impl AsRef<str>,
         password: impl AsRef<str>,
         store_path: &Path,
         store_password: impl AsRef<str>,
     ) -> Self {
         ClientInfo {
-            homeserver: homeserver.as_ref().to_string(),
+            homeserver,
             username: username.as_ref().to_string(),
             password: password.as_ref().to_string(),
             store_path: PathBuf::from(store_path),
@@ -45,16 +48,7 @@ impl ClientInfo {
         }
     }
 
-    pub fn from(config: &MatrixEndpoint) -> Self {
-        ClientInfo::new(
-            config.home_server(),
-            config.username(),
-            config.password(),
-            config.session_store_path(),
-            config.session_store_password(),
-        )
-    }
-    pub fn homeserver(&self) -> &str {
+    pub fn homeserver(&self) -> &Url {
         &self.homeserver
     }
 
@@ -70,18 +64,46 @@ impl ClientInfo {
         &self.store_password
     }
 
-    pub fn session_path(&self) -> PathBuf {
-        PathBuf::from(&self.store_path).join(SESSION_FILE_NAME)
+    pub fn session_file_path(&self) -> PathBuf {
+        self.base_store_path().join(SESSION_PATH).join(SESSION_FILE)
     }
 
-    pub fn db_path(&self) -> PathBuf {
-        PathBuf::from(&self.store_path).join(SESSION_DB_NAME)
+    pub fn session_db_path(&self) -> PathBuf {
+        self.base_store_path().join(SESSION_PATH).join(SESSION_DB)
+    }
+
+    pub fn secret_store_path(&self) -> PathBuf {
+        self.base_store_path().join(SECRET_STORE_PATH)
+    }
+
+    fn base_store_path(&self) -> PathBuf {
+        PathBuf::from(&self.store_path).join(self.homeserver().domain().unwrap_or("no-domain")).join(self.username())
+    }
+}
+
+impl TryFrom<&MatrixEndpoint> for ClientInfo {
+    type Error = Error;
+
+    fn try_from(value: &MatrixEndpoint) -> Result<Self, Self::Error> {
+        Ok(ClientInfo::new(
+            Url::parse(value.home_server())?,
+            value.username(),
+            value.password(),
+            value.session_store_path(),
+            value.session_store_password(),
+        ))
     }
 }
 
 impl PersistentSession {
     pub fn new(client_info: &ClientInfo, session: &MatrixSession, sync_token: Option<String>) -> Self {
         PersistentSession { client_info: client_info.clone(), client_session: session.clone(), sync_token }
+    }
+
+    pub fn save_session(&self) -> Result<(), Error> {
+        let serde_string = serde_json::to_string(self)?;
+        fs::write(self.client_info.session_file_path(), serde_string)?;
+        Ok(())
     }
 }
 
@@ -133,23 +155,17 @@ pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
     let client = {
         let build_client = Client::builder()
             .homeserver_url(client_info.homeserver())
-            .sqlite_store(client_info.db_path(), Some(client_info.store_password()))
+            .sqlite_store(client_info.session_db_path(), Some(client_info.store_password()))
             .build()
             .await?;
 
-        match client_info.session_path().exists() {
+        match client_info.session_file_path().exists() {
             true => resume_session(client_info, build_client).await?,
             false => first_login(client_info, build_client).await?,
         }
     };
     info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
     Ok(client)
-}
-
-pub(super) fn save_session(session: &PersistentSession) -> Result<(), Error> {
-    let serde_string = serde_json::to_string(session)?;
-    fs::write(session.client_info.session_path(), serde_string)?;
-    Ok(())
 }
 
 async fn first_login(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
@@ -161,21 +177,21 @@ async fn first_login(client_info: ClientInfo, client: Client) -> Result<Client, 
         .send()
         .await?;
 
-    let sync_token = client.sync_once(SyncSettings::default()).await.unwrap().next_batch;
+    let sync_token = client.sync_once(SyncSettings::default()).await?.next_batch;
     let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
-    save_session(&persist)?;
+    persist.save_session()?;
     Ok(client)
 }
 
 async fn resume_session(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
-    let session = PersistentSession::try_from(client_info.session_path().as_path())?;
+    let session = PersistentSession::try_from(client_info.session_file_path().as_path())?;
 
     client.matrix_auth().restore_session(session.client_session).await?;
 
-    let sync_token = client.sync_once(SyncSettings::default()).await.unwrap().next_batch;
+    let sync_token = client.sync_once(SyncSettings::default()).await?.next_batch;
     let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
-    save_session(&persist)?;
+    persist.save_session()?;
     Ok(client)
 }
