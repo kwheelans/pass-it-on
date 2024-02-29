@@ -19,12 +19,12 @@
 //! notifications = ["notification_id2"]
 //! ```
 
-pub(crate) mod notify;
+mod common;
+mod notify;
 pub(crate) mod verify;
 
-use crate::endpoints::matrix::notify::{
-    login, print_client_debug, process_rooms, save_session, send_messages, ClientInfo, PersistentSession,
-};
+use crate::endpoints::matrix::common::{login, print_client_debug, save_session, ClientInfo, PersistentSession};
+use crate::endpoints::matrix::notify::{process_rooms, send_messages};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
 use crate::{Error, LIB_LOG_TARGET};

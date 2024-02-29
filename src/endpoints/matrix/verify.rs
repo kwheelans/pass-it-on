@@ -1,4 +1,4 @@
-use crate::endpoints::matrix::notify::{login, ClientInfo};
+use crate::endpoints::matrix::common::{login, ClientInfo};
 use crate::endpoints::matrix::MatrixEndpoint;
 use crate::endpoints::Endpoint;
 use crate::{Error, LIB_LOG_TARGET};
