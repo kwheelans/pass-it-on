@@ -1,6 +1,7 @@
 # Unreleased
 ## Breaking Changes
 - Server listens for notification at `POST` method at path `/pass-it-on/notifications`
+- Matrix stores persistence data under provided path under `session_store_path/homerserver-domain/user`
 
 ## Features
 - The `GET` method for path `/pass-it-on/version` will return version number

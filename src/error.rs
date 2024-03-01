@@ -59,6 +59,11 @@ pub enum Error {
     #[error("Matrix ClientBuild Error: {0}")]
     MatrixClientBuildError(#[from] matrix_sdk::ClientBuildError),
 
+    #[cfg(feature = "matrix")]
+    /// Pass-thru `matrix_sdk::encryption::secret_storage::SecretStorageError`.
+    #[error("Matrix SecretStorage Error: {0}")]
+    MatrixSecretStoreError(#[from] matrix_sdk::encryption::secret_storage::SecretStorageError),
+
     #[cfg(all(unix, any(feature = "pipe-client", feature = "pipe-server", feature = "pipe")))]
     /// Pass-thru `nix::errno::Errno`.
     #[error("Nix ErrorNo Error: {0}")]

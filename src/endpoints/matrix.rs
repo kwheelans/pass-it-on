@@ -19,12 +19,12 @@
 //! notifications = ["notification_id2"]
 //! ```
 
-pub(crate) mod notify;
+mod common;
+mod notify;
 pub(crate) mod verify;
 
-use crate::endpoints::matrix::notify::{
-    login, print_client_debug, process_rooms, save_session, send_messages, ClientInfo, PersistentSession,
-};
+use crate::endpoints::matrix::common::{login, print_client_debug, ClientInfo, PersistentSession};
+use crate::endpoints::matrix::notify::{process_rooms, send_messages};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
 use crate::{Error, LIB_LOG_TARGET};
@@ -213,14 +213,14 @@ impl Endpoint for MatrixEndpoint {
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
         // Login client
-        let client_info = ClientInfo::from(self);
+        let client_info = ClientInfo::try_from(self)?;
         info!(
             target: LIB_LOG_TARGET,
             "Setting up Endpoint: Matrix -> User {} on {}",
             client_info.username(),
             client_info.homeserver()
         );
-        let client = login(client_info.clone()).await?;
+        let (client, session) = login(client_info.clone()).await?;
 
         print_client_debug(&client).await;
         let room_list = process_rooms(&client, self.rooms()).await;
@@ -228,9 +228,13 @@ impl Endpoint for MatrixEndpoint {
         // Monitor for messages to send
         tokio::spawn(async move {
             let sync_token = send_messages(endpoint_rx, shutdown.clone(), room_list, &client).await;
-            let persist =
-                PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
-            if let Err(error) = save_session(&persist) {
+            let persist = PersistentSession::new(
+                &client_info,
+                &client.matrix_auth().session().unwrap(),
+                Some(sync_token),
+                session.secret_store_key(),
+            );
+            if let Err(error) = persist.save_session() {
                 error!(target: LIB_LOG_TARGET, "{}", error)
             }
         });
