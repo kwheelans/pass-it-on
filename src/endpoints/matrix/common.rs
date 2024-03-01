@@ -10,7 +10,6 @@ use std::path::{Path, PathBuf};
 use url::Url;
 
 const INITIAL_DEVICE_NAME: &str = "pass-it-on-server";
-const SESSION_PATH: &str = "session";
 const SESSION_FILE: &str = "matrix-session";
 const SESSION_DB: &str = "db";
 
@@ -65,11 +64,11 @@ impl ClientInfo {
     }
 
     pub fn session_file_path(&self) -> PathBuf {
-        self.base_store_path().join(SESSION_PATH).join(SESSION_FILE)
+        self.base_store_path().join(SESSION_FILE)
     }
 
     pub fn session_db_path(&self) -> PathBuf {
-        self.base_store_path().join(SESSION_PATH).join(SESSION_DB)
+        self.base_store_path().join(SESSION_DB)
     }
 
     fn base_store_path(&self) -> PathBuf {
