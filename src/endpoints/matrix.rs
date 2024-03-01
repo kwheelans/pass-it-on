@@ -220,7 +220,7 @@ impl Endpoint for MatrixEndpoint {
             client_info.username(),
             client_info.homeserver()
         );
-        let client = login(client_info.clone()).await?;
+        let (client, session) = login(client_info.clone()).await?;
 
         print_client_debug(&client).await;
         let room_list = process_rooms(&client, self.rooms()).await;
@@ -228,8 +228,12 @@ impl Endpoint for MatrixEndpoint {
         // Monitor for messages to send
         tokio::spawn(async move {
             let sync_token = send_messages(endpoint_rx, shutdown.clone(), room_list, &client).await;
-            let persist =
-                PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
+            let persist = PersistentSession::new(
+                &client_info,
+                &client.matrix_auth().session().unwrap(),
+                Some(sync_token),
+                session.secret_store_key(),
+            );
             if let Err(error) = persist.save_session() {
                 error!(target: LIB_LOG_TARGET, "{}", error)
             }

@@ -13,13 +13,13 @@ const INITIAL_DEVICE_NAME: &str = "pass-it-on-server";
 const SESSION_PATH: &str = "session";
 const SESSION_FILE: &str = "matrix-session";
 const SESSION_DB: &str = "db";
-const SECRET_STORE_PATH: &str = "secret_store";
 
 #[derive(Serialize, Deserialize, Clone)]
 pub(super) struct PersistentSession {
     client_session: MatrixSession,
     client_info: ClientInfo,
     sync_token: Option<String>,
+    secret_store_key: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -72,10 +72,6 @@ impl ClientInfo {
         self.base_store_path().join(SESSION_PATH).join(SESSION_DB)
     }
 
-    pub fn secret_store_path(&self) -> PathBuf {
-        self.base_store_path().join(SECRET_STORE_PATH)
-    }
-
     fn base_store_path(&self) -> PathBuf {
         PathBuf::from(&self.store_path).join(self.homeserver().domain().unwrap_or("no-domain")).join(self.username())
     }
@@ -96,14 +92,28 @@ impl TryFrom<&MatrixEndpoint> for ClientInfo {
 }
 
 impl PersistentSession {
-    pub fn new(client_info: &ClientInfo, session: &MatrixSession, sync_token: Option<String>) -> Self {
-        PersistentSession { client_info: client_info.clone(), client_session: session.clone(), sync_token }
+    pub fn new<S: AsRef<str>>(
+        client_info: &ClientInfo,
+        session: &MatrixSession,
+        sync_token: Option<String>,
+        secret_store_key: S,
+    ) -> Self {
+        PersistentSession {
+            client_info: client_info.clone(),
+            client_session: session.clone(),
+            sync_token,
+            secret_store_key: secret_store_key.as_ref().to_string(),
+        }
     }
 
     pub fn save_session(&self) -> Result<(), Error> {
         let serde_string = serde_json::to_string(self)?;
         fs::write(self.client_info.session_file_path(), serde_string)?;
         Ok(())
+    }
+
+    pub fn secret_store_key(&self) -> &str {
+        self.secret_store_key.as_str()
     }
 }
 
@@ -127,7 +137,7 @@ pub(super) async fn print_client_debug(client: &Client) {
     debug!(target: LIB_LOG_TARGET, "User Servername: {}", uid.server_name());
     debug!(target: LIB_LOG_TARGET, "Device ID: {}", device.device_id());
     debug!(target: LIB_LOG_TARGET, "Device Display Name: {}", device.display_name().unwrap_or_default());
-    debug!(target: LIB_LOG_TARGET, "Device is verified: {}", device.is_verified());
+    debug!(target: LIB_LOG_TARGET, "Device verified with cross-signing: {}", device.is_verified_with_cross_signing());
     debug!(target: LIB_LOG_TARGET, "Device is cross-signed: {}", device.is_cross_signed_by_owner());
 
     debug!(target: LIB_LOG_TARGET, "Homeserver: {}", homeserver);
@@ -151,7 +161,7 @@ pub(super) async fn print_client_debug(client: &Client) {
     debug!(target: LIB_LOG_TARGET, "==================================================");
 }
 
-pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
+pub(super) async fn login(client_info: ClientInfo) -> Result<(Client, PersistentSession), Error> {
     let client = {
         let build_client = Client::builder()
             .homeserver_url(client_info.homeserver())
@@ -164,34 +174,49 @@ pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
             false => first_login(client_info, build_client).await?,
         }
     };
-    info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
     Ok(client)
 }
 
-async fn first_login(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
-    // Login
+async fn first_login(client_info: ClientInfo, client: Client) -> Result<(Client, PersistentSession), Error> {
+    debug!(target: LIB_LOG_TARGET, "Attempting first time login for user: {}", client_info.username());
     client
         .matrix_auth()
         .login_username(client_info.username(), client_info.password())
         .initial_device_display_name(INITIAL_DEVICE_NAME)
         .send()
         .await?;
+    info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
+    let secret_store = client.encryption().secret_storage().create_secret_store().await?;
+    secret_store.import_secrets().await?;
 
     let sync_token = client.sync_once(SyncSettings::default()).await?.next_batch;
-    let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
+    let persist = PersistentSession::new(
+        &client_info,
+        &client.matrix_auth().session().unwrap(),
+        Some(sync_token),
+        secret_store.secret_storage_key(),
+    );
 
     persist.save_session()?;
-    Ok(client)
+    Ok((client, persist))
 }
 
-async fn resume_session(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
+async fn resume_session(client_info: ClientInfo, client: Client) -> Result<(Client, PersistentSession), Error> {
+    debug!(target: LIB_LOG_TARGET, "Attempting to restore session for user: {}", client_info.username());
     let session = PersistentSession::try_from(client_info.session_file_path().as_path())?;
 
     client.matrix_auth().restore_session(session.client_session).await?;
+    info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
+    client.encryption().secret_storage().open_secret_store(session.secret_store_key.as_str()).await?;
 
     let sync_token = client.sync_once(SyncSettings::default()).await?.next_batch;
-    let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
+    let persist = PersistentSession::new(
+        &client_info,
+        &client.matrix_auth().session().unwrap(),
+        Some(sync_token),
+        session.secret_store_key,
+    );
 
     persist.save_session()?;
-    Ok(client)
+    Ok((client, persist))
 }
