@@ -29,7 +29,7 @@ fn server_valid_config_file() {
 }
 
 #[test]
-#[cfg(feature = "pipe-server")]
+#[cfg(all(feature = "pipe-server", unix))]
 fn server_valid_config_pipe() {
     let config = ServerConfiguration::try_from(
         r#"
