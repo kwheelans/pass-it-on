@@ -1,0 +1,160 @@
+name: Release
+
+on:
+  push:
+    tags: [v*]
+
+env:
+  CARGO: cargo
+  CROSS_VERSION: v0.2.5
+  RELEASE_BIN: pass-it-on-server
+  RELEASE_DIR: artifacts
+  UPLOAD_DIR: upload
+
+  # Space separated paths to include in the archive.
+  RELEASE_ADDS: README.md CHANGELOG.md LICENSE
+
+jobs:
+  build:
+    name: Build Artifacts
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            rust: stable
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            rust: stable
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            rust: stable
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            rust: stable
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            rust: stable
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+
+      - name: Create artifact directory
+        shell: bash
+        run: |
+          mkdir -p ${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}
+          mkdir ${{ env.UPLOAD_DIR }}
+          cp -v ${{ env.RELEASE_ADDS }} ${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}
+
+
+      - name: Setup Cross
+        if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+        run: |
+          dir="$RUNNER_TEMP/cross-download"
+          mkdir "$dir"
+          echo "$dir" >> $GITHUB_PATH
+          cd "$dir"
+          curl -LO "https://github.com/cross-rs/cross/releases/download/$CROSS_VERSION/cross-x86_64-unknown-linux-musl.tar.gz"
+          tar xf cross-x86_64-unknown-linux-musl.tar.gz
+          echo "CARGO=cross" >> $GITHUB_ENV
+
+      - name: Build Binary
+        run: ${{ env.CARGO }} build --release --all-features --bin ${{ env.RELEASE_BIN }} --target ${{ matrix.target }}
+
+      - name: Prepare Linux Binaries
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          mv -v target/${{ matrix.target }}/release/${{ env.RELEASE_BIN }} ${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}
+          cd  ${{ env.RELEASE_DIR }}
+          ls -lhR
+          tar -vcaf ${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}
+          mv -v ${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ../${{ env.UPLOAD_DIR }}
+
+
+      - name: Prepare Windows Binaries
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          mv -v target/${{ matrix.target }}/release/${{ env.RELEASE_BIN }}.exe ${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}
+          cd  ./${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}
+          7z a -tzip ./${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}.zip .
+          mv -v ${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}.zip ../../${{ env.UPLOAD_DIR }}
+
+      - name: Upload Linux Archive
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.RELEASE_BIN }}-${{ matrix.target }}
+          path: ${{ env.UPLOAD_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+
+      - name: Upload Windows Archive
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.RELEASE_BIN }}-${{ matrix.target }}
+          path: ${{ env.UPLOAD_DIR }}/${{ env.RELEASE_BIN }}-${{ github.ref_name }}-${{ matrix.target }}.zip
+
+  release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ env.RELEASE_BIN }}-*
+
+      - name: Prepare Artifacts
+        shell: bash
+        run: |
+          for d in ${{ env.RELEASE_BIN }}-* ; do mv -v $d/${{ env.RELEASE_BIN }}* . ; done
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: ./${{ env.RELEASE_BIN }}-${{ github.ref_name }}-*
+
+      - name: Generate Checksum
+        shell: bash
+        run: |
+          curl -O "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz"
+          curl -O "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip"
+          
+          sha512sum *.tar.gz >> checksum.sha512
+          sha512sum *.zip >> checksum.sha512
+          b2sum *.tar.gz >> checksum.b2sum
+          b2sum *.zip >> checksum.b2sum
+
+      - name: Upload Checksum sha512
+        uses: sekwah41/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./checksum.sha512
+          asset_name: checksum.sha512
+          asset_content_type: text/plain
+
+      - name: Upload Checksum blake2
+        uses: sekwah41/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./checksum.b2sum
+          asset_name: checksum.b2sum
+          asset_content_type: text/plain
