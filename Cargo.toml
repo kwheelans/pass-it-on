@@ -82,10 +82,3 @@ required-features = ["server", "http-server", "parse-cfg", "file"]
 [profile.release]
 lto = true
 codegen-units = 1
-
-[package.metadata.cross.target.aarch64-unknown-linux-gnu]
-pre-build = [
-    "dpkg --add-architecture arm64",
-    "apt-get update && apt-get install --assume-yes libssl-dev:arm64",
-    "apt-get update && apt-get install --assume-yes libsystemd-dev:arm64"
-]

@@ -6,7 +6,7 @@ on:
     branches: ['main']
     tags: [v*]
     paths-ignore:
-      - '.github/workflows/**.yml'
+      - '.github/**'
 
 concurrency:
   group: ${{ github.workflow }}

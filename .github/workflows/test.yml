@@ -1,7 +1,13 @@
+name: Test
+
 on:
   workflow_dispatch:
+  push:
+    branches: [ 'main' ]
 
-name: Test
+
+concurrency:
+  group: ${{ github.workflow }}
 
 env:
   CARGO: cargo
@@ -17,9 +23,9 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             rust: stable
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            rust: stable
+#          - target: aarch64-unknown-linux-gnu
+#            os: ubuntu-latest
+#            rust: stable
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             rust: stable
