@@ -1,4 +1,9 @@
 # Unreleased
+# v0.14.1
+## Changes
+- added `bundled-sqlite` feature to `matrix-sdk` crate
+- fixed server configuration tests on windows
+
 # v0.14.0
 ## Breaking Changes
 - Server listens for notification at `POST` method at path `/pass-it-on/notifications`
