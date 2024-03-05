@@ -8,6 +8,10 @@ on:
     paths-ignore:
       - '.github/**'
       - 'tests/**'
+      - 'README.md'
+      - 'rustfmt.toml'
+      - 'resources/configuration/**'
+      - 'resources/systemd/**'
 
 concurrency:
   group: ${{ github.workflow }}

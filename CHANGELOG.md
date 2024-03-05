@@ -1,4 +1,8 @@
 # Unreleased
+# v0.14.2
+## Changes
+- Revert minor dockerfile change
+
 # v0.14.1
 ## Changes
 - added `bundled-sqlite` feature to `matrix-sdk` crate
