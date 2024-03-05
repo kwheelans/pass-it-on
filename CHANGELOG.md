@@ -2,6 +2,8 @@
 # v0.14.2
 ## Changes
 - Revert minor dockerfile change
+- Remove `bundled-sqlite` feature from `matrix-sdk` crate dependency
+- Add `bundled-sqlite` feature to `pass-it-on` which turns on the `bundled-sqlite` feature for `matrix-sdk`
 
 # v0.14.1
 ## Changes

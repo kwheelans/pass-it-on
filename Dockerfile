@@ -14,7 +14,7 @@ RUN cargo chef cook --release --features server-bin-full,vendored-tls --recipe-p
 
 # Build application
 COPY ./ .
-RUN cargo build --release --bin pass-it-on-server  --no-default-features --features server-bin-full,vendored-tls
+RUN cargo build --release --bin pass-it-on-server  --no-default-features --features server-bin-full,vendored-tls,bundled-sqlite
 
 # Final image
 FROM debian:12-slim
