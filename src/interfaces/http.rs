@@ -35,15 +35,16 @@ pub(crate) mod http_server;
 
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
-use crate::{Error, CRATE_VERSION};
+use crate::{Error, CRATE_VERSION, LIB_LOG_TARGET};
 use async_trait::async_trait;
+use log::debug;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tokio::sync::{broadcast, mpsc, watch};
 use url::{ParseError, Url};
 
-const LOCALHOST: &str = "http://localhost";
+const DEFAULT_HOST: &str = "http://0.0.0.0";
 const HTTP: &str = "http";
 const HTTPS: &str = "https";
 const DEFAULT_PORT: u16 = 8080;
@@ -71,7 +72,7 @@ pub struct HttpSocketInterface {
 #[serde(default)]
 pub(crate) struct HttpSocketConfigFile {
     pub host: String,
-    pub tls: bool,
+    pub tls: Option<bool>,
     pub port: i64,
     pub tls_cert_path: Option<String>,
     pub tls_key_path: Option<String>,
@@ -127,14 +128,20 @@ impl HttpSocketInterface {
 
 impl Default for HttpSocketConfigFile {
     fn default() -> Self {
-        Self { host: LOCALHOST.into(), tls: false, port: DEFAULT_PORT as i64, tls_cert_path: None, tls_key_path: None }
+        Self {
+            host: DEFAULT_HOST.into(),
+            tls: None,
+            port: DEFAULT_PORT as i64,
+            tls_cert_path: None,
+            tls_key_path: None,
+        }
     }
 }
 
 impl Default for HttpSocketInterface {
     fn default() -> Self {
         Self {
-            host: Url::parse(LOCALHOST).unwrap(),
+            host: Url::parse(DEFAULT_HOST).unwrap(),
             tls: false,
             port: DEFAULT_PORT,
             tls_cert_path: None,
@@ -151,11 +158,13 @@ impl TryFrom<&HttpSocketConfigFile> for HttpSocketInterface {
             return Err(Error::InvalidPortNumber(value.port));
         }
         let mut url = parse_url(value.host.as_str())?;
-        match value.tls {
-            true => url.set_scheme(HTTPS),
-            false => url.set_scheme(HTTP),
+        if let Some(explict_tls) = value.tls {
+            match explict_tls {
+                true => url.set_scheme(HTTPS),
+                false => url.set_scheme(HTTP),
+            }
+            .expect("TryFrom HttpSocketConfigFile Unable to set url scheme");
         }
-        .unwrap();
 
         url.set_port(Some(value.port as u16)).unwrap();
         Ok(HttpSocketInterface::new(&url, value.tls_cert_path.as_ref(), value.tls_key_path.as_ref()))
@@ -211,6 +220,7 @@ impl Interface for HttpSocketInterface {
 
         let mut url = self.host.clone();
         url.set_path(format!("{}{}{}", BASE_PATH, "/", NOTIFICATION_PATH).as_str());
+        debug!(target: LIB_LOG_TARGET, "Sending notification to: {}", url.as_str());
 
         tokio::spawn(async move { start_sending(interface_rx, shutdown, url.as_str()).await });
         Ok(())

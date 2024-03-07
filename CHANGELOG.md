@@ -1,4 +1,10 @@
 # Unreleased
+## Changes
+- Change http interface default host value from `localhost` to `0.0.0.0`
+
+## Fixes
+- Fix tls value being incorrectly set to false for http interface when https url is provided and tls value is not explicitly set
+
 # v0.14.2
 ## Changes
 - Revert minor dockerfile change
