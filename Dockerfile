@@ -10,7 +10,7 @@ WORKDIR /pass-it-on
 
 # Build dependencies
 COPY --from=planner /recipe/recipe.json recipe.json
-RUN cargo chef cook --release --features server-bin-full,vendored-tls --recipe-path recipe.json
+RUN cargo chef cook --release --features server-bin-full,vendored-tls,bundled-sqlite --recipe-path recipe.json
 
 # Build application
 COPY ./ .
