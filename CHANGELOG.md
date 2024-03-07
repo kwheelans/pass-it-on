@@ -1,4 +1,4 @@
-# Unreleased
+# v0.14.3
 ## Changes
 - Change http interface default host value from `localhost` to `0.0.0.0`
 

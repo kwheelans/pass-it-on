@@ -132,7 +132,7 @@ jobs:
         shell: bash
         run: |
           curl -O "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz"
-          curl -O "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.zip"
+          mv "${{ github.ref_name }}.tar.gz" "${{ env.RELEASE_BIN }}-${{ github.ref_name }}.tar.gz"
           
           sha512sum *.tar.gz >> checksum.sha512
           sha512sum *.zip >> checksum.sha512
@@ -158,3 +158,13 @@ jobs:
           asset_path: ./checksum.b2sum
           asset_name: checksum.b2sum
           asset_content_type: text/plain
+
+      - name: Upload Static Checksum Source
+        uses: sekwah41/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.RELEASE_BIN }}-${{ github.ref_name }}.tar.gz
+          asset_name: ${{ env.RELEASE_BIN }}-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
