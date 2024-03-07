@@ -25,8 +25,10 @@ WORKDIR /pass-it-on
 ENV PATH=/pass-it-on:$PATH \
 LOG_LEVEL=Info
 
-COPY --from=builder /pass-it-on/target/release/pass-it-on-server /pass-it-on
 ADD resources/docker/start_server.sh /pass-it-on/
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /pass-it-on/target/release/pass-it-on-server /pass-it-on
+
 VOLUME /config
 
 CMD ["/bin/sh","start_server.sh"]

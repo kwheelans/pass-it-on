@@ -4,6 +4,7 @@
 
 ## Fixes
 - Fix tls value being incorrectly set to false for http interface when https url is provided and tls value is not explicitly set
+- Add `ca-certificates` package to the Dockerfile 
 
 # v0.14.2
 ## Changes
