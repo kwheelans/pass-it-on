@@ -1,6 +1,7 @@
 use crate::endpoints::matrix::common::{login, ClientInfo};
 use crate::endpoints::matrix::MatrixEndpoint;
 use crate::endpoints::Endpoint;
+use crate::Error::InvalidEndpointConfiguration;
 use crate::{Error, LIB_LOG_TARGET};
 use futures_util::stream::StreamExt;
 use log::{debug, info, warn};
@@ -23,11 +24,18 @@ pub(crate) async fn verify_devices(endpoints: &[Box<dyn Endpoint + Send>]) -> Re
             Some(matrix) => matrix_endpoints.push(matrix),
         }
     }
-    info!(target: LIB_LOG_TARGET, "Found {} matrix endpoints and will attempt to verify devices", matrix_endpoints.len());
-    for endpoint in matrix_endpoints {
-        verify_device(endpoint).await?
+    match matrix_endpoints.is_empty() {
+        true => Err(InvalidEndpointConfiguration(
+            "Unable to run matrix verification because no matrix endpoints are defined".to_string(),
+        )),
+        false => {
+            info!(target: LIB_LOG_TARGET, "Found {} matrix endpoints and will attempt to verify devices", matrix_endpoints.len());
+            for endpoint in matrix_endpoints {
+                verify_device(endpoint).await?
+            }
+            Ok(())
+        }
     }
-    Ok(())
 }
 
 async fn verify_device(endpoint: &MatrixEndpoint) -> Result<(), Error> {
