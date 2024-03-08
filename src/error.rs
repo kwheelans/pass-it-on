@@ -27,11 +27,11 @@ pub enum Error {
     #[error("Invalid port number, valid u16 value expected and got {0}")]
     InvalidPortNumber(i64),
 
-    /// Call to an interface function that is not enabled.
-    #[error("Interface function {0} is not enabled")]
+    /// Call to an interface feature that is not enabled.
+    #[error("Interface feature {0} is not enabled")]
     DisabledInterfaceFeature(String),
 
-    ///
+    /// Return when an endpoint feature is called but not enabled
     #[error("Endpoint feature {0} is not enabled")]
     DisabledIEndpointFeature(String),
 
