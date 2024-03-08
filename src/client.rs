@@ -13,7 +13,7 @@ const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;
 /// Start the client with provided [`ClientConfiguration`] and `Receiver<ClientReadyMessage>` channel.
 ///
 /// Client listens for shutdown signals SIGTERM & SIGINT on Unix or CTRL-BREAK and CTRL-C on Windows.
-/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shutdown the client in addition to
+/// Also accepts a `Option<tokio::sync::watch::Receiver<bool>>` to shut down the client in addition to
 /// system signals.
 pub async fn start_client(
     client_config: ClientConfiguration,
@@ -73,7 +73,7 @@ pub async fn start_client_arc(
 async fn receive_notifications(
     mut notification_rx: mpsc::Receiver<ClientReadyMessage>,
     interface_tx: broadcast::Sender<Notification>,
-    shutdown: watch::Receiver<bool>,
+    shutdown: Receiver<bool>,
     key: Key,
 ) {
     info!(target: LIB_LOG_TARGET, "Client waiting for notifications");
@@ -111,7 +111,7 @@ async fn receive_notifications(
 async fn receive_notifications_arc(
     notifications: Arc<Mutex<Vec<ClientReadyMessage>>>,
     interface_tx: broadcast::Sender<Notification>,
-    shutdown: watch::Receiver<bool>,
+    shutdown: Receiver<bool>,
     key: Key,
 ) {
     info!(target: LIB_LOG_TARGET, "Client waiting for notifications");

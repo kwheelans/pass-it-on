@@ -4,6 +4,7 @@ use pass_it_on::Error;
 use pass_it_on::ServerConfiguration;
 use pass_it_on::{start_server, verify_matrix_devices};
 use std::path::PathBuf;
+use std::process::ExitCode;
 
 const LOG_TARGET: &str = "pass_it_on_server";
 
@@ -22,7 +23,7 @@ struct CliArgs {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> ExitCode {
     let cli = CliArgs::parse();
     let module_log_level = cli.log_level.unwrap_or(LevelFilter::Info);
     simple_logger::SimpleLogger::new()
@@ -34,10 +35,15 @@ async fn main() {
         .init()
         .unwrap();
 
-    if let Err(error) = run(cli).await {
-        error!(target: LOG_TARGET, "{}", error)
+    match run(cli).await {
+        Err(error) => {
+            error!(target: LOG_TARGET, "{}", error);
+            ExitCode::FAILURE
+        }
+        Ok(_) => ExitCode::SUCCESS,
     }
 }
+
 async fn run(cliargs: CliArgs) -> Result<(), Error> {
     info!(target: LOG_TARGET, "Log level is set to {}", cliargs.log_level.unwrap_or(LevelFilter::Info));
     // Setup default directories

@@ -1,3 +1,10 @@
+# Unreleased
+## Fixes
+- Return `ExitCode` from main to show proper exit code on error
+- Return error when trying to verify matrix endpoints and no matrix endpoints are defined
+- Add missing error documentation
+
+
 # v0.14.3
 ## Changes
 - Change http interface default host value from `localhost` to `0.0.0.0`
