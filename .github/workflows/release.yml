@@ -131,8 +131,7 @@ jobs:
       - name: Generate Checksum
         shell: bash
         run: |
-          curl -O "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz"
-          mv "${{ github.ref_name }}.tar.gz" "${{ env.RELEASE_BIN }}-${{ github.ref_name }}.tar.gz"
+          curl -L "${{ github.server_url }}/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz" -o "${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz"
           
           sha512sum *.tar.gz >> checksum.sha512
           sha512sum *.zip >> checksum.sha512
@@ -146,7 +145,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./checksum.sha512
-          asset_name: checksum.sha512
+          asset_name: ${{ github.event.repository.name }}-checksum.sha512
           asset_content_type: text/plain
 
       - name: Upload Checksum blake2
@@ -156,7 +155,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./checksum.b2sum
-          asset_name: checksum.b2sum
+          asset_name: ${{ github.event.repository.name }}-checksum.b2sum
           asset_content_type: text/plain
 
       - name: Upload Static Checksum Source
@@ -165,6 +164,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ env.RELEASE_BIN }}-${{ github.ref_name }}.tar.gz
-          asset_name: ${{ env.RELEASE_BIN }}-${{ github.ref_name }}.tar.gz
+          asset_path: ./${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz
+          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz
           asset_content_type: application/gzip
