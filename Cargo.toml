@@ -48,7 +48,7 @@ log = { version = "0.4", optional = true }
 mail-send = { version = "0.4", optional = true }
 matrix-sdk = { version = "0.7", optional = true }
 nix = { version = "0.28", features = ["fs", "net"], default-features = false, optional = true }
-reqwest = { version = "0.11", optional = true }
+reqwest = { version = "0.12", optional = true }
 serde = { version = "1", features = ["default", "derive"] }
 serde_json = "1"
 simple_logger = { version = "4.2", optional = true }
