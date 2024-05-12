@@ -1,9 +1,14 @@
 # Unreleased
+
+# v0.14.4
+## Changes
+- Update reqwest dependency to version 0.12
+- Update simple_logger dependency to version 5.0
+
 ## Fixes
 - Return `ExitCode` from main to show proper exit code on error
 - Return error when trying to verify matrix endpoints and no matrix endpoints are defined
 - Add missing error documentation
-
 
 # v0.14.3
 ## Changes
