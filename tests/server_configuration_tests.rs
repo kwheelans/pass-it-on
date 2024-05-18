@@ -82,7 +82,7 @@ fn server_valid_config_matrix() {
     username = "test1"
     password = "pass"
     session_store_path = '/test_data/matrix_store'
-    session_store_password = "storepass123"
+    recovery_passphrase = "storepass123"
 
     [[server.endpoint.room]]
     room = "!dfsdfsdf:example.com"

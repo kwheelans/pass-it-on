@@ -39,7 +39,7 @@ pub(crate) async fn verify_devices(endpoints: &[Box<dyn Endpoint + Send>]) -> Re
 }
 
 async fn verify_device(endpoint: &MatrixEndpoint) -> Result<(), Error> {
-    let (client, _session) = login(ClientInfo::try_from(endpoint)?).await?;
+    let client = login(ClientInfo::try_from(endpoint)?).await?;
 
     client.add_event_handler(|event: ToDeviceKeyVerificationRequestEvent, client: Client| async move {
         let request = client

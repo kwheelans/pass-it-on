@@ -2,6 +2,7 @@ use crate::endpoints::matrix::MatrixEndpoint;
 use crate::{Error, LIB_LOG_TARGET};
 use log::{debug, info};
 use matrix_sdk::config::SyncSettings;
+use matrix_sdk::encryption::{BackupDownloadStrategy, EncryptionSettings};
 use matrix_sdk::matrix_auth::MatrixSession;
 use matrix_sdk::Client;
 use serde::{Deserialize, Serialize};
@@ -18,7 +19,6 @@ pub(super) struct PersistentSession {
     client_session: MatrixSession,
     client_info: ClientInfo,
     sync_token: Option<String>,
-    secret_store_key: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -27,7 +27,7 @@ pub(super) struct ClientInfo {
     username: String,
     password: String,
     store_path: PathBuf,
-    store_password: String,
+    recovery_passphrase: String,
 }
 
 impl ClientInfo {
@@ -36,14 +36,14 @@ impl ClientInfo {
         username: impl AsRef<str>,
         password: impl AsRef<str>,
         store_path: &Path,
-        store_password: impl AsRef<str>,
+        recovery_passphrase: impl AsRef<str>,
     ) -> Self {
         ClientInfo {
             homeserver,
             username: username.as_ref().to_string(),
             password: password.as_ref().to_string(),
             store_path: PathBuf::from(store_path),
-            store_password: store_password.as_ref().to_string(),
+            recovery_passphrase: recovery_passphrase.as_ref().to_string(),
         }
     }
 
@@ -52,15 +52,15 @@ impl ClientInfo {
     }
 
     pub fn username(&self) -> &str {
-        &self.username
+        self.username.as_str()
     }
 
     pub fn password(&self) -> &str {
-        &self.password
+        self.password.as_str()
     }
 
-    pub fn store_password(&self) -> &str {
-        &self.store_password
+    pub fn recovery_passphrase(&self) -> &str {
+        self.recovery_passphrase.as_str()
     }
 
     pub fn session_file_path(&self) -> PathBuf {
@@ -85,34 +85,20 @@ impl TryFrom<&MatrixEndpoint> for ClientInfo {
             value.username(),
             value.password(),
             value.session_store_path(),
-            value.session_store_password(),
+            value.recovery_passphrase(),
         ))
     }
 }
 
 impl PersistentSession {
-    pub fn new<S: AsRef<str>>(
-        client_info: &ClientInfo,
-        session: &MatrixSession,
-        sync_token: Option<String>,
-        secret_store_key: S,
-    ) -> Self {
-        PersistentSession {
-            client_info: client_info.clone(),
-            client_session: session.clone(),
-            sync_token,
-            secret_store_key: secret_store_key.as_ref().to_string(),
-        }
+    pub fn new(client_info: &ClientInfo, session: &MatrixSession, sync_token: Option<String>) -> Self {
+        PersistentSession { client_info: client_info.clone(), client_session: session.clone(), sync_token }
     }
 
     pub fn save_session(&self) -> Result<(), Error> {
         let serde_string = serde_json::to_string(self)?;
         fs::write(self.client_info.session_file_path(), serde_string)?;
         Ok(())
-    }
-
-    pub fn secret_store_key(&self) -> &str {
-        self.secret_store_key.as_str()
     }
 }
 
@@ -160,11 +146,16 @@ pub(super) async fn print_client_debug(client: &Client) {
     debug!(target: LIB_LOG_TARGET, "==================================================");
 }
 
-pub(super) async fn login(client_info: ClientInfo) -> Result<(Client, PersistentSession), Error> {
+pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
     let client = {
         let build_client = Client::builder()
             .homeserver_url(client_info.homeserver())
-            .sqlite_store(client_info.session_db_path(), Some(client_info.store_password()))
+            .sqlite_store(client_info.session_db_path(), Some(client_info.recovery_passphrase()))
+            .with_encryption_settings(EncryptionSettings {
+                auto_enable_backups: false,
+                auto_enable_cross_signing: true,
+                backup_download_strategy: BackupDownloadStrategy::OneShot,
+            })
             .build()
             .await?;
 
@@ -176,7 +167,7 @@ pub(super) async fn login(client_info: ClientInfo) -> Result<(Client, Persistent
     Ok(client)
 }
 
-async fn first_login(client_info: ClientInfo, client: Client) -> Result<(Client, PersistentSession), Error> {
+async fn first_login(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
     debug!(target: LIB_LOG_TARGET, "Attempting first time login for user: {}", client_info.username());
     client
         .matrix_auth()
@@ -185,37 +176,43 @@ async fn first_login(client_info: ClientInfo, client: Client) -> Result<(Client,
         .send()
         .await?;
     info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
-    let secret_store = client.encryption().secret_storage().create_secret_store().await?;
-    secret_store.import_secrets().await?;
+
+    let recovery = client.encryption().recovery();
+    debug!(target: LIB_LOG_TARGET, "Recovery State: {:?}", recovery.state());
+    match client.encryption().backups().exists_on_server().await? {
+        true => {
+            debug!(target: LIB_LOG_TARGET, "Matrix backup exists on server, recovering");
+            recovery.recover(client_info.recovery_passphrase()).await?;
+        }
+        false => {
+            debug!(target: LIB_LOG_TARGET, "Matrix backup does not exist on server, creating");
+            let _key = recovery
+                .enable()
+                .wait_for_backups_to_upload()
+                .with_passphrase(client_info.recovery_passphrase())
+                .await?;
+        }
+    }
 
     let sync_token = client.sync_once(SyncSettings::default()).await?.next_batch;
-    let persist = PersistentSession::new(
-        &client_info,
-        &client.matrix_auth().session().unwrap(),
-        Some(sync_token),
-        secret_store.secret_storage_key(),
-    );
+    let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
     persist.save_session()?;
-    Ok((client, persist))
+    Ok(client)
 }
 
-async fn resume_session(client_info: ClientInfo, client: Client) -> Result<(Client, PersistentSession), Error> {
+async fn resume_session(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
     debug!(target: LIB_LOG_TARGET, "Attempting to restore session for user: {}", client_info.username());
     let session = PersistentSession::try_from(client_info.session_file_path().as_path())?;
 
     client.matrix_auth().restore_session(session.client_session).await?;
     info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
-    client.encryption().secret_storage().open_secret_store(session.secret_store_key.as_str()).await?;
+    //client.encryption().secret_storage().open_secret_store(client_info.recovery_passphrase()).await?;
+    client.encryption().recovery().recover(client_info.recovery_passphrase()).await?;
 
     let sync_token = client.sync_once(SyncSettings::default()).await?.next_batch;
-    let persist = PersistentSession::new(
-        &client_info,
-        &client.matrix_auth().session().unwrap(),
-        Some(sync_token),
-        session.secret_store_key,
-    );
+    let persist = PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
 
     persist.save_session()?;
-    Ok((client, persist))
+    Ok(client)
 }

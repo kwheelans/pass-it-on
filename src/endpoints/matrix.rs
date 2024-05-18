@@ -7,7 +7,7 @@
 //! username = "test1"
 //! password = "password"
 //! session_store_path = '/path/to/session/store/matrix_store'
-//! session_store_password = "storepassword"
+//! recovery_passphrase = "recovery_passphrase"
 //!
 //!
 //! [[server.endpoint.room]]
@@ -44,7 +44,7 @@ pub(crate) struct MatrixConfigFile {
     username: String,
     password: String,
     session_store_path: String,
-    session_store_password: String,
+    recovery_passphrase: String,
     room: Vec<MatrixRoomConfigFile>,
 }
 
@@ -61,7 +61,7 @@ pub struct MatrixEndpoint {
     username: String,
     password: String,
     session_store_path: PathBuf,
-    session_store_password: String,
+    recovery_passphrase: String,
     rooms: Vec<MatrixRoom>,
 }
 
@@ -111,15 +111,15 @@ impl MatrixEndpoint {
         username: S,
         password: S,
         session_store_path: S,
-        session_store_password: S,
+        recovery_passphrase: S,
         rooms: Vec<MatrixRoom>,
     ) -> Self {
         let home_server = home_server.as_ref().into();
         let username = username.as_ref().into();
         let password = password.as_ref().into();
         let session_store_path = PathBuf::from(session_store_path.as_ref());
-        let session_store_password = session_store_password.as_ref().into();
-        Self { home_server, username, password, session_store_path, session_store_password, rooms }
+        let recovery_passphrase = recovery_passphrase.as_ref().into();
+        Self { home_server, username, password, session_store_path, recovery_passphrase, rooms }
     }
 
     /// Return the matrix home server.
@@ -142,9 +142,9 @@ impl MatrixEndpoint {
         &self.session_store_path
     }
 
-    /// Return the password for persistent session store database.
-    pub fn session_store_password(&self) -> &str {
-        &self.session_store_password
+    /// Return the recovery passphrase.
+    pub fn recovery_passphrase(&self) -> &str {
+        &self.recovery_passphrase
     }
 
     /// Return the matrix rooms setup for this matrix endpoint.
@@ -182,7 +182,7 @@ impl TryFrom<&MatrixConfigFile> for MatrixEndpoint {
             value.username.as_str(),
             value.password.as_str(),
             value.session_store_path.as_str(),
-            value.session_store_password.as_str(),
+            value.recovery_passphrase.as_str(),
             rooms,
         ))
     }
@@ -220,7 +220,7 @@ impl Endpoint for MatrixEndpoint {
             client_info.username(),
             client_info.homeserver()
         );
-        let (client, session) = login(client_info.clone()).await?;
+        let client = login(client_info.clone()).await?;
 
         print_client_debug(&client).await;
         let room_list = process_rooms(&client, self.rooms()).await;
@@ -228,12 +228,8 @@ impl Endpoint for MatrixEndpoint {
         // Monitor for messages to send
         tokio::spawn(async move {
             let sync_token = send_messages(endpoint_rx, shutdown.clone(), room_list, &client).await;
-            let persist = PersistentSession::new(
-                &client_info,
-                &client.matrix_auth().session().unwrap(),
-                Some(sync_token),
-                session.secret_store_key(),
-            );
+            let persist =
+                PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
             if let Err(error) = persist.save_session() {
                 error!(target: LIB_LOG_TARGET, "{}", error)
             }

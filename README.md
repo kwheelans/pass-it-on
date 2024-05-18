@@ -72,7 +72,7 @@ home_server = "example.com"
 username = "test1"
 password = "pass"
 session_store_path = '/path/to/session/store/matrix_store'
-session_store_password = "storepass123"
+recovery_passphrase = "recover123"
 
 [[server.endpoint.room]]
 room = "!dfsdfsdf:example.com"

@@ -64,6 +64,11 @@ pub enum Error {
     #[error("Matrix SecretStorage Error: {0}")]
     MatrixSecretStoreError(#[from] matrix_sdk::encryption::secret_storage::SecretStorageError),
 
+    #[cfg(feature = "matrix")]
+    /// Pass-thru `matrix_sdk::encryption::recovery::RecoveryError`.
+    #[error("Matrix RecoveryError Error: {0}")]
+    MatrixRecoveryError(#[from] matrix_sdk::encryption::recovery::RecoveryError),
+
     #[cfg(all(unix, any(feature = "pipe-client", feature = "pipe-server", feature = "pipe")))]
     /// Pass-thru `nix::errno::Errno`.
     #[error("Nix ErrorNo Error: {0}")]

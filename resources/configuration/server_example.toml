@@ -58,7 +58,7 @@ port = 8080
 # username = "test1"
 # password = "password"
 # session_store_path = '/path/to/session/store/matrix_store'
-# session_store_password = "storepassword"
+# recovery_passphrase = "storepassword"
 
 # [[server.endpoint.room]]
 # room = "#matrix-room:example.com"
