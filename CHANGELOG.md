@@ -1,14 +1,17 @@
 # Unreleased
+
+# v0.15.0
 ## Features
 - Added functionality to create and recover Matrix homeserver backups with a passphrase for `MatrixEndpoint`.
 If no backup exists on the homeserver one will be created with the provided passphrase.
 If a backup does exist on the homeserver then recovery will be attempted with the provided passphrase.
-- Automatically enable cross signing
+- Automatically enable cross signing for `MatrixEndpoint`
+
+## Breaking Changes
+- Changed session_store_password to recovery_passphrase for `MatrixEndpoint`
 
 ## Changes
-- Changed session_store_password to recovery_passphrase for `MatrixEndpoint`
 - Automatically enable cross signing when building `Client` for `MatrixEndpoint`
-- 
 
 # v0.14.4
 ## Changes
