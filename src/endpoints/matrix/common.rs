@@ -142,6 +142,7 @@ pub(super) async fn print_client_debug(client: &Client) {
         debug!(target: LIB_LOG_TARGET, "is public: {:?}", r.is_public());
         debug!(target: LIB_LOG_TARGET, "is direct: {:?}", r.is_direct().await);
         debug!(target: LIB_LOG_TARGET, "is tombstoned: {:?}", r.is_tombstoned());
+        debug!(target: LIB_LOG_TARGET, "--------------------------------------------------");
     }
     debug!(target: LIB_LOG_TARGET, "==================================================");
 }

@@ -1,5 +1,9 @@
 # Unreleased
 
+## Changes
+- Update nix dependency to version 0.29
+- Increase readability of matrix debug room info
+
 # v0.15.0
 ## Features
 - Added functionality to create and recover Matrix homeserver backups with a passphrase for `MatrixEndpoint`.
