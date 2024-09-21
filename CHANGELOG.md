@@ -1,5 +1,6 @@
 # Unreleased
 
+# v0.15.1
 ## Changes
 - Update nix dependency to version 0.29
 - Increase readability of matrix debug room info
