@@ -1,5 +1,5 @@
 use crate::LIB_LOG_TARGET;
-use log::{error, info};
+use tracing::{error, info};
 use std::time::Duration;
 use tokio::sync::watch;
 

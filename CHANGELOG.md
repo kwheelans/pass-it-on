@@ -1,6 +1,7 @@
 # Unreleased
 ## Changes
 - replace warp with axum_server
+- migrate to tracing for logging
 
 ## Fixes
 - use json instead of body when posting notification to server

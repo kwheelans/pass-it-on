@@ -118,7 +118,7 @@ impl Interface for PipeInterface {
     #[cfg(feature = "pipe-server")]
     async fn receive(&self, interface_tx: Sender<String>, shutdown: watch::Receiver<bool>) -> Result<(), Error> {
         use crate::interfaces::pipe::pipe_server::read_pipe;
-        use log::info;
+        use tracing::info;
 
         const USER_RWX: Mode = Mode::S_IRWXU;
         const GROUP_READ: Mode = Mode::S_IRGRP;
@@ -170,7 +170,7 @@ impl Interface for PipeInterface {
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
         use crate::interfaces::pipe::pipe_client::write_pipe;
-        use log::error;
+        use tracing::error;
 
         let path = self.path.clone();
         tokio::spawn(async move {

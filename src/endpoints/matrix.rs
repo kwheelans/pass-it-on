@@ -29,7 +29,7 @@ use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
 use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
-use log::{error, info};
+use tracing::{error, info};
 use serde::Deserialize;
 use std::any::Any;
 use std::collections::{HashMap, HashSet};

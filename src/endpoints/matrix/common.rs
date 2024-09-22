@@ -1,6 +1,6 @@
 use crate::endpoints::matrix::MatrixEndpoint;
 use crate::{Error, LIB_LOG_TARGET};
-use log::{debug, info};
+use tracing::{debug, info};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::encryption::{BackupDownloadStrategy, EncryptionSettings};
 use matrix_sdk::matrix_auth::MatrixSession;

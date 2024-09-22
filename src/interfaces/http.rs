@@ -37,7 +37,7 @@ use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
 use crate::{Error, CRATE_VERSION, LIB_LOG_TARGET};
 use async_trait::async_trait;
-use log::debug;
+use tracing::debug;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::path::PathBuf;

@@ -6,11 +6,11 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use axum_server::tls_rustls::RustlsConfig;
-use log::{debug, error, info, trace, warn};
 use std::net::SocketAddr;
 use std::path::Path;
 use std::time::Duration;
 use tokio::sync::{mpsc, watch};
+use tracing::{debug, error, info, trace, warn};
 
 const GRACE_PERIOD: Duration = Duration::from_secs(1);
 

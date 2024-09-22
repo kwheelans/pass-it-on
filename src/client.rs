@@ -3,7 +3,7 @@ use crate::interfaces::{setup_client_interfaces, NANOSECOND, SECOND};
 use crate::notifications::{ClientReadyMessage, Key, Notification};
 use crate::shutdown::listen_for_shutdown;
 use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
-use log::{debug, error, info, trace, warn};
+use tracing::{debug, error, info, trace, warn};
 use std::sync::{Arc, Mutex};
 use tokio::sync::watch::Receiver;
 use tokio::sync::{broadcast, mpsc, watch};

@@ -4,7 +4,7 @@ use crate::endpoints::Endpoint;
 use crate::Error::InvalidEndpointConfiguration;
 use crate::{Error, LIB_LOG_TARGET};
 use futures_util::stream::StreamExt;
-use log::{debug, info, warn};
+use tracing::{debug, info, warn};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::encryption::verification::{
     format_emojis, Emoji, SasState, SasVerification, Verification, VerificationRequest, VerificationRequestState,

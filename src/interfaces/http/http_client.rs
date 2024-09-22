@@ -1,7 +1,7 @@
 use crate::interfaces::{NANOSECOND, SECOND};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
-use log::{debug, error, trace, warn};
+use tracing::{debug, error, trace, warn};
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
 
