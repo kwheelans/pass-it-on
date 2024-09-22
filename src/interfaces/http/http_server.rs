@@ -22,6 +22,7 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
     tls_cert_path: Option<P>,
     tls_key_path: Option<P>,
 ) {
+    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
     let handle = axum_server::Handle::new();
     tokio::spawn(shutdown_server(handle.clone(), shutdown));
 
@@ -31,13 +32,14 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
         .with_state(tx);
 
     info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
+    let listener = std::net::TcpListener::bind(socket).expect("Binding TCPListener failed");
     match tls {
         true => {
-            let config = RustlsConfig::from_pem_file(tls_cert_path.unwrap(), tls_key_path.unwrap()).await.unwrap();
-            axum_server::bind_rustls(socket, config).serve(routes.into_make_service()).await.unwrap();
+            let config = RustlsConfig::from_pem_file(tls_cert_path.unwrap(), tls_key_path.unwrap()).await.expect("rusttls config issue");
+            axum_server::from_tcp_rustls(listener, config).serve(routes.into_make_service()).await.expect("Unable to create TLS server");
         }
         false => {
-            axum_server::bind(socket).handle(handle).serve(routes.into_make_service()).await.unwrap();
+            axum_server::from_tcp(listener).handle(handle).serve(routes.into_make_service()).await.expect("Unable to create server");
         }
     };
 }
