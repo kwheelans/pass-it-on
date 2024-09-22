@@ -25,7 +25,7 @@ endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 file = ["endpoints", "dep:log", "tokio/io-util"]
 http = ["http-client", "http-server"]
 http-client = ["interfaces", "reqwest", "dep:url", "dep:log"]
-http-server = ["interfaces", "dep:url", "dep:warp", "dep:log"]
+http-server = ["interfaces", "dep:url", "dep:axum", "dep:axum-server", "dep:log"]
 interfaces = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
 matrix = ["endpoints", "dep:log", "dep:matrix-sdk", "dep:futures-util", "dep:url"]
 parse-cfg = ["dep:toml"]
@@ -40,6 +40,8 @@ bundled-sqlite = ["matrix-sdk?/bundled-sqlite"]
 
 [dependencies]
 async-trait = { version = "0.1", optional = true }
+axum = { version = "0.7", optional = true }
+axum-server = { version = "0.7", features = ["tls-rustls"], optional = true }
 blake3 = "1"
 clap  = { version = "4.4", features = ["derive", "cargo"], optional = true }
 directories = { version = "5.0", optional = true }
@@ -48,7 +50,7 @@ log = { version = "0.4", optional = true }
 mail-send = { version = "0.4", optional = true }
 matrix-sdk = { version = "0.7", optional = true }
 nix = { version = "0.29.0", features = ["fs", "net"], default-features = false, optional = true }
-reqwest = { version = "0.12", optional = true }
+reqwest = { version = "0.12", optional = true, features = ["json"] }
 serde = { version = "1", features = ["default", "derive"] }
 serde_json = "1"
 simple_logger = { version = "5.0", optional = true }
@@ -58,7 +60,6 @@ tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"], defau
 toml = { version = "0.8", features = ["parse"], default-features = false, optional = true }
 typetag = { version = "0.2", optional = true }
 url = { version = "2.5", features = ["serde"], optional = true }
-warp = { version = "0.3", features = ["tls"], optional = true }
 
 [lib]
 name = "pass_it_on"

@@ -20,7 +20,7 @@ pub(super) async fn start_sending(
                 match received {
                     Ok(message) => {
                         let response = client.post(url)
-                        .body(message.to_json().unwrap_or_default())
+                        .json(&message)
                         .send().await;
                         match response {
                             Ok(ok) => debug!(target: LIB_LOG_TARGET,"HTTP Client Response - status: {} url: {}", ok.status(), ok.url()),

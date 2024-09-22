@@ -1,4 +1,9 @@
 # Unreleased
+## Changes
+- replace warp with axum_server
+
+## Fixes
+- use json instead of body when posting notification to server
 
 # v0.15.1
 ## Changes
