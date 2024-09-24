@@ -1,9 +1,9 @@
 use crate::interfaces::{NANOSECOND, SECOND};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
-use tracing::{debug, error, trace, warn};
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
+use tracing::{debug, error, trace, warn};
 
 pub(super) async fn start_sending(
     interface_rx: broadcast::Receiver<Notification>,
@@ -12,7 +12,7 @@ pub(super) async fn start_sending(
 ) {
     let mut shutdown_rx = shutdown.clone();
     let mut rx = interface_rx.resubscribe();
-    let client = Client::new();
+    let client = Client::builder().use_rustls_tls().build().expect("unable to create client");
 
     loop {
         tokio::select! {

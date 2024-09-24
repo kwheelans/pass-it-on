@@ -66,7 +66,7 @@ jobs:
           echo "CARGO=cross" >> $GITHUB_ENV
 
       - name: Build Binary
-        run: ${{ env.CARGO }} build --release --no-default-features --features server-bin-full,vendored-tls,bundled-sqlite --bin ${{ env.RELEASE_BIN }} --target ${{ matrix.target }}
+        run: ${{ env.CARGO }} build --release --no-default-features --features server-bin-full,bundled-sqlite --bin ${{ env.RELEASE_BIN }} --target ${{ matrix.target }}
 
       - name: Prepare Linux Binaries
         if: matrix.os == 'ubuntu-latest'
