@@ -1,16 +1,18 @@
 use crate::interfaces::http::{Version, BASE_PATH, NOTIFICATION_PATH, VERSION_PATH};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
-use log::{info, warn};
-use serde::Serialize;
-use std::convert::Infallible;
+use axum::extract::State;
+use axum::http::StatusCode;
+use axum::routing::{get, post};
+use axum::{Json, Router};
+use axum_server::tls_rustls::RustlsConfig;
 use std::net::SocketAddr;
 use std::path::Path;
+use std::time::Duration;
 use tokio::sync::{mpsc, watch};
-use warp::http::StatusCode;
-use warp::Filter;
+use tracing::{debug, error, info, trace, warn};
 
-const DEFAULT_BODY_LIMIT: u64 = 1024 * 1024;
+const GRACE_PERIOD: Duration = Duration::from_secs(1);
 
 pub(super) async fn start_monitoring<P: AsRef<Path>>(
     tx: mpsc::Sender<String>,
@@ -20,64 +22,54 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
     tls_cert_path: Option<P>,
     tls_key_path: Option<P>,
 ) {
-    let mut shutdown_rx = shutdown.clone();
-    let sender = warp::any().map(move || tx.clone());
-    let server_version = warp::any().map(Version::new);
+    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
+    let handle = axum_server::Handle::new();
+    tokio::spawn(shutdown_server(handle.clone(), shutdown));
 
-    let notifications = warp::post()
-        .and(warp::path(BASE_PATH))
-        .and(warp::path(NOTIFICATION_PATH))
-        .and(notification_json_body())
-        .and(sender)
-        .and_then(receive_notification);
-
-    let version = warp::get()
-        .and(warp::path(BASE_PATH))
-        .and(warp::path(VERSION_PATH))
-        .and(warp::path::end())
-        .and(server_version)
-        .and_then(send_json_response);
-
-    let routes = notifications.or(version);
+    let routes = Router::new()
+        .route(format!("/{}/{}", BASE_PATH, VERSION_PATH).as_str(), get(version_handler))
+        .route(format!("/{}/{}", BASE_PATH, NOTIFICATION_PATH).as_str(), post(notification_handler))
+        .with_state(tx);
 
     info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
+    let listener = std::net::TcpListener::bind(socket).expect("Binding TCPListener failed");
     match tls {
         true => {
-            let (_address, server) = warp::serve(routes)
-                .tls()
-                .cert_path(tls_cert_path.unwrap().as_ref())
-                .key_path(tls_key_path.unwrap().as_ref())
-                .bind_with_graceful_shutdown(socket, async move {
-                    shutdown_rx.changed().await.ok().unwrap_or_default();
-                });
-            server.await;
+            let config = RustlsConfig::from_pem_file(tls_cert_path.unwrap(), tls_key_path.unwrap()).await.expect("rusttls config issue");
+            axum_server::from_tcp_rustls(listener, config).serve(routes.into_make_service()).await.expect("Unable to create TLS server");
         }
         false => {
-            let (_address, server) = warp::serve(routes).bind_with_graceful_shutdown(socket, async move {
-                shutdown_rx.changed().await.ok().unwrap_or_default();
-            });
-            server.await;
+            axum_server::from_tcp(listener).handle(handle).serve(routes.into_make_service()).await.expect("Unable to create server");
         }
     };
 }
 
-async fn receive_notification(
-    notification: Notification,
-    tx: mpsc::Sender<String>,
-) -> Result<impl warp::Reply, Infallible> {
+async fn version_handler() -> Json<Version> {
+    Json(Version::new())
+}
+
+async fn notification_handler(
+    State(tx): State<mpsc::Sender<String>>,
+    Json(notification): Json<Notification>,
+) -> StatusCode {
+    trace!(target: LIB_LOG_TARGET, "HTTP server received {:?}", notification);
     match tx.send(notification.to_json().unwrap_or_default()).await {
-        Ok(_) => Ok(StatusCode::OK),
+        Ok(_) => StatusCode::OK,
         Err(e) => {
             warn!(target: LIB_LOG_TARGET, "bad JSON received from http socket: {}", e);
-            Ok(StatusCode::BAD_REQUEST)
+            StatusCode::BAD_REQUEST
         }
     }
 }
 
-async fn send_json_response<R: Serialize>(response: R) -> Result<impl warp::Reply, Infallible> {
-    Ok(warp::reply::json(&response))
-}
-
-fn notification_json_body() -> impl Filter<Extract = (Notification,), Error = warp::Rejection> + Clone {
-    warp::any().and(warp::body::content_length_limit(DEFAULT_BODY_LIMIT)).and(warp::body::json())
+async fn shutdown_server(handle: axum_server::Handle, mut shutdown: watch::Receiver<bool>) {
+    match shutdown.changed().await {
+        Ok(_) => {
+            debug!(target: LIB_LOG_TARGET, "http_server starting graceful shutdown");
+            handle.graceful_shutdown(Some(GRACE_PERIOD));
+        }
+        Err(e) => {
+            error!(target: LIB_LOG_TARGET, "Shutdown Receive Error: {}", e);
+        }
+    }
 }

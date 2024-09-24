@@ -1,9 +1,10 @@
-use log::{debug, error, info, warn, LevelFilter};
+use tracing::{debug, error, info, warn};
 use pass_it_on::notifications::{ClientReadyMessage, Message};
 use pass_it_on::ClientConfiguration;
 use pass_it_on::{start_client, Error};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::{mpsc, watch};
+use tracing::level_filters::LevelFilter;
 
 const NOTIFICATION_NAME: &str = "test1";
 const SAMPLE_MESSAGE_COUNT: usize = 1;
@@ -22,14 +23,7 @@ const CLIENT_TOML_CONFIG: &str = r#"
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let module_log_level = LevelFilter::Debug;
-    simple_logger::SimpleLogger::new()
-        .with_level(LevelFilter::Off)
-        .with_module_level(pass_it_on::LIB_LOG_TARGET, module_log_level)
-        .with_module_level(LOG_TARGET, module_log_level)
-        .with_colors(true)
-        .init()
-        .unwrap();
+    tracing_subscriber::fmt().with_max_level(LevelFilter::DEBUG).init();
 
     let config = ClientConfiguration::try_from(CLIENT_TOML_CONFIG)?;
     let messages = get_test_messages(SAMPLE_MESSAGE_COUNT, NOTIFICATION_NAME);

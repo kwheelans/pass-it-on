@@ -1,7 +1,7 @@
 use crate::endpoints::matrix::MatrixRoom;
 use crate::notifications::ValidatedNotification;
 use crate::{Error, LIB_LOG_TARGET};
-use log::{debug, warn};
+use tracing::{debug, warn};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
 use matrix_sdk::{Client, Room};

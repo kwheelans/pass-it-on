@@ -25,7 +25,7 @@ use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
 use crate::{Error, LIB_LOG_TARGET};
 use async_trait::async_trait;
-use log::{debug, info, warn};
+use tracing::{debug, info, warn};
 use reqwest::Client;
 use serde::Deserialize;
 use std::any::Any;

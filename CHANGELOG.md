@@ -1,4 +1,15 @@
 # Unreleased
+## Breaking Changes
+- remove vendored-tls feature
+
+## Changes
+- replace warp with axum_server
+- migrate to tracing for logging
+- use rustls across crate
+- add rustls-tls-native-roots feature
+
+## Fixes
+- use json instead of body when posting notification to server
 
 # v0.15.1
 ## Changes

@@ -1,10 +1,11 @@
 use clap::Parser;
-use log::{error, info, LevelFilter};
+use tracing::{error, info};
 use pass_it_on::Error;
 use pass_it_on::ServerConfiguration;
 use pass_it_on::{start_server, verify_matrix_devices};
 use std::path::PathBuf;
 use std::process::ExitCode;
+use tracing::level_filters::LevelFilter;
 
 const LOG_TARGET: &str = "pass_it_on_server";
 
@@ -25,15 +26,16 @@ struct CliArgs {
 #[tokio::main]
 async fn main() -> ExitCode {
     let cli = CliArgs::parse();
-    let module_log_level = cli.log_level.unwrap_or(LevelFilter::Info);
+    tracing_subscriber::fmt().with_max_level(cli.log_level.unwrap_or(LevelFilter::INFO)).init();
+/*  
     simple_logger::SimpleLogger::new()
-        .with_level(LevelFilter::Off)
+        .with_level(LevelFilter::OFF)
         .env()
         .with_module_level(pass_it_on::LIB_LOG_TARGET, module_log_level)
         .with_module_level(LOG_TARGET, module_log_level)
         .with_colors(true)
         .init()
-        .unwrap();
+        .unwrap();*/
 
     match run(cli).await {
         Err(error) => {
@@ -45,7 +47,7 @@ async fn main() -> ExitCode {
 }
 
 async fn run(cliargs: CliArgs) -> Result<(), Error> {
-    info!(target: LOG_TARGET, "Log level is set to {}", cliargs.log_level.unwrap_or(LevelFilter::Info));
+    info!(target: LOG_TARGET, "Log level is set to {}", cliargs.log_level.unwrap_or(LevelFilter::INFO));
     // Setup default directories
     let default_config_path = directories::ProjectDirs::from("com", "pass-it-on", "pass-it-on-server").unwrap();
 

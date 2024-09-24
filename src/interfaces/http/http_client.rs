@@ -1,9 +1,9 @@
 use crate::interfaces::{NANOSECOND, SECOND};
 use crate::notifications::Notification;
 use crate::LIB_LOG_TARGET;
-use log::{debug, error, trace, warn};
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
+use tracing::{debug, error, trace, warn};
 
 pub(super) async fn start_sending(
     interface_rx: broadcast::Receiver<Notification>,
@@ -12,7 +12,7 @@ pub(super) async fn start_sending(
 ) {
     let mut shutdown_rx = shutdown.clone();
     let mut rx = interface_rx.resubscribe();
-    let client = Client::new();
+    let client = Client::builder().use_rustls_tls().build().expect("unable to create client");
 
     loop {
         tokio::select! {
@@ -20,7 +20,7 @@ pub(super) async fn start_sending(
                 match received {
                     Ok(message) => {
                         let response = client.post(url)
-                        .body(message.to_json().unwrap_or_default())
+                        .json(&message)
                         .send().await;
                         match response {
                             Ok(ok) => debug!(target: LIB_LOG_TARGET,"HTTP Client Response - status: {} url: {}", ok.status(), ok.url()),

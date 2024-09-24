@@ -4,7 +4,7 @@ use crate::interfaces::setup_server_interfaces;
 use crate::notifications::{Notification, ValidatedNotification};
 use crate::shutdown::listen_for_shutdown;
 use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
-use log::{debug, info, warn};
+use tracing::{debug, info, warn};
 use tokio::sync::{mpsc, watch};
 
 const DEFAULT_WAIT_FOR_SHUTDOWN_SECS: u64 = 2;

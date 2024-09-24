@@ -1,6 +1,6 @@
 use crate::interfaces::pipe::cleanup_pipe;
 use crate::{Error, LIB_LOG_TARGET};
-use log::warn;
+use tracing::warn;
 use std::path::Path;
 use tokio::io;
 use tokio::io::AsyncReadExt;

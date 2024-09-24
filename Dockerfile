@@ -10,11 +10,11 @@ WORKDIR /pass-it-on
 
 # Build dependencies
 COPY --from=planner /recipe/recipe.json recipe.json
-RUN cargo chef cook --release --features server-bin-full,vendored-tls,bundled-sqlite --recipe-path recipe.json
+RUN cargo chef cook --release --features server-bin-full,bundled-sqlite --recipe-path recipe.json
 
 # Build application
 COPY ./ .
-RUN cargo build --release --bin pass-it-on-server  --no-default-features --features server-bin-full,vendored-tls,bundled-sqlite
+RUN cargo build --release --bin pass-it-on-server  --no-default-features --features server-bin-full,bundled-sqlite
 
 # Final image
 FROM debian:12-slim

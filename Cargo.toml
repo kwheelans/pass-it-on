@@ -18,47 +18,50 @@ all-features = true
 
 [features]
 default = ["server-bin-full","client"]
-client = ["interfaces", "tokio", "tokio/signal", "tokio/time", "dep:log"]
-discord = ["endpoints", "dep:log", "reqwest"]
-email = ["endpoints", "dep:log", "dep:mail-send"]
+client = ["interfaces", "tokio", "tokio/signal", "tokio/time", "dep:tracing"]
+discord = ["endpoints", "dep:tracing", "reqwest"]
+email = ["endpoints", "dep:tracing", "dep:mail-send"]
 endpoints = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
-file = ["endpoints", "dep:log", "tokio/io-util"]
+file = ["endpoints", "dep:tracing", "tokio/io-util"]
 http = ["http-client", "http-server"]
-http-client = ["interfaces", "reqwest", "dep:url", "dep:log"]
-http-server = ["interfaces", "dep:url", "dep:warp", "dep:log"]
+http-client = ["interfaces", "reqwest", "dep:url", "dep:tracing"]
+http-server = ["interfaces", "dep:url", "dep:axum", "dep:axum-server", "dep:tracing", "dep:rustls"]
 interfaces = ["dep:async-trait","dep:dyn-clone", "dep:typetag"]
-matrix = ["endpoints", "dep:log", "dep:matrix-sdk", "dep:futures-util", "dep:url"]
+matrix = ["endpoints", "dep:tracing", "dep:matrix-sdk", "dep:futures-util", "dep:url"]
 parse-cfg = ["dep:toml"]
 pipe = ["pipe-client", "pipe-server"]
-pipe-client = ["interfaces", "dep:log", "dep:nix", "tokio/io-util"]
-pipe-server = ["interfaces", "dep:log", "dep:nix","tokio/io-util"]
-server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:log"]
+pipe-client = ["interfaces", "dep:tracing", "dep:nix", "tokio/io-util"]
+pipe-server = ["interfaces", "dep:tracing", "dep:nix","tokio/io-util"]
+server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep:tracing"]
 server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord", "email"]
-server-bin-minimal = ["server", "parse-cfg", "dep:clap", "dep:directories", "dep:simple_logger"]
-vendored-tls = ["reqwest/native-tls-vendored"]
+server-bin-minimal = ["server", "parse-cfg", "dep:clap", "dep:directories", "dep:tracing-subscriber"]
 bundled-sqlite = ["matrix-sdk?/bundled-sqlite"]
+rustls-tls-native-roots = ["reqwest?/rustls-tls-native-roots"]
 
 [dependencies]
 async-trait = { version = "0.1", optional = true }
+axum = { version = "0.7", optional = true }
+axum-server = { version = "0.7", features = ["tls-rustls"], optional = true }
 blake3 = "1"
 clap  = { version = "4.4", features = ["derive", "cargo"], optional = true }
 directories = { version = "5.0", optional = true }
 dyn-clone = { version = "1.0", optional = true }
-log = { version = "0.4", optional = true }
 mail-send = { version = "0.4", optional = true }
-matrix-sdk = { version = "0.7", optional = true }
+matrix-sdk = { version = "0.7", features = ["automatic-room-key-forwarding", "e2e-encryption", "rustls-tls", "sqlite"], default-features = false, optional = true }
 nix = { version = "0.29.0", features = ["fs", "net"], default-features = false, optional = true }
-reqwest = { version = "0.12", optional = true }
+reqwest = { version = "0.12",  features = ["charset", "http2", "macos-system-configuration", "json", "rustls-tls"], default-features = false, optional = true }
+rustls = { version = "0.23.13", optional = true }
 serde = { version = "1", features = ["default", "derive"] }
 serde_json = "1"
-simple_logger = { version = "5.0", optional = true }
 futures-util = { version = "0.3", optional = true }
 thiserror = "1"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"], default-features = false, optional = true }
 toml = { version = "0.8", features = ["parse"], default-features = false, optional = true }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3.18", optional = true }
 typetag = { version = "0.2", optional = true }
 url = { version = "2.5", features = ["serde"], optional = true }
-warp = { version = "0.3", features = ["tls"], optional = true }
+
 
 [lib]
 name = "pass_it_on"

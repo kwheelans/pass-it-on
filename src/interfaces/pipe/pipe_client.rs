@@ -1,6 +1,6 @@
 use crate::notifications::Notification;
 use crate::{Error, LIB_LOG_TARGET};
-use log::error;
+use tracing::error;
 use std::path::Path;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
