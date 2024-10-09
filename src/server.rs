@@ -3,7 +3,7 @@ use crate::endpoints::{setup_endpoints, EndpointChannel};
 use crate::interfaces::setup_server_interfaces;
 use crate::notifications::{Notification, ValidatedNotification};
 use crate::shutdown::listen_for_shutdown;
-use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
+use crate::{Error, CHANNEL_BUFFER};
 use tracing::{debug, info, warn};
 use tokio::sync::{mpsc, watch};
 
@@ -38,14 +38,14 @@ pub async fn start_server(
 
     // Shutdown
     let shutdown_secs = wait_for_shutdown_secs.unwrap_or(DEFAULT_WAIT_FOR_SHUTDOWN_SECS);
-    info!(target: LIB_LOG_TARGET, "Listening for shutdown signals");
+    info!("Listening for shutdown signals");
     listen_for_shutdown(shutdown_tx, shutdown, shutdown_secs).await;
 
     Ok(())
 }
 
 async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endpoints: Vec<EndpointChannel>) {
-    info!(target: LIB_LOG_TARGET, "Processing Notifications");
+    info!("Processing Notifications");
 
     while let Some(msg) = msg_rx.recv().await {
         let notifications = Notification::from_json_multi(msg.as_str());
@@ -53,17 +53,17 @@ async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endp
         for notification in notifications {
             match notification {
                 Ok(note) => {
-                    debug!(target: LIB_LOG_TARGET, "Notification received: {:?}", note);
+                    debug!("Notification received: {:?}", note);
                     for endpoint in &endpoints {
                         for (sub_name, keys) in endpoint.keys() {
                             if note.validate_set(keys) {
                                 let channel = endpoint.channel_sender();
                                 match channel.send(ValidatedNotification::new(sub_name, note.message())) {
                                     Ok(ok) => {
-                                        debug!(target: LIB_LOG_TARGET, "Message sent to endpoint. Subscribers: {}", ok)
+                                        debug!("Message sent to endpoint. Subscribers: {}", ok)
                                     }
                                     Err(e) => warn!(
-                                        target: LIB_LOG_TARGET,
+                                        
                                         "Error sending validated message to endpoint: {}", e
                                     ),
                                 };
@@ -72,7 +72,7 @@ async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endp
                     }
                 }
 
-                Err(e) => warn!(target: LIB_LOG_TARGET, "Notification processing error: {}", e),
+                Err(e) => warn!("Notification processing error: {}", e),
             }
         }
     }
@@ -83,13 +83,13 @@ async fn process_incoming_notifications(mut msg_rx: mpsc::Receiver<String>, endp
 pub async fn verify_matrix_devices(server_config: ServerConfiguration) -> Result<(), Error> {
     use crate::endpoints::matrix::verify::verify_devices;
 
-    info!(target: LIB_LOG_TARGET, "Running Matrix device verification process");
+    info!("Running Matrix device verification process");
     verify_devices(server_config.endpoints()).await
 }
 
 #[cfg(not(feature = "matrix"))]
 /// Interactively verify devices for all Matrix endpoints in the provided [`ServerConfiguration`].
 pub async fn verify_matrix_devices(server_config: ServerConfiguration) -> Result<(), Error> {
-    info!(target: LIB_LOG_TARGET, "Running Matrix device verification process");
+    info!("Running Matrix device verification process");
     Err(Error::DisabledIEndpointFeature("matrix".to_string()))
 }

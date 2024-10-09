@@ -27,7 +27,7 @@ use crate::endpoints::matrix::common::{login, print_client_debug, ClientInfo, Pe
 use crate::endpoints::matrix::notify::{process_rooms, send_messages};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use async_trait::async_trait;
 use tracing::{error, info};
 use serde::Deserialize;
@@ -215,7 +215,7 @@ impl Endpoint for MatrixEndpoint {
         // Login client
         let client_info = ClientInfo::try_from(self)?;
         info!(
-            target: LIB_LOG_TARGET,
+            
             "Setting up Endpoint: Matrix -> User {} on {}",
             client_info.username(),
             client_info.homeserver()
@@ -231,7 +231,7 @@ impl Endpoint for MatrixEndpoint {
             let persist =
                 PersistentSession::new(&client_info, &client.matrix_auth().session().unwrap(), Some(sync_token));
             if let Err(error) = persist.save_session() {
-                error!(target: LIB_LOG_TARGET, "{}", error)
+                error!("{}", error)
             }
         });
 

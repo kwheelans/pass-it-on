@@ -1,6 +1,6 @@
 use crate::endpoints::matrix::MatrixRoom;
 use crate::notifications::ValidatedNotification;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use tracing::{debug, warn};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
@@ -23,16 +23,16 @@ pub(super) async fn send_messages(
         tokio::select! {
             received = rx.recv() => {
                 if let Ok(message) = received {
-                    debug!(target: LIB_LOG_TARGET, "Matrix message received: {} Name: {}", message.message().text(), message.sub_name());
+                    debug!("Matrix message received: {} Name: {}", message.message().text(), message.sub_name());
                     let msg_text = RoomMessageEventContent::text_plain(message.message().text());
 
                     if let Ok(msg_room) = validate_room(message.sub_name(), client_homeserver.as_str()) {
                         for room in &room_list {
                             if get_all_room_aliases(room).contains(msg_room.as_str()) {
-                                debug!(target: LIB_LOG_TARGET, "Sending Matrix Message to {}", msg_room);
+                                debug!("Sending Matrix Message to {}", msg_room);
                                 match room.send(msg_text.clone()).await {
-                                    Ok(r) => debug!(target: LIB_LOG_TARGET, "OK: {:?}", r),
-                                    Err(e) => debug!(target: LIB_LOG_TARGET, "Error: {}", e),
+                                    Ok(r) => debug!("OK: {:?}", r),
+                                    Err(e) => debug!("Error: {}", e),
                                 }
                             }
                         }
@@ -62,7 +62,7 @@ fn validate_room(room: &str, default_server: &str) -> Result<String, Error> {
             Ok(room.to_string())
         }
     } else {
-        warn!(target: LIB_LOG_TARGET, "{} is not a valid room", room);
+        warn!("{} is not a valid room", room);
         Err(Error::InvalidMatrixRoomIdentifier)
     }
 }
@@ -74,7 +74,7 @@ pub(super) async fn process_rooms(client: &Client, room_map: &[MatrixRoom]) -> V
 
     for matrix_room in room_map {
         match validate_room(matrix_room.room(), default_server.as_ref()) {
-            Err(e) => warn!(target: LIB_LOG_TARGET, "{}: {}", e, matrix_room.room()),
+            Err(e) => warn!("{}: {}", e, matrix_room.room()),
             Ok(valid_room) => {
                 for known_room in &joined_rooms {
                     let room_alias = get_all_room_aliases(known_room);

@@ -10,7 +10,7 @@
 
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
-use crate::{Error, LIB_LOG_TARGET};
+use crate::{Error};
 use async_trait::async_trait;
 use tracing::{info, warn};
 use serde::Deserialize;
@@ -88,7 +88,7 @@ impl Endpoint for FileEndpoint {
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
         let path = self.path().clone();
-        info!(target: LIB_LOG_TARGET, "Setting up Endpoint: File -> {}", path.to_str().unwrap_or_default());
+        info!("Setting up Endpoint: File -> {}", path.to_str().unwrap_or_default());
         tokio::spawn(async move { write_file(path, endpoint_rx, shutdown).await });
         Ok(())
     }
@@ -127,12 +127,12 @@ async fn write_file<P: AsRef<Path>>(
                     let line = [message.message().text().as_bytes(), LINE_FEED].concat();
                     match file.write(line.as_slice()).await {
                         Ok(_) => (),
-                        Err(e) => warn!(target: LIB_LOG_TARGET, "{}", e)
+                        Err(e) => warn!("{}", e)
                     }
 
                     match file.flush().await {
                         Ok(_) => (),
-                        Err(e) => warn!(target: LIB_LOG_TARGET, "{}", e),
+                        Err(e) => warn!("{}", e),
                     };
                 }
             }

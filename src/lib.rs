@@ -100,8 +100,6 @@ pub use self::server::start_server;
 #[cfg(all(feature = "server", feature = "matrix"))]
 pub use self::server::verify_matrix_devices;
 
-/// Logging target value used for the library.
-pub const LIB_LOG_TARGET: &str = "pass_it_on";
 #[allow(dead_code)]
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 #[allow(dead_code)]

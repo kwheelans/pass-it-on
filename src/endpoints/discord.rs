@@ -23,7 +23,7 @@ pub(crate) mod webhook;
 use crate::endpoints::discord::webhook::{AllowedMentions, AllowedMentionsConfigFile, WebhookPayload};
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use async_trait::async_trait;
 use tracing::{debug, info, warn};
 use reqwest::Client;
@@ -70,7 +70,7 @@ impl Endpoint for DiscordEndpoint {
         endpoint_rx: Receiver<ValidatedNotification>,
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        info!(target: LIB_LOG_TARGET, "Setting up Endpoint: Discord -> {}", self.url);
+        info!("Setting up Endpoint: Discord -> {}", self.url);
         let discord = self.clone();
         tokio::spawn(async move { send_messages(endpoint_rx, shutdown, discord).await });
         Ok(())
@@ -132,14 +132,14 @@ async fn send_messages(
                 if let Ok(message) = received {
                     let content = message.message().text();
                     let payload = WebhookPayload::new(content, &discord);
-                    debug!(target: LIB_LOG_TARGET,"Discord Webhook Payload: {}", payload.to_json());
+                    debug!("Discord Webhook Payload: {}", payload.to_json());
                     let response = client.post(&discord.url)
                     .header("content-type", "application/json")
                     .body(payload.to_json())
                     .send().await;
                     match response {
-                            Ok(ok) => debug!(target: LIB_LOG_TARGET,"Discord Webhook Response - status: {} url: {}", ok.status(), ok.url()),
-                            Err(error) => warn!(target: LIB_LOG_TARGET, "Discord Webhook Response Error: {}", error ),
+                            Ok(ok) => debug!("Discord Webhook Response - status: {} url: {}", ok.status(), ok.url()),
+                            Err(error) => warn!("Discord Webhook Response Error: {}", error ),
                         }
                 }
             }

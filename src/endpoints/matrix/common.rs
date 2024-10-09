@@ -1,5 +1,5 @@
 use crate::endpoints::matrix::MatrixEndpoint;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use tracing::{debug, info};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::encryption::{BackupDownloadStrategy, EncryptionSettings};
@@ -117,34 +117,34 @@ pub(super) async fn print_client_debug(client: &Client) {
     let device = client.encryption().get_own_device().await.unwrap().unwrap();
     let csstatus = client.encryption().cross_signing_status().await.unwrap();
     let homeserver = client.homeserver();
-    debug!(target: LIB_LOG_TARGET, "==================================================");
-    debug!(target: LIB_LOG_TARGET, "User ID: {}", uid);
-    debug!(target: LIB_LOG_TARGET, "User Servername: {}", uid.server_name());
-    debug!(target: LIB_LOG_TARGET, "Device ID: {}", device.device_id());
-    debug!(target: LIB_LOG_TARGET, "Device Display Name: {}", device.display_name().unwrap_or_default());
-    debug!(target: LIB_LOG_TARGET, "Device verified with cross-signing: {}", device.is_verified_with_cross_signing());
-    debug!(target: LIB_LOG_TARGET, "Device is cross-signed: {}", device.is_cross_signed_by_owner());
+    debug!("==================================================");
+    debug!("User ID: {}", uid);
+    debug!("User Servername: {}", uid.server_name());
+    debug!("Device ID: {}", device.device_id());
+    debug!("Device Display Name: {}", device.display_name().unwrap_or_default());
+    debug!("Device verified with cross-signing: {}", device.is_verified_with_cross_signing());
+    debug!("Device is cross-signed: {}", device.is_cross_signed_by_owner());
 
-    debug!(target: LIB_LOG_TARGET, "Homeserver: {}", homeserver);
-    debug!(target: LIB_LOG_TARGET, "Cross Signing status: {:?}", csstatus);
+    debug!("Homeserver: {}", homeserver);
+    debug!("Cross Signing status: {:?}", csstatus);
 
     let rooms = client.joined_rooms();
-    debug!(target: LIB_LOG_TARGET, "==================================================");
+    debug!("==================================================");
     if rooms.is_empty() {
-        debug!(target: LIB_LOG_TARGET, "No rooms have been joined");
+        debug!("No rooms have been joined");
     }
     for r in rooms {
-        debug!(target: LIB_LOG_TARGET, "Room Name: {:?}", r.name().unwrap_or_default());
-        debug!(target: LIB_LOG_TARGET, "Canonical Alias: {:?}", r.canonical_alias());
-        debug!(target: LIB_LOG_TARGET, "Room ID: {:?}", r.room_id());
-        debug!(target: LIB_LOG_TARGET, "Alt Alias: {:?}", r.alt_aliases());
-        debug!(target: LIB_LOG_TARGET, "is encrypted: {:?}", r.is_encrypted().await);
-        debug!(target: LIB_LOG_TARGET, "is public: {:?}", r.is_public());
-        debug!(target: LIB_LOG_TARGET, "is direct: {:?}", r.is_direct().await);
-        debug!(target: LIB_LOG_TARGET, "is tombstoned: {:?}", r.is_tombstoned());
-        debug!(target: LIB_LOG_TARGET, "--------------------------------------------------");
+        debug!("Room Name: {:?}", r.name().unwrap_or_default());
+        debug!("Canonical Alias: {:?}", r.canonical_alias());
+        debug!("Room ID: {:?}", r.room_id());
+        debug!("Alt Alias: {:?}", r.alt_aliases());
+        debug!("is encrypted: {:?}", r.is_encrypted().await);
+        debug!("is public: {:?}", r.is_public());
+        debug!("is direct: {:?}", r.is_direct().await);
+        debug!("is tombstoned: {:?}", r.is_tombstoned());
+        debug!("--------------------------------------------------");
     }
-    debug!(target: LIB_LOG_TARGET, "==================================================");
+    debug!("==================================================");
 }
 
 pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
@@ -169,24 +169,24 @@ pub(super) async fn login(client_info: ClientInfo) -> Result<Client, Error> {
 }
 
 async fn first_login(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
-    debug!(target: LIB_LOG_TARGET, "Attempting first time login for user: {}", client_info.username());
+    debug!("Attempting first time login for user: {}", client_info.username());
     client
         .matrix_auth()
         .login_username(client_info.username(), client_info.password())
         .initial_device_display_name(INITIAL_DEVICE_NAME)
         .send()
         .await?;
-    info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
+    info!("logged in as: {}", client.user_id().unwrap());
 
     let recovery = client.encryption().recovery();
-    debug!(target: LIB_LOG_TARGET, "Recovery State: {:?}", recovery.state());
+    debug!("Recovery State: {:?}", recovery.state());
     match client.encryption().backups().exists_on_server().await? {
         true => {
-            debug!(target: LIB_LOG_TARGET, "Matrix backup exists on server, recovering");
+            debug!("Matrix backup exists on server, recovering");
             recovery.recover(client_info.recovery_passphrase()).await?;
         }
         false => {
-            debug!(target: LIB_LOG_TARGET, "Matrix backup does not exist on server, creating");
+            debug!("Matrix backup does not exist on server, creating");
             let _key = recovery
                 .enable()
                 .wait_for_backups_to_upload()
@@ -203,11 +203,11 @@ async fn first_login(client_info: ClientInfo, client: Client) -> Result<Client, 
 }
 
 async fn resume_session(client_info: ClientInfo, client: Client) -> Result<Client, Error> {
-    debug!(target: LIB_LOG_TARGET, "Attempting to restore session for user: {}", client_info.username());
+    debug!("Attempting to restore session for user: {}", client_info.username());
     let session = PersistentSession::try_from(client_info.session_file_path().as_path())?;
 
     client.matrix_auth().restore_session(session.client_session).await?;
-    info!(target: LIB_LOG_TARGET, "logged in as: {}", client.user_id().unwrap());
+    info!("logged in as: {}", client.user_id().unwrap());
     //client.encryption().secret_storage().open_secret_store(client_info.recovery_passphrase()).await?;
     client.encryption().recovery().recover(client_info.recovery_passphrase()).await?;
 

@@ -18,7 +18,7 @@
 
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use async_trait::async_trait;
 use tracing::{debug, error, info};
 use mail_send::mail_builder::MessageBuilder;
@@ -117,7 +117,7 @@ impl Endpoint for EmailEndpoint {
         endpoint_rx: broadcast::Receiver<ValidatedNotification>,
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        info!(target: LIB_LOG_TARGET, "Setting up Endpoint: Email -> {}:{} from {} with subject {}", self.hostname.as_str(), self.port, self.from.as_str(), self.subject.as_str());
+        info!("Setting up Endpoint: Email -> {}:{} from {} with subject {}", self.hostname.as_str(), self.port, self.from.as_str(), self.subject.as_str());
 
         let email_info = EmailInfo {
             hostname: self.hostname.clone(),
@@ -166,7 +166,7 @@ async fn send_emails(
         tokio::select! {
             received = rx.recv() => {
                 if let Ok(message) = received {
-                    debug!(target: LIB_LOG_TARGET, "Email endpoint received message");
+                    debug!("Email endpoint received message");
 
                     tokio::spawn( async move {
                         let content = message.message().text();
@@ -176,7 +176,7 @@ async fn send_emails(
                         .to(info.to.clone())
                         .text_body(content);
 
-                        debug!(target: LIB_LOG_TARGET, "Connecting to SMTP: {}:{} as {}", info.hostname.as_str(), info.port, info.username.as_str());
+                        debug!("Connecting to SMTP: {}:{} as {}", info.hostname.as_str(), info.port, info.username.as_str());
                         let mut smpt_client = SmtpClientBuilder::new(info.hostname.as_str(), info.port)
                         .implicit_tls(info.implicit_tls)
                         .credentials((info.username.as_str(), info.password.as_str()));
@@ -188,11 +188,11 @@ async fn send_emails(
                         match smpt_client.connect().await {
                             Ok(mut client) => {
                                 match client.send(email).await {
-                                    Ok(_) => debug!(target: LIB_LOG_TARGET, "Email sent successfully"),
-                                    Err(e) => error!(target: LIB_LOG_TARGET, "Unable to connect to smtp server: {}", e),
+                                    Ok(_) => debug!("Email sent successfully"),
+                                    Err(e) => error!("Unable to connect to smtp server: {}", e),
                                 }
                             }
-                            Err(e) => error!(target: LIB_LOG_TARGET, "Unable to send email: {}", e)
+                            Err(e) => error!("Unable to send email: {}", e)
                         }
                     }).await.unwrap();
 

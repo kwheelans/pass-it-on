@@ -6,7 +6,6 @@ use pass_it_on::{start_server, verify_matrix_devices};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use tracing::level_filters::LevelFilter;
-//const LOG_TARGET: &str = "pass_it_on_server";
 
 #[derive(Parser, Debug)]
 #[clap(name = "pass-it-on-server", author, version, about = "Pass-it-on server binary", long_about = None)]

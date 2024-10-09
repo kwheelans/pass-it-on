@@ -1,5 +1,5 @@
 use crate::interfaces::pipe::cleanup_pipe;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use tracing::warn;
 use std::path::Path;
 use tokio::io;
@@ -24,21 +24,21 @@ pub async fn read_pipe<P: AsRef<Path>>(
                let mut read_string = String::new();
                match pipe_rx.read_to_string(&mut read_string).await {
                    Ok(_) => {
-                       if let Err(e) = tx.send(read_string).await { warn!(target: LIB_LOG_TARGET, "{}", e) }
+                       if let Err(e) = tx.send(read_string).await { warn!("{}", e) }
                    },
                    Err(e) => {
-                       warn!(target: LIB_LOG_TARGET, "{}", e);
+                       warn!("{}", e);
                        return Err(e.into())
                    }
                }
            },
            Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
-               warn!(target: LIB_LOG_TARGET, "{}", e);
+               warn!("{}", e);
                continue;
            },
 
            Err(e) => {
-               warn!(target: LIB_LOG_TARGET, "{}", e);
+               warn!("{}", e);
                return Err(e.into())
            }
                 }

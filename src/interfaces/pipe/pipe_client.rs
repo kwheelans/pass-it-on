@@ -1,5 +1,5 @@
 use crate::notifications::Notification;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use tracing::error;
 use std::path::Path;
 use tokio::io;
@@ -24,13 +24,13 @@ pub async fn write_pipe<P: AsRef<Path>>(
                             Ok(_) => pipe_tx.write_all(msg_text.as_bytes()).await?,
                             Err(e) if e.kind() == io::ErrorKind::WouldBlock => continue,
                             Err(e) => {
-                                error!(target: LIB_LOG_TARGET, "{}", e);
+                                error!("{}", e);
                                 return Err(Error::IOError(e))
                             },
                         }
                     },
                     Err(error) => {
-                        error!(target: LIB_LOG_TARGET, "Broadcast Receiver Error: {}", error);
+                        error!("Broadcast Receiver Error: {}", error);
                         break;
                     }
                 }

@@ -2,7 +2,7 @@ use crate::endpoints::matrix::common::{login, ClientInfo};
 use crate::endpoints::matrix::MatrixEndpoint;
 use crate::endpoints::Endpoint;
 use crate::Error::InvalidEndpointConfiguration;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use futures_util::stream::StreamExt;
 use tracing::{debug, info, warn};
 use matrix_sdk::config::SyncSettings;
@@ -20,7 +20,7 @@ pub(crate) async fn verify_devices(endpoints: &[Box<dyn Endpoint + Send>]) -> Re
     for endpoint in endpoints {
         let downcast_endpoint = endpoint.as_any().downcast_ref::<MatrixEndpoint>();
         match downcast_endpoint {
-            None => debug!(target: LIB_LOG_TARGET, "Processed endpoint is not a matrix endpoint"),
+            None => debug!("Processed endpoint is not a matrix endpoint"),
             Some(matrix) => matrix_endpoints.push(matrix),
         }
     }
@@ -29,7 +29,7 @@ pub(crate) async fn verify_devices(endpoints: &[Box<dyn Endpoint + Send>]) -> Re
             "Unable to run matrix verification because no matrix endpoints are defined".to_string(),
         )),
         false => {
-            info!(target: LIB_LOG_TARGET, "Found {} matrix endpoints and will attempt to verify devices", matrix_endpoints.len());
+            info!("Found {} matrix endpoints and will attempt to verify devices", matrix_endpoints.len());
             for endpoint in matrix_endpoints {
                 verify_device(endpoint).await?
             }
@@ -69,7 +69,7 @@ async fn verify_device(endpoint: &MatrixEndpoint) -> Result<(), Error> {
 }
 
 async fn request_verification_handler(request: VerificationRequest) {
-    info!(target: LIB_LOG_TARGET, "Accepting verification request from {}", request.other_user_id(),);
+    info!("Accepting verification request from {}", request.other_user_id(),);
     request.accept().await.expect("Can't accept verification request");
 
     let mut stream = request.changes();
@@ -91,7 +91,7 @@ async fn request_verification_handler(request: VerificationRequest) {
 }
 
 async fn sas_verification_handler(sas: SasVerification) {
-    info!(target: LIB_LOG_TARGET, "Starting verification with {} {}", &sas.other_device().user_id(), &sas.other_device().device_id());
+    info!("Starting verification with {} {}", &sas.other_device().user_id(), &sas.other_device().device_id());
     sas.accept().await.unwrap();
 
     let mut stream = sas.changes();
@@ -107,7 +107,7 @@ async fn sas_verification_handler(sas: SasVerification) {
             SasState::Done { .. } => {
                 let device = sas.other_device();
 
-                info!(target: LIB_LOG_TARGET,
+                info!(
                     "Successfully verified device {} {} {:?}",
                     device.user_id(),
                     device.device_id(),
@@ -117,7 +117,7 @@ async fn sas_verification_handler(sas: SasVerification) {
                 break;
             }
             SasState::Cancelled(cancel_info) => {
-                warn!(target: LIB_LOG_TARGET, "The verification has been cancelled, reason: {}", cancel_info.reason());
+                warn!("The verification has been cancelled, reason: {}", cancel_info.reason());
 
                 break;
             }
@@ -127,7 +127,7 @@ async fn sas_verification_handler(sas: SasVerification) {
 }
 
 async fn wait_for_confirmation(sas: SasVerification, emoji: [Emoji; 7]) {
-    info!(target: LIB_LOG_TARGET, "\nDo the emojis match: \n{}", format_emojis(emoji));
+    info!("\nDo the emojis match: \n{}", format_emojis(emoji));
     print!("Confirm with `yes` or cancel with `no`: ");
     std::io::stdout().flush().expect("We should be able to flush stdout");
 

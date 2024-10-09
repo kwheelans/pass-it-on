@@ -1,6 +1,5 @@
 use crate::interfaces::http::{Version, BASE_PATH, NOTIFICATION_PATH, VERSION_PATH};
 use crate::notifications::Notification;
-use crate::LIB_LOG_TARGET;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::{get, post};
@@ -31,7 +30,7 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
         .route(format!("/{}/{}", BASE_PATH, NOTIFICATION_PATH).as_str(), post(notification_handler))
         .with_state(tx);
 
-    info!(target: LIB_LOG_TARGET, "Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
+    info!("Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
     let listener = std::net::TcpListener::bind(socket).expect("Binding TCPListener failed");
     match tls {
         true => {
@@ -52,11 +51,11 @@ async fn notification_handler(
     State(tx): State<mpsc::Sender<String>>,
     Json(notification): Json<Notification>,
 ) -> StatusCode {
-    trace!(target: LIB_LOG_TARGET, "HTTP server received {:?}", notification);
+    trace!("HTTP server received {:?}", notification);
     match tx.send(notification.to_json().unwrap_or_default()).await {
         Ok(_) => StatusCode::OK,
         Err(e) => {
-            warn!(target: LIB_LOG_TARGET, "bad JSON received from http socket: {}", e);
+            warn!("bad JSON received from http socket: {}", e);
             StatusCode::BAD_REQUEST
         }
     }
@@ -65,11 +64,11 @@ async fn notification_handler(
 async fn shutdown_server(handle: axum_server::Handle, mut shutdown: watch::Receiver<bool>) {
     match shutdown.changed().await {
         Ok(_) => {
-            debug!(target: LIB_LOG_TARGET, "http_server starting graceful shutdown");
+            debug!("http_server starting graceful shutdown");
             handle.graceful_shutdown(Some(GRACE_PERIOD));
         }
         Err(e) => {
-            error!(target: LIB_LOG_TARGET, "Shutdown Receive Error: {}", e);
+            error!("Shutdown Receive Error: {}", e);
         }
     }
 }

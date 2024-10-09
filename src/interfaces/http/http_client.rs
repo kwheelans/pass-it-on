@@ -1,6 +1,5 @@
 use crate::interfaces::{NANOSECOND, SECOND};
 use crate::notifications::Notification;
-use crate::LIB_LOG_TARGET;
 use reqwest::Client;
 use tokio::sync::{broadcast, watch};
 use tracing::{debug, error, trace, warn};
@@ -23,12 +22,12 @@ pub(super) async fn start_sending(
                         .json(&message)
                         .send().await;
                         match response {
-                            Ok(ok) => debug!(target: LIB_LOG_TARGET,"HTTP Client Response - status: {} url: {}", ok.status(), ok.url()),
-                            Err(error) => warn!(target: LIB_LOG_TARGET, "HTTP Client Response Error: {}", error ),
+                            Ok(ok) => debug!("HTTP Client Response - status: {} url: {}", ok.status(), ok.url()),
+                            Err(error) => warn!("HTTP Client Response Error: {}", error ),
                         }
                     },
                     Err(error) => {
-                        error!(target: LIB_LOG_TARGET, "Broadcast Receiver Error: {}", error);
+                        error!("Broadcast Receiver Error: {}", error);
                         break;
                     },
                 }
@@ -39,7 +38,7 @@ pub(super) async fn start_sending(
             }
 
             _ = tokio::time::sleep(SECOND) => {
-                trace!(target: LIB_LOG_TARGET, "Sleep timeout reached for http start_sending");
+                trace!("Sleep timeout reached for http start_sending");
             }
         }
         tokio::time::sleep(NANOSECOND).await;

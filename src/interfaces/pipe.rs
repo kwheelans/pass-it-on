@@ -24,7 +24,7 @@ pub(crate) mod pipe_server;
 
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
-use crate::{Error, LIB_LOG_TARGET};
+use crate::Error;
 use async_trait::async_trait;
 #[cfg(feature = "pipe-server")]
 use nix::sys::stat::Mode;
@@ -152,7 +152,7 @@ impl Interface for PipeInterface {
             if !path.exists() {
                 create_pipe(&path, pipe_permissions)?
             }
-            info!(target: LIB_LOG_TARGET, "Setting up Interface: Pipe on -> {}", &path.to_str().unwrap_or_default());
+            info!("Setting up Interface: Pipe on -> {}", &path.to_str().unwrap_or_default());
             read_pipe(&path, interface_tx, shutdown).await
         });
         Ok(())
@@ -176,7 +176,7 @@ impl Interface for PipeInterface {
         tokio::spawn(async move {
             match write_pipe(path, interface_tx, shutdown).await {
                 Ok(_) => (),
-                Err(error) => error!(target: LIB_LOG_TARGET, "Pipe write error {}", error),
+                Err(error) => error!("Pipe write error {}", error),
             }
         });
         Ok(())

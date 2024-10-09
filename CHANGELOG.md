@@ -2,6 +2,8 @@
 ## Changes
 - add `implicit_tls` configuration value for `EmailEndpoint`
 - add `implicit_tls` configuration value for `EmailEndpoint`
+- remove `LOG_TARGET` from pass-it-on-server bin tracing logs
+- remove `LIB_LOG_TARGET` from pass-it-on library
 
 # v0.16.0
 ## Breaking Changes

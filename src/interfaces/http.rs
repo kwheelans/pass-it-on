@@ -35,7 +35,7 @@ pub(crate) mod http_server;
 
 use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
-use crate::{Error, CRATE_VERSION, LIB_LOG_TARGET};
+use crate::{Error, CRATE_VERSION};
 use async_trait::async_trait;
 use tracing::debug;
 use serde::{Deserialize, Serialize};
@@ -220,7 +220,7 @@ impl Interface for HttpSocketInterface {
 
         let mut url = self.host.clone();
         url.set_path(format!("{}/{}", BASE_PATH, NOTIFICATION_PATH).as_str());
-        debug!(target: LIB_LOG_TARGET, "Sending notification to: {}", url.as_str());
+        debug!("Sending notification to: {}", url.as_str());
 
         tokio::spawn(async move { start_sending(interface_rx, shutdown, url.as_str()).await });
         Ok(())

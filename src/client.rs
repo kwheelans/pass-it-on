@@ -2,7 +2,7 @@ use crate::configuration::ClientConfiguration;
 use crate::interfaces::{setup_client_interfaces, NANOSECOND, SECOND};
 use crate::notifications::{ClientReadyMessage, Key, Notification};
 use crate::shutdown::listen_for_shutdown;
-use crate::{Error, CHANNEL_BUFFER, LIB_LOG_TARGET};
+use crate::{Error, CHANNEL_BUFFER};
 use tracing::{debug, error, info, trace, warn};
 use std::sync::{Arc, Mutex};
 use tokio::sync::watch::Receiver;
@@ -76,7 +76,7 @@ async fn receive_notifications(
     shutdown: Receiver<bool>,
     key: Key,
 ) {
-    info!(target: LIB_LOG_TARGET, "Client waiting for notifications");
+    info!("Client waiting for notifications");
 
     let mut shutdown_rx = shutdown.clone();
     loop {
@@ -84,11 +84,11 @@ async fn receive_notifications(
             msg = notification_rx.recv() => {
                 if let Some(client_ready_msg) = msg {
                     let notification = client_ready_msg.to_notification(&key);
-                    debug!(target: LIB_LOG_TARGET, "Client Sending Notification: {:?}", notification);
+                    debug!("Client Sending Notification: {:?}", notification);
                     match interface_tx.send(notification) {
-                        Ok(ok) => debug!(target: LIB_LOG_TARGET, "Message passed to client {} interfaces", ok),
+                        Ok(ok) => debug!("Message passed to client {} interfaces", ok),
                         Err(error) => {
-                            error!(target: LIB_LOG_TARGET, "Client broadcast channel send error: {}", error);
+                            error!("Client broadcast channel send error: {}", error);
                             break;
                         },
                     }
@@ -96,12 +96,12 @@ async fn receive_notifications(
             }
 
             _ = shutdown_rx.changed() => {
-                trace!(target: LIB_LOG_TARGET, "Shutdown receive_notifications");
+                trace!("Shutdown receive_notifications");
                  break;
                 }
 
             _ = tokio::time::sleep(SECOND) => {
-                trace!(target: LIB_LOG_TARGET, "Sleep timeout reached for receive_notifications");
+                trace!("Sleep timeout reached for receive_notifications");
             }
         }
         tokio::time::sleep(NANOSECOND).await;
@@ -114,18 +114,18 @@ async fn receive_notifications_arc(
     shutdown: Receiver<bool>,
     key: Key,
 ) {
-    info!(target: LIB_LOG_TARGET, "Client waiting for notifications");
+    info!("Client waiting for notifications");
 
     let mut shutdown_rx = shutdown.clone();
     loop {
         tokio::select! {
             _ = shutdown_rx.changed() => {
-                trace!(target: LIB_LOG_TARGET, "Shutdown receive_notifications_arc");
+                trace!("Shutdown receive_notifications_arc");
                  break;
                 }
 
             _ = tokio::time::sleep(SECOND) => {
-                trace!(target: LIB_LOG_TARGET, "Sleep timeout reached for receive_notifications_arc");
+                trace!("Sleep timeout reached for receive_notifications_arc");
             }
         }
 
@@ -134,11 +134,11 @@ async fn receive_notifications_arc(
         if !messages.is_empty() {
             for client_ready_msg in messages {
                 let notification = client_ready_msg.to_notification(&key);
-                debug!(target: LIB_LOG_TARGET, "Client attempting to send Notification: {:?}", notification);
+                debug!("Client attempting to send Notification: {:?}", notification);
 
                 match interface_tx.send(notification) {
-                    Ok(ok) => debug!(target: LIB_LOG_TARGET, "Message passed to client interfaces: {}", ok),
-                    Err(error) => warn!(target: LIB_LOG_TARGET, "Client broadcast channel send error: {}", error),
+                    Ok(ok) => debug!("Message passed to client interfaces: {}", ok),
+                    Err(error) => warn!("Client broadcast channel send error: {}", error),
                 }
             }
         }
