@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.16.1
 ## Changes
 - add `implicit_tls` configuration value for `EmailEndpoint`
 - add `implicit_tls` configuration value for `EmailEndpoint`
