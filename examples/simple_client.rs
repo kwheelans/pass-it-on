@@ -38,6 +38,7 @@ async fn main() -> Result<(), Error> {
                 Err(error) => warn!(target: LOG_TARGET, "Unable to send test message to client: {}", error),
             }
         }
+        tokio::time::sleep(Duration::from_secs(1)).await;
 
         // Send shutdown signal
         if let Err(error) = shutdown_tx.send(true) {

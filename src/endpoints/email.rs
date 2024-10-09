@@ -7,7 +7,9 @@
 //! hostname = "smtp.example.com"
 //! port = 587
 //! username = "test_user"
-//! password = "test_password"
+//! password = "test_password" 
+//! implicit_tls = false
+//! allow_invalid_certs = false
 //! from = "asdf@example.com"
 //! to = ["qwerty@example.com"]
 //! subject = "test_email"
@@ -33,6 +35,10 @@ pub(crate) struct EmailConfigFile {
     port: i64,
     username: String,
     password: String,
+    #[serde(default)]
+    implicit_tls: bool,
+    #[serde(default)]
+    allow_invalid_certs: bool,
     from: String,
     to: Vec<String>,
     subject: String,
@@ -46,6 +52,8 @@ pub struct EmailEndpoint {
     port: u16,
     username: String,
     password: String,
+    implicit_tls: bool,
+    allow_invalid_certs: bool,
     from: String,
     to: Vec<String>,
     subject: String,
@@ -57,6 +65,8 @@ struct EmailInfo {
     port: u16,
     username: String,
     password: String,
+    implicit_tls: bool,
+    allow_invalid_certs: bool,
     from: String,
     to: Vec<String>,
     subject: String,
@@ -90,6 +100,8 @@ impl TryFrom<&EmailConfigFile> for EmailEndpoint {
             port: value.port as u16,
             username: value.username.clone(),
             password: value.password.clone(),
+            implicit_tls: value.implicit_tls,
+            allow_invalid_certs: value.allow_invalid_certs,
             from: value.from.clone(),
             to: value.to.clone(),
             subject: value.subject.clone(),
@@ -112,6 +124,8 @@ impl Endpoint for EmailEndpoint {
             port: self.port,
             username: self.username.clone(),
             password: self.password.clone(),
+            implicit_tls: self.implicit_tls,
+            allow_invalid_certs: self.allow_invalid_certs,
             from: self.from.clone(),
             to: self.to.clone(),
             subject: self.subject.clone(),
@@ -163,12 +177,15 @@ async fn send_emails(
                         .text_body(content);
 
                         debug!(target: LIB_LOG_TARGET, "Connecting to SMTP: {}:{} as {}", info.hostname.as_str(), info.port, info.username.as_str());
-                        let smpt_client = SmtpClientBuilder::new(info.hostname.as_str(), info.port)
-                        .implicit_tls(false)
-                        .credentials((info.username.as_str(), info.password.as_str()))
-                        .connect().await;
+                        let mut smpt_client = SmtpClientBuilder::new(info.hostname.as_str(), info.port)
+                        .implicit_tls(info.implicit_tls)
+                        .credentials((info.username.as_str(), info.password.as_str()));
+                        
+                        if info.allow_invalid_certs {
+                            smpt_client = smpt_client.allow_invalid_certs();
+                        }
 
-                        match smpt_client {
+                        match smpt_client.connect().await {
                             Ok(mut client) => {
                                 match client.send(email).await {
                                     Ok(_) => debug!(target: LIB_LOG_TARGET, "Email sent successfully"),
