@@ -1,4 +1,3 @@
-use crate::LIB_LOG_TARGET;
 use tracing::{error, info};
 use std::time::Duration;
 use tokio::sync::watch;
@@ -16,26 +15,26 @@ pub(crate) async fn listen_for_shutdown(
 
     if let Some(mut shutdown_rx) = shutdown {
         tokio::select! {
-        _ = sigterm.recv() => info!(target: LIB_LOG_TARGET, "Received SIGTERM."),
-        _ = sigint.recv() => info!(target: LIB_LOG_TARGET, "Received SIGINT."),
-        _ = shutdown_rx.changed() => info!(target: LIB_LOG_TARGET, "Received shutdown channel signal."),
+        _ = sigterm.recv() => info!("Received SIGTERM."),
+        _ = sigint.recv() => info!("Received SIGINT."),
+        _ = shutdown_rx.changed() => info!( "Received shutdown channel signal."),
         }
     } else {
         tokio::select! {
-        _ = sigterm.recv() => info!(target: LIB_LOG_TARGET, "Received SIGTERM."),
-        _ = sigint.recv() => info!(target: LIB_LOG_TARGET, "Received SIGINT."),
+        _ = sigterm.recv() => info!("Received SIGTERM."),
+        _ = sigint.recv() => info!("Received SIGINT."),
         }
     }
 
     // Send shutdown signal
     if let Err(error) = shutdown_tx.send(true) {
-        error!(target: LIB_LOG_TARGET, "Unable to send shutdown signal: {}", error)
+        error!("Unable to send shutdown signal: {}", error)
     }
 
-    info!(target: LIB_LOG_TARGET, "Starting Shutdown");
+    info!("Starting Shutdown");
     // Allow time for cleanup
     tokio::time::sleep(Duration::from_secs(seconds_to_wait)).await;
-    info!(target: LIB_LOG_TARGET, "Shutdown Complete")
+    info!("Shutdown Complete")
 }
 
 #[cfg(windows)]
@@ -51,24 +50,24 @@ pub(crate) async fn listen_for_shutdown(
 
     if let Some(mut shutdown_rx) = shutdown {
         tokio::select! {
-        _ = sig_ctrl_break.recv() => info!(target: LIB_LOG_TARGET, "Received CTRL-BREAK."),
-        _ = sig_ctrl_c.recv() => info!(target: LIB_LOG_TARGET, "Received CTRL-C."),
-        _ = shutdown_rx.changed() => info!(target: LIB_LOG_TARGET, "Received shutdown channel signal."),
+        _ = sig_ctrl_break.recv() => info!("Received CTRL-BREAK."),
+        _ = sig_ctrl_c.recv() => info!("Received CTRL-C."),
+        _ = shutdown_rx.changed() => info!("Received shutdown channel signal."),
         }
     } else {
         tokio::select! {
-            _ = sig_ctrl_break.recv() => info!(target: LIB_LOG_TARGET, "Received CTRL-BREAK."),
-            _ = sig_ctrl_c.recv() => info!(target: LIB_LOG_TARGET, "Received CTRL-C."),
+            _ = sig_ctrl_break.recv() => info!("Received CTRL-BREAK."),
+            _ = sig_ctrl_c.recv() => info!("Received CTRL-C."),
         }
     }
 
     // Send shutdown signal
     if let Err(error) = shutdown_tx.send(true) {
-        error!(target: LIB_LOG_TARGET, "Unable to send shutdown signal: {}", error)
+        error!("Unable to send shutdown signal: {}", error)
     }
 
-    info!(target: LIB_LOG_TARGET, "Starting Shutdown");
+    info!("Starting Shutdown");
     // Allow time for cleanup
     tokio::time::sleep(Duration::from_secs(seconds_to_wait)).await;
-    info!(target: LIB_LOG_TARGET, "Shutdown Complete")
+    info!("Shutdown Complete")
 }

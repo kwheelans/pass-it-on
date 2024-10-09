@@ -6,8 +6,7 @@ use pass_it_on::{start_server, verify_matrix_devices};
 use std::path::PathBuf;
 use std::process::ExitCode;
 use tracing::level_filters::LevelFilter;
-
-const LOG_TARGET: &str = "pass_it_on_server";
+//const LOG_TARGET: &str = "pass_it_on_server";
 
 #[derive(Parser, Debug)]
 #[clap(name = "pass-it-on-server", author, version, about = "Pass-it-on server binary", long_about = None)]
@@ -27,19 +26,10 @@ struct CliArgs {
 async fn main() -> ExitCode {
     let cli = CliArgs::parse();
     tracing_subscriber::fmt().with_max_level(cli.log_level.unwrap_or(LevelFilter::INFO)).init();
-/*  
-    simple_logger::SimpleLogger::new()
-        .with_level(LevelFilter::OFF)
-        .env()
-        .with_module_level(pass_it_on::LIB_LOG_TARGET, module_log_level)
-        .with_module_level(LOG_TARGET, module_log_level)
-        .with_colors(true)
-        .init()
-        .unwrap();*/
 
     match run(cli).await {
         Err(error) => {
-            error!(target: LOG_TARGET, "{}", error);
+            error!("{}", error);
             ExitCode::FAILURE
         }
         Ok(_) => ExitCode::SUCCESS,
@@ -47,7 +37,7 @@ async fn main() -> ExitCode {
 }
 
 async fn run(cliargs: CliArgs) -> Result<(), Error> {
-    info!(target: LOG_TARGET, "Log level is set to {}", cliargs.log_level.unwrap_or(LevelFilter::INFO));
+    info!("Log level is set to {}", cliargs.log_level.unwrap_or(LevelFilter::INFO));
     // Setup default directories
     let default_config_path = directories::ProjectDirs::from("com", "pass-it-on", "pass-it-on-server").unwrap();
 
@@ -58,7 +48,7 @@ async fn run(cliargs: CliArgs) -> Result<(), Error> {
             None => PathBuf::from(default_config_path.config_dir()).join("server.toml"),
         };
 
-        info!(target: LOG_TARGET, "Reading configuration from: {}", config_path.to_str().unwrap());
+        info!("Reading configuration from: {}", config_path.to_str().unwrap());
         ServerConfiguration::try_from(std::fs::read_to_string(config_path)?.as_str())?
     };
 

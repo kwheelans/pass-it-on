@@ -8,7 +8,6 @@ use tracing::level_filters::LevelFilter;
 
 const NOTIFICATION_NAME: &str = "test1";
 const SAMPLE_MESSAGE_COUNT: usize = 1;
-const LOG_TARGET: &str = "pass_it_on_client_example";
 
 const CLIENT_TOML_CONFIG: &str = r#"
     [client]
@@ -31,18 +30,18 @@ async fn main() -> Result<(), Error> {
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
     tokio::spawn(async move {
-        info!(target: LOG_TARGET, "Sending test messages");
+        info!("Sending test messages");
         for message in messages {
             match interface_tx.send(message).await {
-                Ok(_) => debug!(target: LOG_TARGET, "Sent test message to client"),
-                Err(error) => warn!(target: LOG_TARGET, "Unable to send test message to client: {}", error),
+                Ok(_) => debug!("Sent test message to client"),
+                Err(error) => warn!("Unable to send test message to client: {}", error),
             }
         }
         tokio::time::sleep(Duration::from_secs(1)).await;
 
         // Send shutdown signal
         if let Err(error) = shutdown_tx.send(true) {
-            error!(target: LOG_TARGET, "Unable to send shutdown signal: {}", error)
+            error!("Unable to send shutdown signal: {}", error)
         }
         tokio::time::sleep(Duration::from_secs(1)).await;
     });
