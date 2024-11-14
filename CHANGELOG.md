@@ -1,4 +1,6 @@
 # Unreleased
+## Changes
+- update `thiserror` dependency  to version 2.x.y
 
 # v0.16.1
 ## Changes
