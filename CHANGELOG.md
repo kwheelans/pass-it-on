@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.16.2
 ## Changes
 - update `thiserror` dependency  to version 2.x.y
 - update `matrix-sdk` dependency  to version 0.8.y

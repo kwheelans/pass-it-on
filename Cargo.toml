@@ -1,9 +1,9 @@
 [package]
 name = "pass-it-on"
-version = "0.16.1"
+version = "0.16.2"
 authors = ["Kevin Wheelans <kevin.wheelans@proton.me>"]
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.76"
 description = "A library that provides a simple notification client and server that receives messages and passes them on to endpoints"
 documentation = "https://docs.rs/crate/pass-it-on"
 homepage = "https://github.com/kwheelans/pass-it-on"
