@@ -2,7 +2,7 @@
 ## Changes
 - add derive `Debug` to `ClientConfigFileParser` and `ClientConfigFile`
 - add derive `Debug` to `ServerConfigFileParser` and `ServerConfigFile`
-
+- add `Debug` as a supertrait for `InterfaceConfig` and `EndpointConfig` traits
 
 # v0.16.2
 ## Changes

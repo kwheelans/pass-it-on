@@ -20,7 +20,7 @@ pub mod matrix;
 
 /// A data structure that can be deserialized and converted into an [`Endpoint`].
 #[typetag::deserialize(tag = "type")]
-pub trait EndpointConfig {
+pub trait EndpointConfig: Debug {
     /// Convert this `EndpointConfig` into an [`Endpoint`].
     fn to_endpoint(&self) -> Result<Box<dyn Endpoint + Send>, Error>;
 }

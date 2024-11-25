@@ -21,7 +21,7 @@ pub(crate) const NANOSECOND: Duration = Duration::from_nanos(1);
 
 /// A data structure that can be deserialized and converted into an [`Interface`].
 #[typetag::deserialize(tag = "type")]
-pub trait InterfaceConfig {
+pub trait InterfaceConfig: Debug {
     /// Convert this `InterfaceConfig` into an [`Interface`].
     fn to_interface(&self) -> Result<Box<dyn Interface + Send>, Error>;
 }
