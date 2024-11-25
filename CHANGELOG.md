@@ -1,4 +1,8 @@
 # Unreleased
+## Changes
+- add derive `Debug` to `ClientConfigFileParser` and `ClientConfigFile`
+- add derive `Debug` to `ServerConfigFileParser` and `ServerConfigFile`
+
 
 # v0.16.2
 ## Changes

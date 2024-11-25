@@ -4,13 +4,13 @@ use crate::Error;
 use serde::Deserialize;
 
 /// Client configuration parsed from TOML that handles any [`InterfaceConfig`][`crate::interfaces::InterfaceConfig`].
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub(super) struct ClientConfigFileParser {
     client: ClientConfigFile,
 }
 
 /// Serde compatible representation of [`ClientConfiguration`]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ClientConfigFile {
     key: String,
     interface: Vec<Box<dyn InterfaceConfig>>,

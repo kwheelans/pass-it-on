@@ -6,13 +6,13 @@ use serde::Deserialize;
 
 /// Server configuration parsed from TOML that handles any [`InterfaceConfig`][`crate::interfaces::InterfaceConfig`]
 /// and [`EndpointConfig`][`crate::endpoints::EndpointConfig`].
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub(super) struct ServerConfigFileParser {
     server: ServerConfigFile,
 }
 
 /// Serde compatible representation of [`ServerConfiguration`]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ServerConfigFile {
     key: String,
     interface: Vec<Box<dyn InterfaceConfig>>,
