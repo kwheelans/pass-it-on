@@ -1,6 +1,7 @@
 # Unreleased
 ## Changes
-- update matrix-sdk crate to v0.9
+- update matrix-sdk crate to 0.9
+- update axum crate to 0.8
 
 # v0.16.3
 ## Changes
