@@ -1,4 +1,6 @@
 # Unreleased
+## Changes
+- update matrix-sdk crate to v0.9
 
 # v0.16.3
 ## Changes
