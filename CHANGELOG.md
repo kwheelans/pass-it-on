@@ -2,6 +2,7 @@
 ## Changes
 - update matrix-sdk crate to 0.9
 - update axum crate to 0.8
+- update directories to 6.0
 
 # v0.16.3
 ## Changes
