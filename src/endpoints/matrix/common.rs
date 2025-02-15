@@ -3,7 +3,7 @@ use crate::Error;
 use tracing::{debug, info};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::encryption::{BackupDownloadStrategy, EncryptionSettings};
-use matrix_sdk::matrix_auth::MatrixSession;
+use matrix_sdk::authentication::matrix::MatrixSession;
 use matrix_sdk::Client;
 use serde::{Deserialize, Serialize};
 use std::fs;
