@@ -1,4 +1,5 @@
 # Unreleased
+- update mail-send crate to 0.5
 
 # v0.16.4
 ## Changes
