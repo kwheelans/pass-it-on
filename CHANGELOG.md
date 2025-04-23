@@ -1,4 +1,7 @@
 # Unreleased
+
+# v0.16.4
+## Changes
 - update mail-send crate to 0.5
 - update matrix-sdk crate to 0.11
 - update rust edition to 2024
