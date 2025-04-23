@@ -8,6 +8,7 @@ use matrix_sdk::Client;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
+use matrix_sdk::store::RoomLoadSettings;
 use url::Url;
 
 const INITIAL_DEVICE_NAME: &str = "pass-it-on-server";
@@ -138,7 +139,7 @@ pub(super) async fn print_client_debug(client: &Client) {
         debug!("Canonical Alias: {:?}", r.canonical_alias());
         debug!("Room ID: {:?}", r.room_id());
         debug!("Alt Alias: {:?}", r.alt_aliases());
-        debug!("is encrypted: {:?}", r.is_encrypted().await);
+        debug!("encryption state: {:?}", r.latest_encryption_state().await);
         debug!("is public: {:?}", r.is_public());
         debug!("is direct: {:?}", r.is_direct().await);
         debug!("is tombstoned: {:?}", r.is_tombstoned());
@@ -206,7 +207,7 @@ async fn resume_session(client_info: ClientInfo, client: Client) -> Result<Clien
     debug!("Attempting to restore session for user: {}", client_info.username());
     let session = PersistentSession::try_from(client_info.session_file_path().as_path())?;
 
-    client.matrix_auth().restore_session(session.client_session).await?;
+    client.matrix_auth().restore_session(session.client_session, RoomLoadSettings::default()).await?;
     info!("logged in as: {}", client.user_id().unwrap());
     //client.encryption().secret_storage().open_secret_store(client_info.recovery_passphrase()).await?;
     client.encryption().recovery().recover(client_info.recovery_passphrase()).await?;
