@@ -32,6 +32,7 @@ use serde::Deserialize;
 #[cfg(feature = "pipe-server")]
 use std::path::Path;
 use std::path::PathBuf;
+use nix::fcntl::AT_FDCWD;
 use tokio::sync::mpsc::Sender;
 use tokio::sync::{broadcast, watch};
 
@@ -215,7 +216,7 @@ fn create_permissions(permissions: Vec<Mode>) -> Mode {
 #[cfg(feature = "pipe-server")]
 fn set_permissions<P: AsRef<Path>>(path: P, permissions: Mode) -> Result<(), Error> {
     use nix::sys::stat::FchmodatFlags;
-    nix::sys::stat::fchmodat(None, path.as_ref(), permissions, FchmodatFlags::NoFollowSymlink)?;
+    nix::sys::stat::fchmodat(AT_FDCWD, path.as_ref(), permissions, FchmodatFlags::NoFollowSymlink)?;
     Ok(())
 }
 
