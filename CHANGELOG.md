@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.16.6
 ## Changes
 - update nix to 0.30
 
