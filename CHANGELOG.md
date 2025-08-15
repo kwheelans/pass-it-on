@@ -1,5 +1,10 @@
 # Unreleased
 
+# v0.16.7
+## Changes 
+- update matrix-sdk to 0.13
+- update toml to 0.9
+
 # v0.16.6
 ## Changes
 - update nix to 0.30
