@@ -1,4 +1,5 @@
 # Unreleased
+- update matrix-sdk to 0.14
 
 # v0.16.7
 ## Changes 
