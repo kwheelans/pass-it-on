@@ -17,7 +17,7 @@ COPY ./ .
 RUN cargo build --release --bin pass-it-on-server  --no-default-features --features server-bin-full,bundled-sqlite
 
 # Final image
-FROM debian:12-slim
+FROM debian:13-slim
 
 RUN mkdir /pass-it-on
 WORKDIR /pass-it-on
