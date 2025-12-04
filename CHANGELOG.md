@@ -1,5 +1,8 @@
 # Unreleased
+
+# v0.16.8
 - update matrix-sdk to 0.14
+- update docker image to debian:13-slim
 
 # v0.16.7
 ## Changes 
