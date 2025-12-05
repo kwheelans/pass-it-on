@@ -170,7 +170,7 @@ fn server_valid_config_email() {
 fn interface_not_defined() {
     let config = ServerConfiguration::new("test key", Vec::new(), Vec::new());
 
-    assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
+    assert_eq!(config.unwrap_err().to_string(), Error::missing_interface().to_string())
 }
 
 #[test]
@@ -179,7 +179,7 @@ fn endpoint_not_defined() {
     let endpoint: Box<dyn Endpoint + Send> = Box::new(FileEndpoint::new("path", notifications.as_ref()));
     let config = ServerConfiguration::new("test key", Vec::new(), vec![endpoint]);
 
-    assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
+    assert_eq!(config.unwrap_err().to_string(), Error::missing_interface().to_string())
 }
 
 #[test]
@@ -201,7 +201,7 @@ fn file_configfile_path_is_blank() {
     );
     assert_eq!(
         config.unwrap_err().to_string(),
-        Error::InvalidEndpointConfiguration("File configuration path is blank".to_string()).to_string()
+        Error::invalid_endpoint_configuration("File configuration path is blank".to_string()).to_string()
     )
 }
 
@@ -224,6 +224,6 @@ fn file_configfile_path_notification_is_blank() {
     );
     assert_eq!(
         config.unwrap_err().to_string(),
-        Error::InvalidEndpointConfiguration("File configuration has no notifications setup".to_string()).to_string()
+        Error::invalid_endpoint_configuration("File configuration has no notifications setup".to_string()).to_string()
     )
 }

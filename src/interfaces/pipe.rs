@@ -94,7 +94,7 @@ impl TryFrom<&PipeConfigFile> for PipeInterface {
 
     fn try_from(value: &PipeConfigFile) -> Result<Self, Self::Error> {
         if value.path.is_empty() {
-            return Err(Error::InvalidInterfaceConfiguration("Pipe path is empty".to_string()));
+            return Err(Error::invalid_endpoint_configuration("Pipe path is empty".to_string()));
         }
 
         Ok(Self {
@@ -195,10 +195,9 @@ impl Interface for PipeInterface {
 
 #[cfg(feature = "pipe-server")]
 fn create_pipe<P: AsRef<Path>>(path: P, permissions: Mode) -> Result<(), Error> {
-    match nix::unistd::mkfifo(path.as_ref(), permissions) {
-        Err(e) => Err(Error::NixErrorNoError(e)),
-        Ok(_) => set_permissions(path, permissions),
-    }
+    nix::unistd::mkfifo(path.as_ref(), permissions)?;
+    set_permissions(path, permissions)?;
+    Ok(())
 }
 
 #[cfg(feature = "pipe-server")]

@@ -98,10 +98,10 @@ impl TryFrom<&DiscordConfigFile> for DiscordEndpoint {
 
     fn try_from(value: &DiscordConfigFile) -> Result<Self, Self::Error> {
         if value.url.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Discord configuration url is blank".to_string()));
+            return Err(Error::invalid_endpoint_configuration("Discord configuration url is blank".to_string()));
         }
         if value.notifications.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration(
+            return Err(Error::invalid_endpoint_configuration(
                 "Discord configuration has no notifications setup".to_string(),
             ));
         }

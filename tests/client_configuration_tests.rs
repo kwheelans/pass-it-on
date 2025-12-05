@@ -54,5 +54,5 @@ fn client_valid_config_windows() {
 fn interface_not_defined() {
     let config = ClientConfiguration::new("test key", Vec::new());
 
-    assert_eq!(config.unwrap_err().to_string(), Error::MissingInterface.to_string())
+    assert_eq!(config.unwrap_err().to_string(), Error::missing_interface().to_string())
 }

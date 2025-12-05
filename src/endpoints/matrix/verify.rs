@@ -1,7 +1,6 @@
 use crate::endpoints::matrix::common::{login, ClientInfo};
 use crate::endpoints::matrix::MatrixEndpoint;
 use crate::endpoints::Endpoint;
-use crate::Error::InvalidEndpointConfiguration;
 use crate::Error;
 use futures_util::stream::StreamExt;
 use tracing::{debug, info, warn};
@@ -25,7 +24,7 @@ pub(crate) async fn verify_devices(endpoints: &[Box<dyn Endpoint + Send>]) -> Re
         }
     }
     match matrix_endpoints.is_empty() {
-        true => Err(InvalidEndpointConfiguration(
+        true => Err(Error::invalid_endpoint_configuration(
             "Unable to run matrix verification because no matrix endpoints are defined".to_string(),
         )),
         false => {
