@@ -37,7 +37,6 @@ use crate::interfaces::{Interface, InterfaceConfig};
 use crate::notifications::Notification;
 use crate::{Error, CRATE_VERSION};
 use async_trait::async_trait;
-use tracing::debug;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -207,7 +206,7 @@ impl Interface for HttpSocketInterface {
         _interface_tx: mpsc::Sender<String>,
         _shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        Err(Error::DisabledInterfaceFeature("http-server".to_string()))
+        Err(Error::disabled_interface_feature("http-server".to_string()))
     }
 
     #[cfg(feature = "http-client")]
@@ -217,6 +216,7 @@ impl Interface for HttpSocketInterface {
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
         use crate::interfaces::http::http_client::start_sending;
+        use tracing::debug;
 
         let mut url = self.host.clone();
         url.set_path(format!("{}/{}", BASE_PATH, NOTIFICATION_PATH).as_str());
@@ -232,7 +232,7 @@ impl Interface for HttpSocketInterface {
         _interface_rx: broadcast::Receiver<Notification>,
         _shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        Err(Error::DisabledInterfaceFeature("http-client".to_string()))
+        Err(Error::disabled_interface_feature("http-client".to_string()))
     }
 }
 

@@ -1,5 +1,11 @@
 # Unreleased
 
+# v0.17.1
+## Fixes
+- http server set listener to non-blocking because axum-server 0.8.0 internally uses tokio::net::TcpListener::from_std() which now panics when it detects a blocking socket
+- Fix disabled interface and disabled endpoint feature errors
+- fix verify matrix devices call error when feature not enabled
+
 # v0.17.0
 ## Breaking Changes
 - remove rustls-tls-native-roots feature

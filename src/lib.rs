@@ -97,7 +97,7 @@ pub use self::configuration::ServerConfiguration;
 pub use self::error::Error;
 #[cfg(feature = "server")]
 pub use self::server::start_server;
-#[cfg(all(feature = "server", feature = "matrix"))]
+#[cfg(feature = "server")]
 pub use self::server::verify_matrix_devices;
 
 #[allow(dead_code)]

@@ -89,7 +89,7 @@ pub async fn verify_matrix_devices(server_config: ServerConfiguration) -> Result
 
 #[cfg(not(feature = "matrix"))]
 /// Interactively verify devices for all Matrix endpoints in the provided [`ServerConfiguration`].
-pub async fn verify_matrix_devices(server_config: ServerConfiguration) -> Result<(), Error> {
+pub async fn verify_matrix_devices(_server_config: ServerConfiguration) -> Result<(), Error> {
     info!("Running Matrix device verification process");
-    Err(Error::DisabledIEndpointFeature("matrix".to_string()))
+    Err(Error::disabled_endpoint_feature("matrix".to_string()))
 }

@@ -11,17 +11,18 @@ use std::path::Path;
 use std::time::Duration;
 use tokio::sync::{mpsc, watch};
 use tracing::{debug, error, info, trace, warn};
+use crate::Error;
 
 const GRACE_PERIOD: Duration = Duration::from_secs(1);
 
-pub(super) async fn start_monitoring<P: AsRef<Path>>(
+pub(super) async fn start_monitoring<P: AsRef<Path>> (
     tx: mpsc::Sender<String>,
     shutdown: watch::Receiver<bool>,
     socket: SocketAddr,
     tls: bool,
     tls_cert_path: Option<P>,
     tls_key_path: Option<P>,
-) {
+) -> Result<(), Error> {
     let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
     let handle = axum_server::Handle::new();
     tokio::spawn(shutdown_server(handle.clone(), shutdown));
@@ -32,27 +33,25 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
         .with_state(tx);
 
     info!("Setting up Interface: HttpSocket on -> {} | TLS Enabled -> {}", socket, tls);
-    let listener = std::net::TcpListener::bind(socket).expect("Binding TCPListener failed");
+    let listener = std::net::TcpListener::bind(socket)?;
+    listener.set_nonblocking(true)?;
+    
     match tls {
         true => {
             let config = RustlsConfig::from_pem_file(tls_cert_path.unwrap(), tls_key_path.unwrap())
-                .await
-                .expect("rusttls config issue");
-            axum_server::from_tcp_rustls(listener, config)
-                .expect("from_tcp_rustls failed")
+                .await?;
+            axum_server::from_tcp_rustls(listener, config)?
                 .serve(routes.into_make_service())
-                .await
-                .expect("Unable to create TLS server");
+                .await?;
         }
         false => {
-            axum_server::from_tcp(listener)
-                .expect("from_tcp failed")
+            axum_server::from_tcp(listener)?
                 .handle(handle)
                 .serve(routes.into_make_service())
-                .await
-                .expect("Unable to create server");
+                .await?
         }
     };
+    Ok(())
 }
 
 async fn version_handler() -> Json<Version> {
