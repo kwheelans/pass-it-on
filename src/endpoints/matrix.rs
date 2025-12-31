@@ -158,15 +158,15 @@ impl TryFrom<&MatrixConfigFile> for MatrixEndpoint {
 
     fn try_from(value: &MatrixConfigFile) -> Result<Self, Self::Error> {
         if value.home_server.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Matrix configuration home_server is blank".to_string()));
+            return Err(Error::invalid_endpoint_configuration("Matrix configuration home_server is blank".to_string()));
         }
 
         if value.username.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Matrix configuration username is blank".to_string()));
+            return Err(Error::invalid_endpoint_configuration("Matrix configuration username is blank".to_string()));
         }
 
         if value.room.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("Matrix configuration has no rooms setup".to_string()));
+            return Err(Error::invalid_endpoint_configuration("Matrix configuration has no rooms setup".to_string()));
         }
 
         let rooms = {

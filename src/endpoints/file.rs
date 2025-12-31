@@ -60,11 +60,11 @@ impl TryFrom<&FileConfigFile> for FileEndpoint {
 
     fn try_from(value: &FileConfigFile) -> Result<Self, Self::Error> {
         if value.path.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration("File configuration path is blank".to_string()));
+            return Err(Error::invalid_endpoint_configuration("File configuration path is blank".to_string()));
         }
 
         if value.notifications.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration(
+            return Err(Error::invalid_endpoint_configuration(
                 "File configuration has no notifications setup".to_string(),
             ));
         }

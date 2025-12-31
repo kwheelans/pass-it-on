@@ -25,7 +25,7 @@ pub async fn write_pipe<P: AsRef<Path>>(
                             Err(e) if e.kind() == io::ErrorKind::WouldBlock => continue,
                             Err(e) => {
                                 error!("{}", e);
-                                return Err(Error::IOError(e))
+                                return Err(e.into())
                             },
                         }
                     },

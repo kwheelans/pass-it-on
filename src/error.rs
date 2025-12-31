@@ -1,8 +1,10 @@
 use thiserror::Error;
+use thiserror_ext::{Box, Construct};
 
 /// Errors returned by pass-it-on library.
-#[derive(Error, Debug)]
-pub enum Error {
+#[derive(Error, Debug, Box, Construct)]
+#[thiserror_ext(newtype(name = Error))]
+pub enum ErrorKind {
     /// At least one [`Endpoint`][`crate::endpoints::Endpoint`] needs to be defined for a server.
     #[error("At least one endpoint must be defined")]
     MissingEndpoint,
@@ -33,7 +35,7 @@ pub enum Error {
 
     /// Return when an endpoint feature is called but not enabled
     #[error("Endpoint feature {0} is not enabled")]
-    DisabledIEndpointFeature(String),
+    DisabledEndpointFeature(String),
 
     // ### Converting from other error types ###
     /// Pass-thru [`std::io::Error`].

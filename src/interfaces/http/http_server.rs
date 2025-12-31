@@ -1,9 +1,10 @@
-use crate::interfaces::http::{Version, BASE_PATH, NOTIFICATION_PATH, VERSION_PATH};
+use crate::interfaces::http::{BASE_PATH, NOTIFICATION_PATH, VERSION_PATH, Version};
 use crate::notifications::Notification;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Json, Router};
+use axum_server::Address;
 use axum_server::tls_rustls::RustlsConfig;
 use std::net::SocketAddr;
 use std::path::Path;
@@ -34,11 +35,22 @@ pub(super) async fn start_monitoring<P: AsRef<Path>>(
     let listener = std::net::TcpListener::bind(socket).expect("Binding TCPListener failed");
     match tls {
         true => {
-            let config = RustlsConfig::from_pem_file(tls_cert_path.unwrap(), tls_key_path.unwrap()).await.expect("rusttls config issue");
-            axum_server::from_tcp_rustls(listener, config).serve(routes.into_make_service()).await.expect("Unable to create TLS server");
+            let config = RustlsConfig::from_pem_file(tls_cert_path.unwrap(), tls_key_path.unwrap())
+                .await
+                .expect("rusttls config issue");
+            axum_server::from_tcp_rustls(listener, config)
+                .expect("from_tcp_rustls failed")
+                .serve(routes.into_make_service())
+                .await
+                .expect("Unable to create TLS server");
         }
         false => {
-            axum_server::from_tcp(listener).handle(handle).serve(routes.into_make_service()).await.expect("Unable to create server");
+            axum_server::from_tcp(listener)
+                .expect("from_tcp failed")
+                .handle(handle)
+                .serve(routes.into_make_service())
+                .await
+                .expect("Unable to create server");
         }
     };
 }
@@ -61,7 +73,7 @@ async fn notification_handler(
     }
 }
 
-async fn shutdown_server(handle: axum_server::Handle, mut shutdown: watch::Receiver<bool>) {
+async fn shutdown_server<A: Address>(handle: axum_server::Handle<A>, mut shutdown: watch::Receiver<bool>) {
     match shutdown.changed().await {
         Ok(_) => {
             debug!("http_server starting graceful shutdown");

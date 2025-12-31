@@ -36,12 +36,11 @@ server = ["interfaces", "endpoints", "tokio", "tokio/signal", "tokio/time", "dep
 server-bin-full = ["server-bin-minimal", "pipe", "http", "file", "matrix", "discord", "email"]
 server-bin-minimal = ["server", "parse-cfg", "dep:clap", "dep:directories", "dep:tracing-subscriber"]
 bundled-sqlite = ["matrix-sdk?/bundled-sqlite"]
-rustls-tls-native-roots = ["reqwest?/rustls-tls-native-roots"]
 
 [dependencies]
 async-trait = { version = "0.1", optional = true }
 axum = { version = "0.8", optional = true }
-axum-server = { version = "0.7", features = ["tls-rustls"], optional = true }
+axum-server = { version = "0.8", features = ["tls-rustls"], optional = true }
 blake3 = "1"
 clap  = { version = "4.4", features = ["derive", "cargo"], optional = true }
 directories = { version = "6.0", optional = true }
@@ -49,12 +48,13 @@ dyn-clone = { version = "1.0", optional = true }
 mail-send = { version = "0.5", optional = true }
 matrix-sdk = { version = "0.16", features = ["automatic-room-key-forwarding", "e2e-encryption", "rustls-tls", "sqlite"], default-features = false, optional = true }
 nix = { version = "0.30", features = ["fs", "net"], default-features = false, optional = true }
-reqwest = { version = "0.12",  features = ["charset", "http2", "macos-system-configuration", "json", "rustls-tls"], default-features = false, optional = true }
+reqwest = { version = "0.13",  features = ["json"], optional = true }
 rustls = { version = "0.23", optional = true }
 serde = { version = "1", features = ["default", "derive"] }
 serde_json = "1"
 futures-util = { version = "0.3", optional = true }
 thiserror = "2"
+thiserror-ext = "0.3"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"], default-features = false, optional = true }
 toml = { version = "0.9", features = ["std","serde","parse"], default-features = false, optional = true }
 tracing = { version = "0.1", optional = true }

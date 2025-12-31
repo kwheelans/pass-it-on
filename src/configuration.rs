@@ -64,11 +64,11 @@ impl ServerConfiguration {
 
     fn validate(config: ServerConfiguration) -> Result<ServerConfiguration, Error> {
         if config.interfaces.is_empty() {
-            return Err(Error::MissingInterface);
+            return Err(Error::missing_interface());
         }
 
         if config.endpoints.is_empty() {
-            return Err(Error::MissingEndpoint);
+            return Err(Error::missing_endpoint());
         }
 
         Ok(config)
@@ -113,7 +113,7 @@ impl ClientConfiguration {
 
     fn validate(config: ClientConfiguration) -> Result<ClientConfiguration, Error> {
         if config.interfaces.is_empty() {
-            return Err(Error::MissingInterface);
+            return Err(Error::missing_interface());
         }
         Ok(config)
     }

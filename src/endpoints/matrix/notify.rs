@@ -63,7 +63,7 @@ fn validate_room(room: &str, default_server: &str) -> Result<String, Error> {
         }
     } else {
         warn!("{} is not a valid room", room);
-        Err(Error::InvalidMatrixRoomIdentifier)
+        Err(Error::invalid_matrix_room_identifier())
     }
 }
 

@@ -1,6 +1,18 @@
 # Unreleased
+## Breaking Changes
+- remove rustls-tls-native-roots feature
+
+## Changes
+- update matrix-sdk to 0.16
+- update reqwest to 0.13
+- update axum_server to 0.8
+
+# v0.16.9
+## Changes
+- update github actions dependencies
 
 # v0.16.8
+## Changes
 - update matrix-sdk to 0.14
 - update docker image to debian:13-slim
 

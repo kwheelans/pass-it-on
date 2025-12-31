@@ -84,13 +84,13 @@ impl TryFrom<&EmailConfigFile> for EmailEndpoint {
 
     fn try_from(value: &EmailConfigFile) -> Result<Self, Self::Error> {
         if !(value.port < u16::MAX as i64 && value.port > u16::MIN as i64) {
-            return Err(Error::InvalidPortNumber(value.port));
+            return Err(Error::invalid_port_number(value.port));
         } else if value.to.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration(
+            return Err(Error::invalid_endpoint_configuration(
                 "Email configuration has no 'to' email address setup".to_string(),
             ));
         } else if value.notifications.is_empty() {
-            return Err(Error::InvalidEndpointConfiguration(
+            return Err(Error::invalid_endpoint_configuration(
                 "Email configuration has no notifications setup".to_string(),
             ));
         }

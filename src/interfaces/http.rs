@@ -155,7 +155,7 @@ impl TryFrom<&HttpSocketConfigFile> for HttpSocketInterface {
 
     fn try_from(value: &HttpSocketConfigFile) -> Result<Self, Self::Error> {
         if !(value.port < u16::MAX as i64 && value.port > u16::MIN as i64) {
-            return Err(Error::InvalidPortNumber(value.port));
+            return Err(Error::invalid_port_number(value.port));
         }
         let mut url = parse_url(value.host.as_str())?;
         if let Some(explict_tls) = value.tls {
@@ -185,8 +185,8 @@ impl Interface for HttpSocketInterface {
         use crate::interfaces::http::http_server::start_monitoring;
 
         if self.tls && (self.tls_cert_path().is_none() || self.tls_cert_path().is_none()) {
-            Err(Error::InvalidInterfaceConfiguration(
-                "Both tls_cert_path and tls_cert_path must be provided for a TLS server".into(),
+            Err(Error::invalid_interface_configuration(
+                "Both tls_cert_path and tls_cert_path must be provided for a TLS server",
             ))
         } else {
             for socket in self.sockets()? {

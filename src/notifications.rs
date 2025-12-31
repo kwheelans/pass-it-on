@@ -64,7 +64,7 @@ impl Notification {
 
         for item in stream {
             match item {
-                Err(e) => notifications.push(Err(Error::SerdeJsonError(e))),
+                Err(e) => notifications.push(Err(e.into())),
                 Ok(n) => notifications.push(Ok(n)),
             };
         }
