@@ -12,6 +12,7 @@ on:
       - 'rustfmt.toml'
       - 'resources/configuration/**'
       - 'resources/systemd/**'
+      - 'renovate.json'
 
 concurrency:
   group: ${{ github.workflow }}
