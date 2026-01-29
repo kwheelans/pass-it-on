@@ -6,7 +6,7 @@
   "packageRules": [
     {
       "matchManagers": [
-        "rust"
+        "cargo"
       ],
       "matchUpdateTypes": [
         "patch",
