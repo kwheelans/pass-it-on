@@ -5,9 +5,6 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": [
-        "/netbird/"
-      ],
       "matchManagers": [
         "rust"
       ],
