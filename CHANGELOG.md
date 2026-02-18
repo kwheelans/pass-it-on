@@ -1,4 +1,7 @@
 # Unreleased
+## Changes
+- update toml to version 1
+- update nix to 0.31
 
 # v0.17.1
 ## Fixes
