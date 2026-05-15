@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.17.3
+## Changes
+- rust-version to 1.93
+
 # v0.17.2
 ## Changes
 - update toml to version 1
