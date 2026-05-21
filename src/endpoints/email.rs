@@ -7,7 +7,7 @@
 //! hostname = "smtp.example.com"
 //! port = 587
 //! username = "test_user"
-//! password = "test_password" 
+//! password = "test_password"
 //! implicit_tls = false
 //! allow_invalid_certs = false
 //! from = "asdf@example.com"
@@ -16,17 +16,17 @@
 //! notifications = ["notification1", "notification2"]
 //! ```
 
+use crate::Error;
 use crate::endpoints::{Endpoint, EndpointConfig};
 use crate::notifications::{Key, ValidatedNotification};
-use crate::Error;
 use async_trait::async_trait;
-use tracing::{debug, error, info};
-use mail_send::mail_builder::MessageBuilder;
 use mail_send::SmtpClientBuilder;
+use mail_send::mail_builder::MessageBuilder;
 use serde::Deserialize;
 use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use tokio::sync::{broadcast, watch};
+use tracing::{debug, error, info};
 
 /// Data structure to represent the email [`EndpointConfig`].
 #[derive(Debug, Deserialize, PartialEq, Eq, Hash, Clone)]
@@ -117,7 +117,13 @@ impl Endpoint for EmailEndpoint {
         endpoint_rx: broadcast::Receiver<ValidatedNotification>,
         shutdown: watch::Receiver<bool>,
     ) -> Result<(), Error> {
-        info!("Setting up Endpoint: Email -> {}:{} from {} with subject {}", self.hostname.as_str(), self.port, self.from.as_str(), self.subject.as_str());
+        info!(
+            "Setting up Endpoint: Email -> {}:{} from {} with subject {}",
+            self.hostname.as_str(),
+            self.port,
+            self.from.as_str(),
+            self.subject.as_str()
+        );
 
         let email_info = EmailInfo {
             hostname: self.hostname.clone(),
@@ -177,13 +183,15 @@ async fn send_emails(
                         .text_body(content);
 
                         debug!("Connecting to SMTP: {}:{} as {}", info.hostname.as_str(), info.port, info.username.as_str());
-                        let mut smpt_client = SmtpClientBuilder::new(info.hostname.as_str(), info.port)
-                        .implicit_tls(info.implicit_tls)
-                        .credentials((info.username.as_str(), info.password.as_str()));
-                        
-                        if info.allow_invalid_certs {
-                            smpt_client = smpt_client.allow_invalid_certs();
-                        }
+                        let client = SmtpClientBuilder::new(info.hostname.as_str(), info.port);
+                        match client {
+                            Ok(mut smpt_client) => {
+                                smpt_client = smpt_client.implicit_tls(info.implicit_tls)
+                                .credentials((info.username.as_str(), info.password.as_str()));
+
+                                if info.allow_invalid_certs {
+                                    smpt_client = smpt_client.allow_invalid_certs();
+                                }
 
                         match smpt_client.connect().await {
                             Ok(mut client) => {
@@ -193,6 +201,9 @@ async fn send_emails(
                                 }
                             }
                             Err(e) => error!("Unable to send email: {}", e)
+                        }
+                            },
+                            Err(e) => error!("SMPT Client Error: {e}"),
                         }
                     }).await.unwrap();
 
