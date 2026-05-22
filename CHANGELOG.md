@@ -2,6 +2,11 @@
 
 # v0.17.3
 ## Changes
+- update matrix-sdk to 0.17
+- update mail-send to 0.6
+
+# v0.17.3
+## Changes
 - rust-version to 1.93
 
 # v0.17.2
