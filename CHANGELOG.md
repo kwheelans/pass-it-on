@@ -1,6 +1,10 @@
 # Unreleased
 
-# v0.17.3
+# v0.17.5
+## Changes
+- update matrix-sdk to 0.18
+- 
+# v0.17.4
 ## Changes
 - update matrix-sdk to 0.17
 - update mail-send to 0.6
