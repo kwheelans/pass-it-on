@@ -26,7 +26,7 @@ ENV PATH=/pass-it-on:$PATH \
 LOG_LEVEL=Info
 
 ADD resources/docker/start_server.sh /pass-it-on/
-#RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /pass-it-on/target/release/pass-it-on-server /pass-it-on
 
 VOLUME /config

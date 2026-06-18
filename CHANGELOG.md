@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.17.6
+## Fixes
+- Fix Docker build
+
 # v0.17.5
 ## Changes
 - update matrix-sdk to 0.18
