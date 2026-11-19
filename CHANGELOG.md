@@ -1,4 +1,6 @@
 # Unreleased
+## Changes
+- Bump dependencies axum-server, mail-send, matrix-sdk, nix
 
 # v0.17.6
 ## Fixes
@@ -7,7 +9,7 @@
 # v0.17.5
 ## Changes
 - update matrix-sdk to 0.18
-- 
+
 # v0.17.4
 ## Changes
 - update matrix-sdk to 0.17
